@@ -28,6 +28,15 @@ export class Profile {
   @Column({ nullable: true })
   areasOfInterest: string;
 
+  @Column({ type: 'jsonb', nullable: true })
+  preferences: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  interests: any;
+
+  @Column({ nullable: true })
+  region: string;
+
   @Column({
     type: 'enum',
     enum: ProfileVisibility,
