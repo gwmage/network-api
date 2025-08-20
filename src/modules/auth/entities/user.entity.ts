@@ -18,6 +18,15 @@ export class User {
   @Column()
   contactNumber: string;
 
+  @Column({ nullable: true })
+  preferences: string;
+
+  @Column({ nullable: true })
+  interests: string;
+
+  @Column({ nullable: true })
+  region: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
