@@ -15,7 +15,6 @@ describe('MatchingController', () => {
           provide: MatchingService,
           useValue: {
             findMatch: jest.fn(),
-            // Add other service methods as needed
           },
         },
       ],
@@ -32,19 +31,31 @@ describe('MatchingController', () => {
   describe('findMatch', () => {
     it('should return a match result', async () => {
       const mockUserId = 1;
-      const mockResult = { groups: [[1, 2, 3], [4, 5]] }; // Example match result
+      const mockResult = { matches: [{ user_id: 2, score: 0.95 }] };
       jest.spyOn(service, 'findMatch').mockResolvedValue(mockResult);
 
       expect(await controller.findMatch(mockUserId)).toBe(mockResult);
       expect(service.findMatch).toHaveBeenCalledWith(mockUserId);
     });
 
-    // Add more test cases for different scenarios, e.g.,
-    // - no match found
-    // - error handling
-  });
+    it('should handle no match found', async () => {
+      const mockUserId = 1;
+      const mockResult = { matches: [] };
+      jest.spyOn(service, 'findMatch').mockResolvedValue(mockResult);
 
-    // Add tests for other controller methods
+      expect(await controller.findMatch(mockUserId)).toBe(mockResult);
+      expect(service.findMatch).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it('should handle errors', async () => {
+      const mockUserId = 1;
+      const mockError = new Error('Some error occurred');
+      jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
+
+      await expect(controller.findMatch(mockUserId)).rejects.toThrowError(mockError);
+      expect(service.findMatch).toHaveBeenCalledWith(mockUserId);
+    });
+  });
 });
 
 ```
