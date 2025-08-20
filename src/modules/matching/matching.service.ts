@@ -39,10 +39,10 @@ export class MatchingService {
   }
 
 
-  private matchUsers(users: User[]): User[][] {
+  private matchUsers(users: User[]): { score: number, participants: { userId: number, name: string }[] }[] {
     // Implement AI matching logic here based on weighting criteria (location, preferences, interests)
     // This is a placeholder and should be replaced with the actual algorithm.
-    const matchedGroups: User[][] = [];
+    const matchedGroups: { score: number, participants: { userId: number, name: string }[] }[] = [];
 
     // Example: Simple grouping by location (replace with your actual algorithm)
     const usersByLocation = users.reduce((acc, user) => {
@@ -57,7 +57,9 @@ export class MatchingService {
       const usersInLocation = usersByLocation[location];
       // Divide users into groups of 5 (or adjust as needed)
       for (let i = 0; i < usersInLocation.length; i += 5) {
-        matchedGroups.push(usersInLocation.slice(i, i + 5));
+        const group = usersInLocation.slice(i, i + 5);
+        const participants = group.map(user => ({ userId: user.id, name: user.name }));
+        matchedGroups.push({ score: 0.85, participants }); // Placeholder score
       }
     }
 
@@ -65,11 +67,11 @@ export class MatchingService {
 
   }
 
-  private async saveMatches(matchedGroups: User[][]) {
+  private async saveMatches(matchedGroups: { score: number, participants: { userId: number, name: string }[] }[]) {
     for (const group of matchedGroups) {
       const match = new Match();
-      match.users = group;
-      // ... any other relevant properties for the Match entity
+      match.users = group.participants.map(p => ({ id: p.userId } as User)); // Assuming User entity has an 'id' field
+      // ... any other relevant properties for the Match entity, potentially including score
       await this.matchRepository.save(match);
     }
   }
