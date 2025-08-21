@@ -2,13 +2,19 @@
 import { Module } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { ReservationController } from './reservation.controller';
-import { NotificationService } from '../notification/notification.service';
-import { NotificationModule } from '../notification/notification.module';
+import { HttpModule } from '@nestjs/axios';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Reservation } from './reservation.entity';
+import { Restaurant } from '../restaurant/restaurant.entity';
+import { User } from '../users/user.entity';
 
 @Module({
-  imports: [NotificationModule],
+  imports: [
+    HttpModule,
+    TypeOrmModule.forFeature([Reservation, Restaurant, User]),
+  ],
   controllers: [ReservationController],
-  providers: [ReservationService]
+  providers: [ReservationService],
 })
 export class ReservationModule {}
 ```

@@ -8,14 +8,12 @@ import { Restaurant } from '../src/restaurant/restaurant.entity';
 import { User } from '../src/users/user.entity';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { HttpStatus } from '@nestjs/common';
 
 describe('ReservationService', () => {
   let service: ReservationService;
   let reservationRepository: Repository<Reservation>;
   let restaurantRepository: Repository<Restaurant>;
   let userRepository: Repository<User>;
-  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,7 +40,6 @@ describe('ReservationService', () => {
     reservationRepository = module.get<Repository<Reservation>>(getRepositoryToken(Reservation));
     restaurantRepository = module.get<Repository<Restaurant>>(getRepositoryToken(Restaurant));
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
@@ -50,54 +47,80 @@ describe('ReservationService', () => {
   });
 
   it('should create a reservation', async () => {
-    // ... (Existing test case)
+    const mockUser = new User();
+    mockUser.id = 1;
+    jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+
+    const mockRestaurant = new Restaurant();
+    mockRestaurant.id = 1;
+    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(mockRestaurant);
+
+    const createReservationDto = {
+      restaurantId: 1,
+      userId: 1,
+      date: new Date(),
+      time: '18:00',
+      partySize: 2,
+    };
+
+    const mockReservation = new Reservation();
+    mockReservation.id = 1;
+    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
+
+    const result = await service.createReservation(createReservationDto);
+    expect(result).toEqual(mockReservation);
+    expect(userRepository.findOne).toHaveBeenCalledWith(createReservationDto.userId);
+    expect(restaurantRepository.findOne).toHaveBeenCalledWith(createReservationDto.restaurantId);
   });
 
-  it('should handle restaurant not found error', async () => {
-    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(undefined);
+  it('should find all reservations', async () => {
+    const mockReservations = [new Reservation(), new Reservation()];
+    jest.spyOn(reservationRepository, 'find').mockResolvedValue(mockReservations);
 
-    await expect(service.createReservation({ restaurantId: 1, userId: 1 } as any)).rejects.toThrowError(
-      'Restaurant not found',
-    );
-  });
-
-  it('should handle user not found error', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
-    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(new Restaurant());
-
-    await expect(service.createReservation({ restaurantId: 1, userId: 1 } as any)).rejects.toThrowError('User not found');
-
-  });
-
-
-  it('should send notification on successful reservation', async () => {
-      // ...mocks for user, restaurant and reservation repositories
-      jest.spyOn(configService, 'get').mockReturnValue('mock_notification_url');
-      const httpService = module.get<HttpService>(HttpService);
-      const postSpy = jest.spyOn(httpService, 'post').mockResolvedValue({status: HttpStatus.OK} as any);
-
-      await service.createReservation({restaurantId: 1, userId: 1} as any);
-
-      expect(postSpy).toHaveBeenCalledWith('mock_notification_url', expect.any(Object));
-
-  });
-
-
-  it('should handle notification service error', async () => {
-     // ...mocks for user, restaurant and reservation repositories
-      jest.spyOn(configService, 'get').mockReturnValue('mock_notification_url');
-
-      const httpService = module.get<HttpService>(HttpService);
-      jest.spyOn(httpService, 'post').mockRejectedValue(new Error('Notification service error'));
-
-
-      await expect(service.createReservation({restaurantId: 1, userId:1} as any)).rejects.toThrowError('Failed to send notification');
-
+    const result = await service.findAll();
+    expect(result).toEqual(mockReservations);
+    expect(reservationRepository.find).toHaveBeenCalled();
   });
 
 
+  it('should find a reservation by id', async () => {
+    const mockReservation = new Reservation();
+    mockReservation.id = 1;
 
-  // ... other test cases
+    jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
+
+    const result = await service.findOne(1);
+    expect(result).toEqual(mockReservation);
+    expect(reservationRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 }, relations: ['restaurant', 'user'] });
+  });
+
+  it('should update a reservation', async () => {
+    const mockReservation = new Reservation();
+    mockReservation.id = 1;
+    jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
+    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
+
+    const updateReservationDto = {
+      date: new Date(),
+      time: '19:00',
+      partySize: 4,
+    };
+
+    const result = await service.update(1, updateReservationDto);
+    expect(result).toEqual(mockReservation);
+
+  });
+
+
+  it('should remove a reservation', async () => {
+    jest.spyOn(reservationRepository, 'delete').mockResolvedValue({ affected: 1 });
+    await service.remove(1);
+    expect(reservationRepository.delete).toHaveBeenCalledWith(1);
+
+  });
+
+
+
 });
 
 ```

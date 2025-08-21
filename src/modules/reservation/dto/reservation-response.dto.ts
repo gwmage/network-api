@@ -6,15 +6,28 @@ export class ReservationResponseDto {
   id: string;
 
   @ApiProperty()
-  restaurantName: string;
+  restaurantId: string;
 
   @ApiProperty()
-  date: Date;
+  userId: string;
 
   @ApiProperty()
-  time: string;
+  customerName: string;
 
   @ApiProperty()
-  numberOfPeople: number;
+  customerEmail: string;
+
+  @ApiProperty()
+  customerPhone: string;
+
+  @ApiProperty()
+  reservationDate: Date;
+
+  @ApiProperty()
+  reservationTime: string;
+
+  @ApiProperty()
+  partySize: number;
 }
+
 ```

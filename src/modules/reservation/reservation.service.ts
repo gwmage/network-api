@@ -1,66 +1,61 @@
 ```typescript
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NotificationService } from '../notification/notification.service'; // Import NotificationService
 
 @Injectable()
 export class ReservationService {
-  constructor(
-    @Inject(ConfigService) private configService: ConfigService,
-    private notificationService: NotificationService, // Inject NotificationService
-  ) {}
+  constructor(@Inject(ConfigService) private configService: ConfigService) {}
 
   async makeReservation(restaurantId: string, data: any): Promise<any> {
-    // ... existing code ...
+    return this.performReservationAction('POST', restaurantId, data);
+  }
+
+  async modifyReservation(reservationId: string, data: any): Promise<any> {
+    return this.performReservationAction('PATCH', reservationId, data);
+  }
+
+  async cancelReservation(reservationId: string): Promise<any> {
+    return this.performReservationAction('DELETE', reservationId);
+  }
+
+  private async performReservationAction(method: string, reservationId: string, data?: any): Promise<any> {
+    const apiKey = this.configService.get('RESTAURANT_API_KEY');
+
+    if (!apiKey) {
+      throw new HttpException('Restaurant API key not configured.', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    const baseUrl = this.configService.get('RESTAURANT_API_URL');
+    const url = `${baseUrl}/reservations/${reservationId}`;
 
     try {
-      // ... existing code ...
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: data ? JSON.stringify(data) : undefined
+      });
 
-      const reservation = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json(); // Attempt to parse error response
+        const errorMessage = errorData?.message || `Restaurant API request failed: ${response.status} ${response.statusText}`;
+        throw new HttpException(errorMessage, response.status);
+      }
 
-      // Notify user about successful reservation
-      await this.notificationService.sendNotification(data.userId, 'Reservation successful', `Your reservation for ${data.numberOfPeople} people at ${restaurantId} is confirmed.`);
-
-      return reservation;
+      return await response.json();
 
     } catch (error) {
-      // ... existing code ...
-    }
-  }
-
-  async updateReservation(id: string, data: any): Promise<any> {
-    // ... logic to update reservation ...
-
-    try {
-      // ... update logic
-
-      // Notify user about successful modification
-      await this.notificationService.sendNotification(data.userId, 'Reservation modified', `Your reservation (ID: ${id}) has been successfully modified.`);
-
-
-      return updatedReservation;
-    }
-    catch (error) {
-      // ... error handling
+      if (error instanceof HttpException) {
+        throw error; // Re-throw HttpExceptions
+      }
+      console.error(`Error ${method === 'POST' ? 'making' : method === 'PATCH' ? 'modifying' : 'cancelling'} reservation:`, error);
+      throw new HttpException('Failed to process reservation.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
 
-  async cancelReservation(id: string, userId: string): Promise<any> {
-    // ... logic to cancel reservation ...
-
-    try {
-      // ... cancellation logic
-
-      // Notify user about successful cancellation
-      await this.notificationService.sendNotification(userId, 'Reservation cancelled', `Your reservation (ID: ${id}) has been successfully cancelled.`);
-
-      return { message: 'Reservation cancelled successfully' };
-
-    } catch (error) {
-      // ... error handling
-    }
-  }
   // ... other methods ...
 }
 

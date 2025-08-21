@@ -1,9 +1,8 @@
 ```typescript
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, Sse } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, Query } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { Observable, interval, map } from 'rxjs';
 
 @Controller('reservation')
 export class ReservationController {
@@ -55,15 +54,43 @@ export class ReservationController {
     }
   }
 
-  @Sse('notifications')
-  notifications(): Observable<MessageEvent> {
-    return interval(5000) // Adjust interval as needed
-      .pipe(
-        map(() => {
-          const notifications = this.reservationService.getRecentNotifications(); // Implement this method in the service
-          return { data: notifications };
-        }),
-      );
+  @Get('search')
+  async searchRestaurants(@Query('query') query: string) {
+    try {
+      return await this.reservationService.searchRestaurants(query);
+    } catch (error) {
+      throw new HttpException('Failed to search restaurants', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('auto-book')
+  async autoBookReservation(@Body() createReservationDto: CreateReservationDto) {
+    try {
+      return await this.reservationService.autoBookReservation(createReservationDto);
+    } catch (error) {
+      throw new HttpException('Failed to auto-book reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put('modify/:id') // Should be PUT for modifying existing resource
+  async modifyReservation(@Param('id') id: string, @Body() updateReservationDto: UpdateReservationDto) {
+    try {
+      return await this.reservationService.modifyReservation(id, updateReservationDto);
+    } catch (error) {
+      throw new HttpException('Failed to modify reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+  @Delete('cancel/:id') // More descriptive endpoint name
+  async cancelReservation(@Param('id') id: string) {
+    try {
+      await this.reservationService.cancelReservation(id);
+      return { message: 'Reservation cancelled successfully' };
+    } catch (error) {
+      throw new HttpException('Failed to cancel reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
+
 ```

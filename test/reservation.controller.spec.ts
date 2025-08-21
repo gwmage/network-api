@@ -7,7 +7,7 @@ import { Reservation } from '../src/reservation/reservation.entity';
 import { Repository } from 'typeorm';
 import { CreateReservationDto } from '../src/reservation/dto/create-reservation.dto';
 import { NotFoundException } from '@nestjs/common';
-
+import { UpdateReservationDto } from '../src/reservation/dto/update-reservation.dto';
 
 describe('ReservationController', () => {
   let controller: ReservationController;
@@ -35,7 +35,6 @@ describe('ReservationController', () => {
     expect(controller).toBeDefined();
   });
 
-
   describe('create', () => {
     it('should create a reservation', async () => {
       const createReservationDto: CreateReservationDto = { restaurantId: '1', userId: '1', dateTime: new Date() };
@@ -46,14 +45,12 @@ describe('ReservationController', () => {
 
       expect(result).toEqual(createdReservation);
       expect(service.create).toHaveBeenCalledWith(createReservationDto);
-
     });
   });
 
-
   describe('findAll', () => {
     it('should return an array of reservations', async () => {
-      const result: Reservation[] = []; // Replace with test data if needed
+      const result: Reservation[] = [];
       jest.spyOn(service, 'findAll').mockResolvedValue(result);
 
       expect(await controller.findAll()).toBe(result);
@@ -74,13 +71,32 @@ describe('ReservationController', () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(undefined);
 
       await expect(controller.findOne(id)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a reservation', async () => {
+      const id = '1';
+      const updateReservationDto: UpdateReservationDto = { dateTime: new Date() };
+      const updatedReservation: Reservation = { id, restaurantId: '1', userId: '1', dateTime: new Date() };
+      jest.spyOn(service, 'update').mockResolvedValue(updatedReservation);
+
+      expect(await controller.update(id, updateReservationDto)).toBe(updatedReservation);
+      expect(service.update).toHaveBeenCalledWith(id, updateReservationDto);
 
     });
   });
 
+  describe('remove', () => {
+    it('should remove a reservation', async () => {
+      const id = '1';
+      jest.spyOn(service, 'remove').mockResolvedValue(undefined);
 
-  // Add more test cases for other controller methods (e.g., update, remove) and error handling scenarios
+      await controller.remove(id);
+      expect(service.remove).toHaveBeenCalledWith(id);
+
+    });
+  });
 });
-
 
 ```

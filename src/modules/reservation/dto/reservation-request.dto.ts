@@ -1,6 +1,6 @@
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ReservationRequestDto {
   @ApiProperty({ required: false })
@@ -17,5 +17,22 @@ export class ReservationRequestDto {
   @IsOptional()
   @IsNumber()
   limit?: number;
+
+  @ApiProperty()
+  @IsNumber()
+  restaurantId: number;
+
+  @ApiProperty()
+  @IsDate()
+  date: Date;
+
+  @ApiProperty()
+  @IsString()
+  time: string;
+
+  @ApiProperty()
+  @IsNumber()
+  numberOfPeople: number;
 }
+
 ```
