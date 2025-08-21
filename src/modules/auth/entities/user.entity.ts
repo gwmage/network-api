@@ -1,6 +1,11 @@
 ```typescript
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+export enum NotificationMethod {
+  PUSH = 'push',
+  EMAIL = 'email',
+}
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -26,6 +31,9 @@ export class User {
 
   @Column({ nullable: true })
   region: string;
+
+  @Column('enum', { array: true, enum: NotificationMethod, default: [] })
+  notificationPreferences: NotificationMethod[];
 
   @CreateDateColumn()
   createdAt: Date;

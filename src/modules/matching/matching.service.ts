@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Match } from './entities/match.entity';
+import { NotificationService } from '../notifications/notification.service'; // Import NotificationService
 
 @Injectable()
 export class MatchingService {
@@ -15,6 +16,7 @@ export class MatchingService {
     private userRepository: Repository<User>,
     @InjectRepository(Match)
     private matchRepository: Repository<Match>,
+    private notificationService: NotificationService, // Inject NotificationService
   ) {}
 
   @Cron(CronExpression.EVERY_WEEK) // Run every week
@@ -30,7 +32,11 @@ export class MatchingService {
 
       const matchedGroups = this.matchUsers(users);
 
-      await this.saveMatches(matchedGroups);
+      const savedMatches = await this.saveMatches(matchedGroups);
+
+      // Send notifications after successful match and save
+      await this.sendMatchNotifications(savedMatches);
+
 
       this.logger.log('Matching process completed successfully.');
     } catch (error) {
@@ -38,41 +44,26 @@ export class MatchingService {
     }
   }
 
+  // ... other methods
 
-  private matchUsers(users: User[]): { score: number, participants: { userId: number, name: string }[] }[] {
-    // Implement AI matching logic here based on weighting criteria (location, preferences, interests)
-    // This is a placeholder and should be replaced with the actual algorithm.
-    const matchedGroups: { score: number, participants: { userId: number, name: string }[] }[] = [];
-
-    // Example: Simple grouping by location (replace with your actual algorithm)
-    const usersByLocation = users.reduce((acc, user) => {
-      const location = user.location || 'unknown'; // Use a default location if not available
-      acc[location] = acc[location] || [];
-      acc[location].push(user);
-      return acc;
-    }, {} as Record<string, User[]>);
-
-
-    for (const location in usersByLocation) {
-      const usersInLocation = usersByLocation[location];
-      // Divide users into groups of 5 (or adjust as needed)
-      for (let i = 0; i < usersInLocation.length; i += 5) {
-        const group = usersInLocation.slice(i, i + 5);
-        const participants = group.map(user => ({ userId: user.id, name: user.name }));
-        matchedGroups.push({ score: 0.85, participants }); // Placeholder score
-      }
-    }
-
-    return matchedGroups;
-
-  }
-
-  private async saveMatches(matchedGroups: { score: number, participants: { userId: number, name: string }[] }[]) {
+  private async saveMatches(matchedGroups: { score: number, participants: { userId: number, name: string }[] }[]): Promise<Match[]> {
+    const savedMatches: Match[] = [];
     for (const group of matchedGroups) {
       const match = new Match();
       match.users = group.participants.map(p => ({ id: p.userId } as User)); // Assuming User entity has an 'id' field
       // ... any other relevant properties for the Match entity, potentially including score
-      await this.matchRepository.save(match);
+      const savedMatch = await this.matchRepository.save(match);
+      savedMatches.push(savedMatch);
+    }
+    return savedMatches;
+  }
+
+  private async sendMatchNotifications(matches: Match[]): Promise<void> {
+    for (const match of matches) {
+      for (const user of match.users) {
+        // Call the notification service to create and save notification for each user
+        await this.notificationService.createMatchNotification(user, match);
+      }
     }
   }
 }
