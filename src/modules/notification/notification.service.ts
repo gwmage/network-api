@@ -19,21 +19,35 @@ export class NotificationService {
       // Implement your notification creation logic here (e.g., saving to a database)
       console.log(`Creating notification for user ${userId}: message=${message}, type=${type}`);
 
-      // Implement sending the notification based on user preferences and notification type
       const preferences = await this.getNotificationPreferences(userId);
 
       if (type === 'push' && preferences.push) {
-        // Send push notification
-        console.log('Sending push notification:', message);
+        // Send push notification using a push notification service (e.g., Firebase Cloud Messaging)
+        this.sendPushNotification(userId, message);
       }
 
       if (type === 'email' && preferences.email) {
-          // Send email notification
-          console.log('Sending email notification:', message);
+          // Send email notification using an email service (e.g., Nodemailer)
+          this.sendEmailNotification(userId, message);
       }
 
   }
 
+  private async sendPushNotification(userId: number, message: string): Promise<void> {
+    // Implement your push notification logic here
+    console.log(`Sending push notification to user ${userId}: ${message}`);
+    // Example using a hypothetical push notification service:
+    // await pushNotificationService.send(userId, message);
+  }
+
+
+  private async sendEmailNotification(userId: number, message: string): Promise<void> {
+      // Implement your email notification logic here
+      console.log(`Sending email notification to user ${userId}: ${message}`);
+      // Example using a hypothetical email service:
+      // await emailService.send(userId, message);
+
+  }
 
   async getNotifications(userId: number): Promise<any[]> {
       // Implement your database logic to retrieve notifications for the given userId
@@ -44,9 +58,5 @@ export class NotificationService {
           { id: 2, message: 'New message received', type: 'email', timestamp: new Date() },
       ];
   }
-
-
-
-
 }
 ```

@@ -1,5 +1,5 @@
 ```typescript
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -35,8 +35,8 @@ export class NotificationController {
   }
 
   @Post('preferences')
-  savePreferences(@Body() notificationPreferencesDto: NotificationPreferencesDto) {
-    return this.notificationService.savePreferences(notificationPreferencesDto);
+  createPreferences(@Body() notificationPreferencesDto: NotificationPreferencesDto) {
+    return this.notificationService.createPreferences(notificationPreferencesDto);
   }
 
   @Get('preferences')
@@ -44,6 +44,14 @@ export class NotificationController {
     return this.notificationService.getPreferences();
   }
 
+  @Put('preferences')
+  updatePreferences(@Body() notificationPreferencesDto: NotificationPreferencesDto) {
+    return this.notificationService.updatePreferences(notificationPreferencesDto);
+  }
 
+  @Delete('preferences')
+  deletePreferences() {
+    return this.notificationService.deletePreferences();
+  }
 }
 ```

@@ -7,6 +7,7 @@ import { Notification } from '../src/notification/notification.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../src/users/users.service';
 import { User } from '../src/users/user.entity';
+import { UpdateNotificationPreferencesDto } from '../src/notification/dto/notification.dto';
 
 describe('NotificationController', () => {
   let controller: NotificationController;
@@ -41,12 +42,38 @@ describe('NotificationController', () => {
 
   describe('findAll', () => {
     it('should return an array of notifications', async () => {
-      const result: Notification[] = []; // Replace with mock data if needed
+      const result: Notification[] = [];
       jest.spyOn(service, 'findAll').mockResolvedValue(result);
       expect(await controller.findAll()).toBe(result);
     });
   });
 
-  // Add more test cases for other controller methods (e.g., create, findOne, update, remove) and error handling scenarios
+  describe('updateNotificationPreferences', () => {
+    it('should update notification preferences', async () => {
+      const userId = 'user-id';
+      const updateDto: UpdateNotificationPreferencesDto = {
+        channel: 'email', // Example channel, replace as needed
+        enabled: true,
+      };
+      const result = { message: 'Notification preferences updated successfully' }; // Expected result
+      jest.spyOn(service, 'updatePreferences').mockResolvedValue(result);
+
+      expect(await controller.updateNotificationPreferences(userId, updateDto)).toBe(result);
+      expect(service.updatePreferences).toHaveBeenCalledWith(userId, updateDto);
+    });
+
+
+  });
+
+  describe('getNotificationPreferences', () => {
+    it('should get notification preferences', async () => {
+      const userId = 'user-id';
+      const result = { push: true, email: false }; // Example preferences
+      jest.spyOn(service, 'getPreferences').mockResolvedValue(result);
+
+      expect(await controller.getNotificationPreferences(userId)).toBe(result);
+    });
+  });
 });
+
 ```
