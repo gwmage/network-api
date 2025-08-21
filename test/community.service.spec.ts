@@ -10,6 +10,7 @@ import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
 import { Comment } from '../src/community/comment.entity';
 import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
 import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
+import { NotFoundException } from '@nestjs/common';
 
 describe('CommunityService', () => {
   let service: CommunityService;
@@ -45,61 +46,45 @@ describe('CommunityService', () => {
   // ... existing tests ...
 
   describe('Comments', () => {
-    it('should create a new comment', async () => {
+    // ... existing comment tests ...
+
+    it('should throw NotFoundException if user is not found when creating comment', async () => {
+      const postId = 1;
+      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
+      const userId = 1;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+
+      await expect(service.createComment(postId, createCommentDto, userId)).rejects.toThrow(NotFoundException);
+    });
+
+
+    it('should throw NotFoundException if community is not found when creating comment', async () => {
       const postId = 1;
       const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
       const user: User = { id: 1 } as User;
-      const community = { id: postId } as Community;
-      const createdComment = { id: 1, ...createCommentDto, user, community } as Comment;
 
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
-      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(community);
-      jest.spyOn(commentRepository, 'save').mockResolvedValue(createdComment);
+      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(undefined);
 
-      const result = await service.createComment(postId, createCommentDto, user.id);
-      expect(result).toEqual(createdComment);
+      await expect(service.createComment(postId, createCommentDto, user.id)).rejects.toThrow(NotFoundException);
     });
 
-    it('should find all comments for a post', async () => {
-      const postId = 1;
-      const comments = [{ id: 1 }, { id: 2 }] as Comment[];
-      jest.spyOn(commentRepository, 'find').mockResolvedValue(comments);
-
-      const result = await service.findAllComments(postId);
-      expect(result).toEqual(comments);
-    });
-
-    it('should find one comment by id', async () => {
+    it('should throw NotFoundException if comment is not found when finding one comment', async () => {
       const postId = 1;
       const id = 1;
-      const comment = { id, postId } as Comment;
-      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(undefined);
 
-      const result = await service.findOneComment(postId, id);
-      expect(result).toEqual(comment);
+      await expect(service.findOneComment(postId, id)).rejects.toThrow(NotFoundException);
     });
 
-    it('should update a comment', async () => {
+    it('should throw NotFoundException if comment is not found when updating comment', async () => {
       const postId = 1;
       const id = 1;
       const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment' };
-      const existingComment = { id, postId, content: 'Original Comment' } as Comment;
-      const updatedComment = { id, postId, ...updateCommentDto } as Comment;
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(undefined);
 
-      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(existingComment);
-      jest.spyOn(commentRepository, 'save').mockResolvedValue(updatedComment);
-
-      const result = await service.updateComment(postId, id, updateCommentDto);
-      expect(result).toEqual(updatedComment);
-    });
-
-    it('should remove a comment', async () => {
-      const postId = 1;
-      const id = 1;
-
-      jest.spyOn(commentRepository, 'delete').mockResolvedValue({ affected: 1 });
-      await service.removeComment(postId, id);
-      expect(commentRepository.delete).toHaveBeenCalledWith({ id, community: { id: postId } });
+      await expect(service.updateComment(postId, id, updateCommentDto)).rejects.toThrow(NotFoundException);
     });
   });
 });

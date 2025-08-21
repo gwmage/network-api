@@ -15,25 +15,17 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.comments)
-  user: User;
-
-  @ManyToOne(() => Post, (post) => post.comments)
-  post: Post;
-
   @Column({ type: 'text' })
-  content: string;
+  text: string;
 
-  @Column('text', { array: true, default: [] })
-  category: string[];
-
-  @Column('text', { array: true, default: [] })
-  tags: string[];
+  @ManyToOne(() => User, (user) => user.comments)
+  author: User;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @ManyToOne(() => Post, (post) => post.comments)
+  post: Post;
 }
+
 ```

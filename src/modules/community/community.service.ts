@@ -46,13 +46,12 @@ export class CommunityService {
     }
 
     if (categories) {
-      options.where.category = In(categories);
+      options.where = { ...options.where, category: In(categories) };
     }
 
     if (tags) {
-      options.where.tags = In(tags);
+      options.where = { ...options.where, tags: In(tags) };
     }
-
 
     const [items, total] = await this.communityPostRepository.findAndCount(options);
 
