@@ -6,6 +6,10 @@ import { IsOptional, IsString } from 'class-validator';
 export class UpdateCommentDto extends PartialType(CreateCommentDto) {
   @IsOptional()
   @IsString()
+  content?: string;
+
+  @IsOptional()
+  @IsString()
   category?: string;
 
   @IsOptional()

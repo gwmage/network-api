@@ -17,5 +17,9 @@ export class CreatePostDto {
   @IsOptional()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsNotEmpty() // Ensure author information is provided
+  @IsString()
+  authorId: string; // Assuming author is identified by ID
 }
 ```

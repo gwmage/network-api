@@ -5,7 +5,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { User } from '../../auth/entities/user.entity';
+
 
 @Entity()
 export class Post {
@@ -18,16 +21,23 @@ export class Post {
   @Column({ type: 'text' })
   content: string;
 
+  @ManyToOne(() => User, (user) => user.posts)
+  author: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
   @Column({ type: 'simple-array', nullable: true })
   category: string[];
 
   @Column({ type: 'simple-array', nullable: true })
   tags: string[];
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ default: 0 })
+  commentCount: number;
 
   @UpdateDateColumn()
   updatedAt: Date;
 }
+
 ```

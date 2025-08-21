@@ -1,5 +1,6 @@
 ```typescript
 import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { UserDto } from '../../user/dto/user.dto';
 
 export class CreateCommentDto {
   @IsNotEmpty()
@@ -21,5 +22,8 @@ export class CreateCommentDto {
   @IsOptional()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsNotEmpty()
+  author: UserDto;
 }
 ```

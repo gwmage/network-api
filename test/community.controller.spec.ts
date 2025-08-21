@@ -42,7 +42,46 @@ describe('CommunityController', () => {
     expect(controller).toBeDefined();
   });
 
-  // ... existing tests for createCommunity, updateCommunity, deleteCommunity, findAll
+  describe('createCommunity', () => {
+    it('should create a new community post', async () => {
+      const createCommunityDto: CreateCommunityDto = { title: 'Test Title', content: 'Test Content' };
+      const createdCommunity: Community = { id: 1, ...createCommunityDto };
+      jest.spyOn(service, 'createCommunity').mockResolvedValue(createdCommunity);
+
+      expect(await controller.createCommunity(createCommunityDto)).toEqual(createdCommunity);
+    });
+  });
+
+  describe('updateCommunity', () => {
+    it('should update an existing community post', async () => {
+      const postId = 1;
+      const updateCommunityDto: UpdateCommunityDto = { title: 'Updated Title', content: 'Updated Content' };
+      const updatedCommunity: Community = { id: postId, ...updateCommunityDto };
+      jest.spyOn(service, 'updateCommunity').mockResolvedValue(updatedCommunity);
+
+      expect(await controller.updateCommunity(postId, updateCommunityDto)).toEqual(updatedCommunity);
+    });
+  });
+
+  describe('deleteCommunity', () => {
+    it('should delete a community post', async () => {
+      const postId = 1;
+      jest.spyOn(service, 'deleteCommunity').mockResolvedValue(undefined);
+
+      expect(await controller.deleteCommunity(postId)).toBeUndefined();
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return an array of community posts', async () => {
+      const communities: Community[] = [{ id: 1, title: 'Test Title 1', content: 'Test Content 1' }, { id: 2, title: 'Test Title 2', content: 'Test Content 2' }];
+      jest.spyOn(service, 'findAll').mockResolvedValue(communities);
+
+      expect(await controller.findAll({ page: 1, limit: 10 })).toEqual(communities);
+    });
+  });
+
+
 
   describe('createComment', () => {
     it('should create a new comment', async () => {
@@ -64,20 +103,6 @@ describe('CommunityController', () => {
       expect(await controller.getComments(postId)).toEqual(comments);
     });
   });
-
-
-  describe('findAll with pagination', () => {
-    it('should return paginated community posts', async () => {
-      const page = 1;
-      const limit = 10;
-      const communities: Community[] = [{ id: 1, title: 'Test Title 1', content: 'Test Content 1' }, { id: 2, title: 'Test Title 2', content: 'Test Content 2' }];
-      jest.spyOn(service, 'findAll').mockResolvedValue(communities);
-
-      expect(await controller.findAll({ page, limit })).toEqual(communities); // Adjust expectations as needed based on your pagination implementation
-    });
-  });
-
-
 });
 
 ```
