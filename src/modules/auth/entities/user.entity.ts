@@ -35,6 +35,14 @@ export class User {
   @Column('enum', { array: true, enum: NotificationMethod, default: [] })
   notificationPreferences: NotificationMethod[];
 
+  @Column({ type: 'jsonb', nullable: true })
+  notificationSettings: {
+    matchResult: boolean;
+    reservationInfo: boolean;
+    // Add other notification types as needed
+  };
+
+
   @CreateDateColumn()
   createdAt: Date;
 

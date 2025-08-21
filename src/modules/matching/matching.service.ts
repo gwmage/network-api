@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Match } from './entities/match.entity';
-import { NotificationService } from '../notifications/notification.service'; // Import NotificationService
+import { NotificationService } from '../notifications/notification.service';
 
 @Injectable()
 export class MatchingService {
@@ -16,17 +16,17 @@ export class MatchingService {
     private userRepository: Repository<User>,
     @InjectRepository(Match)
     private matchRepository: Repository<Match>,
-    private notificationService: NotificationService, // Inject NotificationService
+    private notificationService: NotificationService,
   ) {}
 
-  @Cron(CronExpression.EVERY_WEEK) // Run every week
+  @Cron(CronExpression.EVERY_WEEK)
   async runMatching() {
     this.logger.log('Starting AI matching process...');
 
     try {
       const users = await this.userRepository.find({
-        where: {  // Add any necessary filtering criteria here. For example, users actively seeking matches
-          // isActive: true, 
+        where: {
+          // Add any necessary filtering criteria here
         },
       });
 
@@ -36,7 +36,6 @@ export class MatchingService {
 
       // Send notifications after successful match and save
       await this.sendMatchNotifications(savedMatches);
-
 
       this.logger.log('Matching process completed successfully.');
     } catch (error) {
@@ -50,21 +49,40 @@ export class MatchingService {
     const savedMatches: Match[] = [];
     for (const group of matchedGroups) {
       const match = new Match();
-      match.users = group.participants.map(p => ({ id: p.userId } as User)); // Assuming User entity has an 'id' field
-      // ... any other relevant properties for the Match entity, potentially including score
+      match.users = group.participants.map(p => ({ id: p.userId } as User));
       const savedMatch = await this.matchRepository.save(match);
       savedMatches.push(savedMatch);
     }
     return savedMatches;
   }
 
+
   private async sendMatchNotifications(matches: Match[]): Promise<void> {
     for (const match of matches) {
       for (const user of match.users) {
-        // Call the notification service to create and save notification for each user
-        await this.notificationService.createMatchNotification(user, match);
+        const userWithSettings = await this.userRepository.findOne({
+          where: { id: user.id },
+          relations: ['notificationSettings'], // Assuming notification settings are in a separate related entity
+        });
+
+        if (userWithSettings && userWithSettings.notificationSettings) {
+          const notificationSettings = userWithSettings.notificationSettings;
+          if (notificationSettings.matchResult) { // Check if user has enabled match result notifications
+            await this.notificationService.createMatchNotification(userWithSettings, match, notificationSettings);
+          }
+        }
+
+
       }
     }
+  }
+
+
+
+  // Placeholder for the actual matching logic
+  private matchUsers(users: User[]): { score: number, participants: { userId: number, name: string }[] }[] {
+    // Replace with actual matching implementation using AI
+    return []; // Return an empty array for now
   }
 }
 
