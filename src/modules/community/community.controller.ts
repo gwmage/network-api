@@ -1,27 +1,35 @@
 ```typescript
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, ParseIntPipe, Req, UseGuards } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { FindPostQueryDto } from './dto/find-post-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Request } from 'express';
 import { User } from '../user/entities/user.entity';
-
 
 @Controller('community')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
-  // ... other methods
+  // ... existing code for posts ...
 
   @UseGuards(JwtAuthGuard)
   @Post(':postId/comments')
   createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto, @Req() req: Request) {
     const user = req.user as User;
     return this.communityService.createComment(postId, createCommentDto, user);
+  }
+
+  @Get(':postId/comments')
+  findAllComments(@Param('postId', ParseIntPipe) postId: number) {
+    return this.communityService.findAllComments(postId);
+  }
+
+  @Get(':postId/comments/:id')
+  findOneComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number) {
+    return this.communityService.findOneComment(postId, id);
   }
 
   @UseGuards(JwtAuthGuard)

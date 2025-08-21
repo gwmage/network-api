@@ -21,15 +21,17 @@ export class CommunityService {
     private commentRepository: Repository<Comment>,
   ) {}
 
-  // ... other methods ...
+  // ... (Existing code remains unchanged)
 
   async createComment(postId: number, createCommentDto: CreateCommentDto, user: User): Promise<Comment> {
-    const { parentCommentId, ...rest } = createCommentDto;
+    const { parentCommentId, content } = createCommentDto;
     const newComment = this.commentRepository.create({
-      ...rest,
+      content,
       post: { id: postId },
       user,
       parentComment: parentCommentId ? { id: parentCommentId } : null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
     return await this.commentRepository.save(newComment);
   }
@@ -43,7 +45,10 @@ export class CommunityService {
     if (comment.user.id !== user.id) {
       throw new UnauthorizedException('You are not authorized to update this comment.');
     }
-    await this.commentRepository.update({ id, post: { id: postId } }, updateCommentDto);
+    await this.commentRepository.update({ id, post: { id: postId } }, {
+      ...updateCommentDto,
+      updatedAt: new Date(),
+    });
     return await this.commentRepository.findOneBy({ id, post: { id: postId } });
   }
 

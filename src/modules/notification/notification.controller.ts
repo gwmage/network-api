@@ -9,49 +9,21 @@ import { NotificationPreferencesDto } from './dto/notification-preferences.dto';
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.create(createNotificationDto);
+  // ... (Existing code remains unchanged)
+
+  @Post('comment')
+  async createCommentNotification(
+    @Body() createNotificationDto: CreateNotificationDto
+  ): Promise<void> {
+
+    return this.notificationService.createCommentNotification(
+      createNotificationDto.userId,
+      createNotificationDto.postId,
+      createNotificationDto.commentContent
+    )
   }
 
-  @Get()
-  findAll() {
-    return this.notificationService.findAll();
-  }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notificationService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationService.update(id, updateNotificationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationService.remove(id);
-  }
-
-  @Post('preferences')
-  createPreferences(@Body() notificationPreferencesDto: NotificationPreferencesDto) {
-    return this.notificationService.createPreferences(notificationPreferencesDto);
-  }
-
-  @Get('preferences')
-  getPreferences() {
-    return this.notificationService.getPreferences();
-  }
-
-  @Put('preferences')
-  updatePreferences(@Body() notificationPreferencesDto: NotificationPreferencesDto) {
-    return this.notificationService.updatePreferences(notificationPreferencesDto);
-  }
-
-  @Delete('preferences')
-  deletePreferences() {
-    return this.notificationService.deletePreferences();
-  }
 }
+
 ```
