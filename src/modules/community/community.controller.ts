@@ -5,18 +5,42 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { FindPostQueryDto } from './dto/find-post-query.dto';
+
 
 @Controller('community')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
-  // ... existing code for posts ...
+  @Post()
+  createPost(@Body() createPostDto: CreatePostDto) {
+    return this.communityService.createPost(createPostDto);
+  }
+
+  @Get('/list')
+  findAllPosts(@Query() query: FindPostQueryDto) {
+    return this.communityService.findAllPosts(query);
+  }
+
+  @Get(':id')
+  findOnePost(@Param('id', ParseIntPipe) id: number) {
+    return this.communityService.findOnePost(id);
+  }
+
+  @Put(':id')
+  updatePost(@Param('id', ParseIntPipe) id: number, @Body() updatePostDto: UpdatePostDto) {
+    return this.communityService.updatePost(id, updatePostDto);
+  }
+
+  @Delete(':id')
+  removePost(@Param('id', ParseIntPipe) id: number) {
+    return this.communityService.removePost(id);
+  }
 
   @Post(':postId/comments')
   createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto) {
     return this.communityService.createComment(postId, createCommentDto);
   }
-
 
   @Get(':postId/comments')
   findAllComments(@Param('postId', ParseIntPipe) postId: number) {

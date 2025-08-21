@@ -22,4 +22,5 @@ export class CreatePostDto {
   @IsString()
   authorId: string;
 }
+
 ```
