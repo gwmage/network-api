@@ -1,8 +1,10 @@
 ```typescript
-import { Body, Controller, Post, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, UnauthorizedException, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { AdminLoginDto } from './dto/admin-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +25,19 @@ export class AuthController {
       throw new UnauthorizedException({ message: 'Invalid credentials' });
     }
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/admin/login')
+  async adminLogin(@Body() adminLoginDto: AdminLoginDto): Promise<{ access_token: string }> {
+    try {
+      const jwt = await this.authService.adminLogin(adminLoginDto);
+      return jwt;
+    } catch (error) {
+      throw new UnauthorizedException({ message: 'Invalid admin credentials' });
+    }
+  }
+
+
 }
 
 ```

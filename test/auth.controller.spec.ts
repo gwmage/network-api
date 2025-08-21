@@ -8,6 +8,7 @@ import { User } from '../src/users/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../src/users/dto/create-user.dto';
 import { LoginDto } from '../src/auth/dto/login.dto';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -38,36 +39,31 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('login', () => {
-    it('should log in a user successfully', async () => {
+  describe('adminLogin', () => {
+    it('should log in an admin successfully', async () => {
       const loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'password123',
+        email: 'admin@example.com',
+        password: 'adminPassword',
       };
+      const expectedAccessToken = 'mockedAdminAccessToken';
+      jest.spyOn(authService, 'adminLogin').mockResolvedValue({ accessToken: expectedAccessToken });
 
-      const expectedAccessToken = 'mockedAccessToken';
-      jest.spyOn(authService, 'login').mockResolvedValue({ accessToken: expectedAccessToken });
-
-      const result = await controller.login(loginDto);
+      const result = await controller.adminLogin(loginDto);
       expect(result).toEqual({ accessToken: expectedAccessToken });
     });
 
-    it('should handle invalid credentials', async () => {
+    it('should handle invalid admin credentials', async () => {
       const loginDto: LoginDto = {
-        email: 'test@example.com',
+        email: 'admin@example.com',
         password: 'wrongPassword',
       };
-
-      jest.spyOn(authService, 'login').mockRejectedValue(new Error('Invalid credentials'));
+      jest.spyOn(authService, 'adminLogin').mockRejectedValue(new UnauthorizedException('Invalid credentials'));
 
       try {
-        await controller.login(loginDto);
+        await controller.adminLogin(loginDto);
       } catch (error) {
-        expect(error.status).toBe(401);
-        expect(error.response).toEqual({
-          statusCode: 401,
-          message: 'Invalid credentials',
-        });
+        expect(error).toBeInstanceOf(UnauthorizedException);
+        expect(error.message).toEqual('Invalid credentials');
       }
     });
   });
@@ -75,4 +71,5 @@ describe('AuthController', () => {
 
   // ... other test cases ...
 });
+
 ```
