@@ -9,7 +9,6 @@ import { User } from '../src/users/user.entity';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 
-
 describe('ReservationService', () => {
   let service: ReservationService;
   let reservationRepository: Repository<Reservation>;
@@ -47,7 +46,6 @@ describe('ReservationService', () => {
     expect(service).toBeDefined();
   });
 
-  // Example test case for createReservation
   it('should create a reservation', async () => {
     const mockUser = new User();
     mockUser.id = 1;
@@ -60,24 +58,69 @@ describe('ReservationService', () => {
     const createReservationDto = {
       restaurantId: 1,
       userId: 1,
-      // ... other required fields
+      date: new Date(),
+      time: '18:00',
+      partySize: 2,
     };
 
     const mockReservation = new Reservation();
-    // ... set properties of mockReservation
-
+    mockReservation.id = 1;
     jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
-
 
     const result = await service.createReservation(createReservationDto);
     expect(result).toEqual(mockReservation);
-
     expect(userRepository.findOne).toHaveBeenCalledWith(createReservationDto.userId);
     expect(restaurantRepository.findOne).toHaveBeenCalledWith(createReservationDto.restaurantId);
+  });
+
+  it('should find all reservations', async () => {
+    const mockReservations = [new Reservation(), new Reservation()];
+    jest.spyOn(reservationRepository, 'find').mockResolvedValue(mockReservations);
+
+    const result = await service.findAll();
+    expect(result).toEqual(mockReservations);
+    expect(reservationRepository.find).toHaveBeenCalled();
+  });
+
+
+  it('should find a reservation by id', async () => {
+    const mockReservation = new Reservation();
+    mockReservation.id = 1;
+
+    jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
+
+    const result = await service.findOne(1);
+    expect(result).toEqual(mockReservation);
+    expect(reservationRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 }, relations: ['restaurant', 'user'] });
+  });
+
+  it('should update a reservation', async () => {
+    const mockReservation = new Reservation();
+    mockReservation.id = 1;
+    jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
+    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
+
+    const updateReservationDto = {
+      date: new Date(),
+      time: '19:00',
+      partySize: 4,
+    };
+
+    const result = await service.update(1, updateReservationDto);
+    expect(result).toEqual(mockReservation);
 
   });
 
 
-  // Add more test cases for other service methods (e.g., findAll, findOne, update, remove) and error handling scenarios (e.g., restaurant not found, user not found)
+  it('should remove a reservation', async () => {
+    jest.spyOn(reservationRepository, 'delete').mockResolvedValue({ affected: 1 });
+    await service.remove(1);
+    expect(reservationRepository.delete).toHaveBeenCalledWith(1);
+
+  });
+
+
+
 });
+
 ```
