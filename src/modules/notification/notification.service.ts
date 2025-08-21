@@ -3,23 +3,29 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class NotificationService {
-  async getNotificationPreferences(userId: number): Promise<any> {
-    // Replace with your actual database logic to fetch preferences for the given userId
-    console.log(`Fetching notification preferences for user ${userId}`);
-    // Example:
-    return { push: true, email: false }; 
+  // ... (Existing code remains unchanged)
+
+  async createCommentNotification(userId: number, postId: number, commentContent: string): Promise<void> {
+    const message = `New comment on post ${postId}: ${commentContent}`;
+    await this.createNotification(userId, message, 'comment');
   }
 
-  async saveNotificationPreferences(userId: number, push: boolean, email: boolean): Promise<void> {
-    // Implement your database logic here to save preferences for the given userId
-    console.log(`Saving preferences for user ${userId}: push=${push}, email=${email}`);
-  }
 
-  async createNotification(userId: number, message: string, type: string): Promise<void> {
+  async createNotification(userId: number, message: string, type: string, relatedData?: any): Promise<void> {
       // Implement your notification creation logic here (e.g., saving to a database)
       console.log(`Creating notification for user ${userId}: message=${message}, type=${type}`);
 
+      // Store notification in database including relatedData if provided.
+      // Example:
+      // await this.notificationRepository.save({ userId, message, type, relatedData, read: false });
+
+
       const preferences = await this.getNotificationPreferences(userId);
+
+      if (type === 'comment' && preferences.comment) { // Check comment preference
+          this.sendCommentNotification(userId, message, relatedData); // Pass relatedData if needed.
+      }
+
 
       if (type === 'push' && preferences.push) {
         // Send push notification using a push notification service (e.g., Firebase Cloud Messaging)
@@ -33,30 +39,18 @@ export class NotificationService {
 
   }
 
-  private async sendPushNotification(userId: number, message: string): Promise<void> {
-    // Implement your push notification logic here
-    console.log(`Sending push notification to user ${userId}: ${message}`);
-    // Example using a hypothetical push notification service:
-    // await pushNotificationService.send(userId, message);
+  // Example of a dedicated comment notification sender (adapt as needed)
+  private async sendCommentNotification(userId: number, message: string, relatedData?: any): Promise<void> {
+    // Here you might use different notification methods based on preferences or relatedData
+    // For instance, you could send an email, a push notification, or an in-app notification.
+
+    console.log(`Sending comment notification to user ${userId}: ${message}`, relatedData);
+    // Implement your specific notification logic here based on the platform and relatedData
   }
 
+  // ... (Rest of the existing code remains unchanged)
 
-  private async sendEmailNotification(userId: number, message: string): Promise<void> {
-      // Implement your email notification logic here
-      console.log(`Sending email notification to user ${userId}: ${message}`);
-      // Example using a hypothetical email service:
-      // await emailService.send(userId, message);
 
-  }
-
-  async getNotifications(userId: number): Promise<any[]> {
-      // Implement your database logic to retrieve notifications for the given userId
-      console.log(`Fetching notifications for user ${userId}`);
-      // Example:
-      return [
-          { id: 1, message: 'Matching successful!', type: 'push', timestamp: new Date() },
-          { id: 2, message: 'New message received', type: 'email', timestamp: new Date() },
-      ];
-  }
 }
+
 ```

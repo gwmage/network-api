@@ -9,6 +9,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum NotificationType {
+  COMMENT = 'comment',
+  // Add other notification types as needed
+}
+
 @Entity()
 export class Notification {
   @PrimaryGeneratedColumn()
@@ -16,6 +21,16 @@ export class Notification {
 
   @ManyToOne(() => User, (user) => user.notifications)
   user: User;
+
+  @Column({
+    type: 'enum',
+    enum: NotificationType,
+    nullable: true, // Allow for other notification types without a specific type
+  })
+  type: NotificationType;
+
+  @Column({ nullable: true }) // Allow for generic notifications without a target
+  targetId: number;
 
   @Column()
   message: string;
@@ -32,4 +47,5 @@ export class Notification {
   @UpdateDateColumn()
   updatedAt: Date;
 }
+
 ```

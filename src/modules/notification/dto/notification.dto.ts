@@ -7,6 +7,7 @@ export enum NotificationType {
   RESERVATION_MODIFIED = 'reservation_modified',
   RESERVATION_CANCELLED = 'reservation_cancelled',
   GENERAL = 'general',
+  COMMENT = 'comment',
 }
 
 export enum NotificationChannel {
