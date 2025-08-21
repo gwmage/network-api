@@ -5,6 +5,7 @@ import { UsersRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { AdminLoginDto } from './dto/admin-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -49,11 +50,29 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password.');
     }
 
-    const payload = { email: user.email, sub: user.id }; // sub is usually the user ID
+    const payload = { email: user.email, sub: user.id };
+    const accessToken = this.jwtService.sign(payload);
+
+    return { accessToken };
+  }
+
+  async adminLogin(adminLoginDto: AdminLoginDto) {
+    const { email, password } = adminLoginDto;
+    const admin = await this.usersRepository.findOneBy({ email }); // Assuming admins are also stored in the users table
+
+    if (!admin || !admin.isAdmin) { // Check if the user exists and is an admin
+      throw new UnauthorizedException('Invalid admin credentials.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid admin credentials.');
+    }
+
+    const payload = { email: admin.email, sub: admin.id, isAdmin: admin.isAdmin }; // Include isAdmin flag in the payload
     const accessToken = this.jwtService.sign(payload);
 
     return { accessToken };
   }
 }
-
 ```
