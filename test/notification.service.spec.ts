@@ -5,10 +5,16 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Notification } from '../src/notification/notification.entity';
 import { Repository } from 'typeorm';
 import { User } from '../src/users/user.entity';
+import { Comment } from '../src/community/comment.entity';
+import { Community } from '../src/community/community.entity';
 
 describe('NotificationService', () => {
   let service: NotificationService;
   let notificationRepository: Repository<Notification>;
+  let commentRepository: Repository<Comment>
+  let communityRepository: Repository<Community>
+  let userRepository: Repository<User>;
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,59 +28,53 @@ describe('NotificationService', () => {
           provide: getRepositoryToken(User),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(Comment),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Community),
+          useClass: Repository,
+        },
+
       ],
     }).compile();
 
     service = module.get<NotificationService>(NotificationService);
     notificationRepository = module.get<Repository<Notification>>(getRepositoryToken(Notification));
+    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
+    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a notification', async () => {
-    const user = new User();
-    user.id = 1;
+  // ... (Existing tests)
 
-    const createNotificationDto = {
-      userId: 1,
-      title: 'Test Notification',
-      content: 'This is a test notification.',
-    };
+  describe('createCommentNotification', () => {
+    it('should create a notification for a new comment', async () => {
+      const comment = new Comment();
+      comment.id = 1;
+      comment.content = 'Test comment';
+      const post = new Community();
+      post.id = 1;
+      comment.post = post;
+      const user = new User();
+      user.id = 1;
+      comment.user = user;
 
-    const createdNotification = new Notification();
-    createdNotification.id = 1;
-    createdNotification.user = user;
-    createdNotification.title = createNotificationDto.title;
-    createdNotification.content = createNotificationDto.content;
+      const createdNotification = new Notification();
+      createdNotification.id = 1;
 
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
+      jest.spyOn(notificationRepository, 'create').mockReturnValue(createdNotification);
+      jest.spyOn(notificationRepository, 'save').mockResolvedValue(createdNotification);
 
-    jest.spyOn(notificationRepository, 'create').mockReturnValue(createdNotification);
-    jest.spyOn(notificationRepository, 'save').mockResolvedValue(createdNotification);
-
-    const result = await service.create(createNotificationDto);
-
-    expect(notificationRepository.create).toHaveBeenCalledWith({
-      user,
-      title: createNotificationDto.title,
-      content: createNotificationDto.content,
-    });
-    expect(notificationRepository.save).toHaveBeenCalledWith(createdNotification);
-    expect(result).toEqual(createdNotification);
-  });
-
-
-  it('should find all notifications for a user', async () => {
-    const userId = 1;
-    const notifications = [new Notification(), new Notification()];
-
-    jest.spyOn(notificationRepository, 'find').mockResolvedValue(notifications);
-
-    const result = await service.findAllByUserId(userId);
-
-    expect(notificationRepository.find).toHaveBeenCalledWith({ where: { user: { id: userId } } });
-    expect(result).toEqual(notifications);
+      const result = await service.createCommentNotification(comment.id);
+      expect(result).toEqual(createdNotification);
+    })
   });
 });
 

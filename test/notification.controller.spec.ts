@@ -52,28 +52,55 @@ describe('NotificationController', () => {
     it('should update notification preferences', async () => {
       const userId = 'user-id';
       const updateDto: UpdateNotificationPreferencesDto = {
-        channel: 'email', // Example channel, replace as needed
+        channel: 'email', 
         enabled: true,
       };
-      const result = { message: 'Notification preferences updated successfully' }; // Expected result
+      const result = { message: 'Notification preferences updated successfully' }; 
       jest.spyOn(service, 'updatePreferences').mockResolvedValue(result);
 
       expect(await controller.updateNotificationPreferences(userId, updateDto)).toBe(result);
       expect(service.updatePreferences).toHaveBeenCalledWith(userId, updateDto);
     });
-
-
   });
 
   describe('getNotificationPreferences', () => {
     it('should get notification preferences', async () => {
       const userId = 'user-id';
-      const result = { push: true, email: false }; // Example preferences
+      const result = { push: true, email: false }; 
       jest.spyOn(service, 'getPreferences').mockResolvedValue(result);
 
       expect(await controller.getNotificationPreferences(userId)).toBe(result);
     });
   });
+
+  // Add tests for comment notifications if applicable
+  describe('commentNotification', () => {
+    it('should send a notification when a new comment is created', async () => {
+        const userId = 'user-id';
+        const comment = { content: 'Test Comment' }; // Example comment data
+        const result = { message: 'Notification sent successfully' };
+        jest.spyOn(service, 'sendCommentNotification').mockResolvedValue(result);
+
+        expect(await controller.commentNotification(userId, comment)).toBe(result); // or appropriate assertion
+        expect(service.sendCommentNotification).toHaveBeenCalledWith(userId, comment);
+
+    });
+
+        it('should handle errors when sending a comment notification', async () => {
+            const userId = 'user-id';
+            const comment = { content: 'Test Comment' }; // Example comment data
+            const error = new Error('Failed to send notification');
+            jest.spyOn(service, 'sendCommentNotification').mockRejectedValue(error);
+
+
+
+            await expect(controller.commentNotification(userId, comment)).rejects.toThrowError(error); // Adjust assertion based on error handling
+        });
+  });
+
+
+
+
 });
 
 ```
