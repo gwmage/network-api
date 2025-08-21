@@ -1,7 +1,7 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere, Like, In } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { Comment } from './entities/comment.entity';
 
@@ -18,9 +18,27 @@ export class CommunityRepository {
     return this.postRepository.save(post);
   }
 
-  async findAllPosts(): Promise<Post[]> {
-    return this.postRepository.find();
+  async findAllPosts(
+    page: number = 1,
+    perPage: number = 20,
+    category?: string,
+    tags?: string[],
+  ): Promise<[Post[], number]> {
+    const whereClause: FindOptionsWhere<Post> = {};
+    if (category) {
+      whereClause.category = category;
+    }
+    if (tags && tags.length > 0) {
+      whereClause.tags = Like(`%${tags.join('%')}%`); // Search for tags within the array
+    }
+
+    return this.postRepository.findAndCount({
+      where: whereClause,
+      skip: (page - 1) * perPage,
+      take: perPage,
+    });
   }
+
 
   async findPostById(id: number): Promise<Post | null> {
     return this.postRepository.findOneBy({ id });

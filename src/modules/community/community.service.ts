@@ -2,17 +2,22 @@
 import { Injectable } from '@nestjs/common';
 import { CommunityPost } from './entities/community-post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { CreateCommunityPostDto } from './dto/create-community-post.dto';
 import { UpdateCommunityPostDto } from './dto/update-community-post.dto';
-import { FindManyOptions, Like } from 'typeorm';
+import { FindManyOptions } from 'typeorm';
 import { PaginatedCommunityPostsDto } from './dto/paginated-community-posts.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
+import { Comment } from './entities/comment.entity';
 
 @Injectable()
 export class CommunityService {
   constructor(
     @InjectRepository(CommunityPost)
     private communityPostRepository: Repository<CommunityPost>,
+    @InjectRepository(Comment)
+    private commentRepository: Repository<Comment>,
   ) {}
 
   async create(createCommunityPostDto: CreateCommunityPostDto): Promise<CommunityPost> {
@@ -24,10 +29,13 @@ export class CommunityService {
     page: number = 1,
     limit: number = 10,
     filter?: string,
+    categories?: string[],
+    tags?: string[],
   ): Promise<PaginatedCommunityPostsDto> {
     const options: FindManyOptions<CommunityPost> = {
       skip: (page - 1) * limit,
       take: limit,
+      where: {},
     };
 
     if (filter) {
@@ -36,6 +44,15 @@ export class CommunityService {
         { content: Like(`%${filter}%`) },
       ];
     }
+
+    if (categories) {
+      options.where.category = In(categories);
+    }
+
+    if (tags) {
+      options.where.tags = In(tags);
+    }
+
 
     const [items, total] = await this.communityPostRepository.findAndCount(options);
 
@@ -61,6 +78,31 @@ export class CommunityService {
 
   async remove(id: number): Promise<void> {
     await this.communityPostRepository.delete(id);
+  }
+
+  async createComment(postId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
+    const newComment = this.commentRepository.create({
+      ...createCommentDto,
+      post: { id: postId },
+    });
+    return await this.commentRepository.save(newComment);
+  }
+
+  async findAllComments(postId: number): Promise<Comment[]> {
+    return await this.commentRepository.findBy({ post: { id: postId } });
+  }
+
+  async findOneComment(postId: number, id: number): Promise<Comment> {
+    return await this.commentRepository.findOneBy({ id, post: { id: postId } });
+  }
+
+  async updateComment(postId: number, id: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {
+    await this.commentRepository.update({ id, post: { id: postId } }, updateCommentDto);
+    return await this.commentRepository.findOneBy({ id, post: { id: postId } });
+  }
+
+  async removeComment(postId: number, id: number): Promise<void> {
+    await this.commentRepository.delete({ id, post: { id: postId } });
   }
 }
 ```

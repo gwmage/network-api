@@ -13,5 +13,13 @@ export class CreateCommentDto {
   @IsOptional()
   @IsString()
   parentId?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  tags?: string[];
 }
 ```
