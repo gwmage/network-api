@@ -16,7 +16,7 @@ export class Comment {
   id: number;
 
   @Column({ type: 'text' })
-  text: string;
+  content: string; // Changed 'text' to 'content'
 
   @ManyToOne(() => User, (user) => user.comments)
   author: User;

@@ -9,6 +9,9 @@ import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
 import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
 import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
 import { Comment } from '../src/community/comment.entity';
+import { NotFoundException } from '@nestjs/common';
+import { PaginationQueryDto } from '../src/community/dto/pagination-query.dto';
+
 
 describe('CommunityController', () => {
   let controller: CommunityController;
@@ -61,6 +64,14 @@ describe('CommunityController', () => {
 
       expect(await controller.updateCommunity(postId, updateCommunityDto)).toEqual(updatedCommunity);
     });
+
+    it('should throw NotFoundException if post not found', async () => {
+      const postId = 1;
+      const updateCommunityDto: UpdateCommunityDto = { title: 'Updated Title', content: 'Updated Content' };
+      jest.spyOn(service, 'updateCommunity').mockRejectedValue(new NotFoundException('Post not found'));
+
+      await expect(controller.updateCommunity(postId, updateCommunityDto)).rejects.toThrowError(NotFoundException);
+    });
   });
 
   describe('deleteCommunity', () => {
@@ -70,14 +81,23 @@ describe('CommunityController', () => {
 
       expect(await controller.deleteCommunity(postId)).toBeUndefined();
     });
+
+    it('should throw NotFoundException if post not found', async () => {
+      const postId = 999;
+      jest.spyOn(service, 'deleteCommunity').mockRejectedValue(new NotFoundException('Post not found'));
+
+      await expect(controller.deleteCommunity(postId)).rejects.toThrowError(NotFoundException);
+
+    })
   });
 
   describe('findAll', () => {
     it('should return an array of community posts', async () => {
       const communities: Community[] = [{ id: 1, title: 'Test Title 1', content: 'Test Content 1' }, { id: 2, title: 'Test Title 2', content: 'Test Content 2' }];
       jest.spyOn(service, 'findAll').mockResolvedValue(communities);
+      const paginationQueryDto: PaginationQueryDto = { page: 1, limit: 10 };
 
-      expect(await controller.findAll({ page: 1, limit: 10 })).toEqual(communities);
+      expect(await controller.findAll(paginationQueryDto)).toEqual(communities);
     });
   });
 

@@ -11,15 +11,15 @@ export class CreatePostDto {
   content: string;
 
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsString({ each: true })
+  categories?: string[];
 
   @IsOptional()
   @IsString({ each: true })
   tags?: string[];
 
-  @IsNotEmpty() // Ensure author information is provided
+  @IsNotEmpty()
   @IsString()
-  authorId: string; // Assuming author is identified by ID
+  authorId: string;
 }
 ```

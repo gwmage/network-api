@@ -10,47 +10,47 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
-  @Post('posts')
+  @Post()
   createPost(@Body() createPostDto: CreatePostDto) {
     return this.communityService.createPost(createPostDto);
   }
 
-  @Get('posts')
+  @Get()
   findAllPosts(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
     return this.communityService.findAllPosts(page, limit);
   }
 
-  @Get('posts/:id')
+  @Get(':id')
   findOnePost(@Param('id', ParseIntPipe) id: number) {
     return this.communityService.findOnePost(id);
   }
 
-  @Put('posts/:id')
+  @Put(':id')
   updatePost(@Param('id', ParseIntPipe) id: number, @Body() updatePostDto: UpdatePostDto) {
     return this.communityService.updatePost(id, updatePostDto);
   }
 
-  @Delete('posts/:id')
+  @Delete(':id')
   removePost(@Param('id', ParseIntPipe) id: number) {
     return this.communityService.removePost(id);
   }
 
-  @Post('posts/:postId/comments')
+  @Post(':postId/comments')
   createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto) {
     return this.communityService.createComment(postId, createCommentDto);
   }
 
-  @Get('posts/:postId/comments')
+  @Get(':postId/comments')
   findAllComments(@Param('postId', ParseIntPipe) postId: number) {
     return this.communityService.findAllComments(postId);
   }
 
-  @Get('posts/:postId/comments/:id')
+  @Get(':postId/comments/:id')
   findOneComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number) {
     return this.communityService.findOneComment(postId, id);
   }
 
-  @Put('posts/:postId/comments/:id')
+  @Put(':postId/comments/:id')
   updateComment(
     @Param('postId', ParseIntPipe) postId: number,
     @Param('id', ParseIntPipe) id: number,
@@ -59,7 +59,7 @@ export class CommunityController {
     return this.communityService.updateComment(postId, id, updateCommentDto);
   }
 
-  @Delete('posts/:postId/comments/:id')
+  @Delete(':postId/comments/:id')
   removeComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number) {
     return this.communityService.removeComment(postId, id);
   }
