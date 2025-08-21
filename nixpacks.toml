@@ -1,0 +1,19 @@
+{
+  "name": "my-nest-app",
+  "version": "0.0.1",
+  "description": "A NestJS application",
+  "author": "Your Name",
+  "license": "MIT",
+  "scripts": {
+    "start": "nest start",
+    "build": "nest build",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint .",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  }
+}
