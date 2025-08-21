@@ -6,9 +6,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
-
+import { Category } from './category.entity';
+import { Tag } from './tag.entity';
 
 @Entity()
 export class Post {
@@ -24,14 +27,16 @@ export class Post {
   @ManyToOne(() => User, (user) => user.posts)
   author: User;
 
+  @ManyToMany(() => Category, (category) => category.posts)
+  @JoinTable()
+  categories: Category[];
+
+  @ManyToMany(() => Tag, (tag) => tag.posts)
+  @JoinTable()
+  tags: Tag[];
+
   @CreateDateColumn()
   createdAt: Date;
-
-  @Column({ type: 'simple-array', nullable: true })
-  category: string[];
-
-  @Column({ type: 'simple-array', nullable: true })
-  tags: string[];
 
   @Column({ default: 0 })
   commentCount: number;
