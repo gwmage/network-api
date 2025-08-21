@@ -18,6 +18,12 @@ export class Post {
   @Column({ type: 'text' })
   content: string;
 
+  @Column({ type: 'simple-array', nullable: true })
+  category: string[];
+
+  @Column({ type: 'simple-array', nullable: true })
+  tags: string[];
+
   @CreateDateColumn()
   createdAt: Date;
 

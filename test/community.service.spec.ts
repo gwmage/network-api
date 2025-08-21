@@ -7,11 +7,15 @@ import { Repository } from 'typeorm';
 import { User } from '../src/users/user.entity';
 import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
 import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
+import { Comment } from '../src/community/comment.entity';
+import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
+import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
 
 describe('CommunityService', () => {
   let service: CommunityService;
   let communityRepository: Repository<Community>;
   let userRepository: Repository<User>;
+  let commentRepository: Repository<Comment>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,77 +29,79 @@ describe('CommunityService', () => {
           provide: getRepositoryToken(User),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(Comment),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
     service = module.get<CommunityService>(CommunityService);
     communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  // ... existing tests ...
+
+  describe('Comments', () => {
+    it('should create a new comment', async () => {
+      const postId = 1;
+      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
+      const user: User = { id: 1 } as User;
+      const community = { id: postId } as Community;
+      const createdComment = { id: 1, ...createCommentDto, user, community } as Comment;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(community);
+      jest.spyOn(commentRepository, 'save').mockResolvedValue(createdComment);
+
+      const result = await service.createComment(postId, createCommentDto, user.id);
+      expect(result).toEqual(createdComment);
+    });
+
+    it('should find all comments for a post', async () => {
+      const postId = 1;
+      const comments = [{ id: 1 }, { id: 2 }] as Comment[];
+      jest.spyOn(commentRepository, 'find').mockResolvedValue(comments);
+
+      const result = await service.findAllComments(postId);
+      expect(result).toEqual(comments);
+    });
+
+    it('should find one comment by id', async () => {
+      const postId = 1;
+      const id = 1;
+      const comment = { id, postId } as Comment;
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
+
+      const result = await service.findOneComment(postId, id);
+      expect(result).toEqual(comment);
+    });
+
+    it('should update a comment', async () => {
+      const postId = 1;
+      const id = 1;
+      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment' };
+      const existingComment = { id, postId, content: 'Original Comment' } as Comment;
+      const updatedComment = { id, postId, ...updateCommentDto } as Comment;
+
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(existingComment);
+      jest.spyOn(commentRepository, 'save').mockResolvedValue(updatedComment);
+
+      const result = await service.updateComment(postId, id, updateCommentDto);
+      expect(result).toEqual(updatedComment);
+    });
+
+    it('should remove a comment', async () => {
+      const postId = 1;
+      const id = 1;
+
+      jest.spyOn(commentRepository, 'delete').mockResolvedValue({ affected: 1 });
+      await service.removeComment(postId, id);
+      expect(commentRepository.delete).toHaveBeenCalledWith({ id, community: { id: postId } });
+    });
   });
-
-  it('should create a new community post', async () => {
-    const createCommunityDto: CreateCommunityDto = {
-      title: 'Test Title',
-      content: 'Test Content',
-      // Add other required fields here
-    };
-    const user: User = { id: 1 } as User; // Mock user
-
-    const createdCommunity = { id: 1, ...createCommunityDto, user } as Community;
-
-    jest.spyOn(communityRepository, 'save').mockResolvedValue(createdCommunity);
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
-
-
-    const result = await service.create(createCommunityDto, user.id);
-    expect(result).toEqual(createdCommunity);
-  });
-
-
-  it('should update a community post', async () => {
-    const id = 1;
-    const updateCommunityDto: UpdateCommunityDto = { title: 'Updated Title' };
-    const existingCommunity = { id, title: 'Original Title' } as Community;
-    const updatedCommunity = { id, ...updateCommunityDto } as Community;
-    jest.spyOn(communityRepository, 'findOne').mockResolvedValue(existingCommunity);
-    jest.spyOn(communityRepository, 'save').mockResolvedValue(updatedCommunity);
-
-    const result = await service.update(id, updateCommunityDto);
-    expect(result).toEqual(updatedCommunity);
-
-  });
-
-  it('should remove a community post', async () => {
-    const id = 1;
-
-    jest.spyOn(communityRepository, 'delete').mockResolvedValue({ affected: 1 });
-    await service.remove(id);
-    expect(communityRepository.delete).toHaveBeenCalledWith(id);
-  });
-
-  it('should find all community posts', async () => {
-      const communities = [{id: 1}, {id: 2}] as Community[];
-      jest.spyOn(communityRepository, 'find').mockResolvedValue(communities);
-      const result = await service.findAll();
-      expect(result).toEqual(communities);
-  });
-
-
-  it('should find one community post by id', async () => {
-    const id = 1;
-    const community = { id } as Community;
-    jest.spyOn(communityRepository, 'findOne').mockResolvedValue(community);
-
-    const result = await service.findOne(id);
-    expect(result).toEqual(community);
-  });
-
-
-
-
 });
+
 ```

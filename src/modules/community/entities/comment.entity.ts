@@ -24,6 +24,12 @@ export class Comment {
   @Column({ type: 'text' })
   content: string;
 
+  @Column('text', { array: true, default: [] })
+  category: string[];
+
+  @Column('text', { array: true, default: [] })
+  tags: string[];
+
   @CreateDateColumn()
   createdAt: Date;
 
