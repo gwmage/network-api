@@ -1,0 +1,14 @@
+{
+  "apps": {
+    "api": {
+      "start": "nest start",
+      "install": "npm install",
+      "build": "npm run build"
+    },
+    "web": {
+      "start": "serve -s build",
+      "install": "npm install",
+      "build": "npm run build"
+    }
+  }
+}
