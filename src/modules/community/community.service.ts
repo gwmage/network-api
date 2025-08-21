@@ -24,17 +24,19 @@ export class CommunityService {
   // ... other methods ...
 
   async createComment(postId: number, createCommentDto: CreateCommentDto, user: User): Promise<Comment> {
+    const { parentCommentId, ...rest } = createCommentDto;
     const newComment = this.commentRepository.create({
-      ...createCommentDto,
+      ...rest,
       post: { id: postId },
       user,
+      parentComment: parentCommentId ? { id: parentCommentId } : null,
     });
     return await this.commentRepository.save(newComment);
   }
 
 
   async updateComment(postId: number, id: number, updateCommentDto: UpdateCommentDto, user: User): Promise<Comment> {
-    const comment = await this.commentRepository.findOneBy({ id, post: { id: postId } });
+    const comment = await this.commentRepository.findOne({ where: { id, post: { id: postId } }, relations: ['user'] });
     if (!comment) {
       throw new Error('Comment not found.');
     }
@@ -46,7 +48,7 @@ export class CommunityService {
   }
 
   async removeComment(postId: number, id: number, user: User): Promise<void> {
-    const comment = await this.commentRepository.findOneBy({ id, post: { id: postId } });
+    const comment = await this.commentRepository.findOne({ where: { id, post: { id: postId } }, relations: ['user'] });
     if (!comment) {
       throw new Error('Comment not found.');
     }

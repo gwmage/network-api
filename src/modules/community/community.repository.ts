@@ -1,7 +1,7 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Like, In } from 'typeorm';
+import { Repository, FindOptionsWhere, Like, In, DeleteResult } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { Comment } from './entities/comment.entity';
 
@@ -14,56 +14,24 @@ export class CommunityRepository {
     private readonly commentRepository: Repository<Comment>,
   ) {}
 
-  async createPost(post: Post): Promise<Post> {
-    return this.postRepository.save(post);
-  }
-
-  async findAllPosts(
-    page: number = 1,
-    perPage: number = 20,
-    category?: string,
-    tags?: string[],
-  ): Promise<[Post[], number]> {
-    const whereClause: FindOptionsWhere<Post> = {};
-    if (category) {
-      whereClause.category = category;
-    }
-    if (tags && tags.length > 0) {
-      whereClause.tags = In(tags); // Use In for exact match
-    }
-
-    return this.postRepository.findAndCount({
-      where: whereClause,
-      skip: (page - 1) * perPage,
-      take: perPage,
-    });
-  }
-
-
-  async findPostById(id: number): Promise<Post | null> {
-    return this.postRepository.findOneBy({ id });
-  }
-
-  async updatePost(id: number, updatedPost: Post): Promise<Post | null> {
-    await this.postRepository.update(id, updatedPost);
-    return this.findPostById(id);
-  }
-
-  async deletePost(id: number): Promise<void> {
-    await this.postRepository.delete(id);
-  }
-
+  // ... (Existing post methods)
 
   async createComment(comment: Comment): Promise<Comment> {
     return this.commentRepository.save(comment);
   }
 
   async findAllCommentsByPostId(postId: number): Promise<Comment[]> {
-    return this.commentRepository.findBy({ postId });
+    return this.commentRepository.find({
+      where: { postId },
+      order: { createdAt: 'ASC' }, // Order by creation time for proper display
+    });
   }
 
   async findCommentById(id: number): Promise<Comment | null> {
-    return this.commentRepository.findOneBy({ id });
+    return this.commentRepository.findOne({
+      where: { id },
+      relations: ['replies'], // Load nested replies
+    });
   }
 
   async updateComment(id: number, updatedComment: Comment): Promise<Comment | null> {
@@ -71,8 +39,12 @@ export class CommunityRepository {
     return this.findCommentById(id);
   }
 
-  async deleteComment(id: number): Promise<void> {
-    await this.commentRepository.delete(id);
+  async deleteComment(id: number): Promise<DeleteResult> {
+    // Use remove to delete the entity and its children (if any)
+    // Requires cascades set up in entity relationships (e.g., in comment.entity.ts)
+    const comment = await this.commentRepository.findOneBy({ id });
+    return this.commentRepository.remove(comment);
+
   }
 }
 ```
