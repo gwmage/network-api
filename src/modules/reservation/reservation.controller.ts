@@ -1,8 +1,9 @@
 ```typescript
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, Sse } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { Observable, interval, map } from 'rxjs';
 
 @Controller('reservation')
 export class ReservationController {
@@ -52,6 +53,17 @@ export class ReservationController {
     } catch (error) {
       throw new HttpException('Failed to delete reservation', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Sse('notifications')
+  notifications(): Observable<MessageEvent> {
+    return interval(5000) // Adjust interval as needed
+      .pipe(
+        map(() => {
+          const notifications = this.reservationService.getRecentNotifications(); // Implement this method in the service
+          return { data: notifications };
+        }),
+      );
   }
 }
 ```

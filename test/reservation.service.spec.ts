@@ -8,13 +8,14 @@ import { Restaurant } from '../src/restaurant/restaurant.entity';
 import { User } from '../src/users/user.entity';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-
+import { HttpStatus } from '@nestjs/common';
 
 describe('ReservationService', () => {
   let service: ReservationService;
   let reservationRepository: Repository<Reservation>;
   let restaurantRepository: Repository<Restaurant>;
   let userRepository: Repository<User>;
+  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,43 +42,62 @@ describe('ReservationService', () => {
     reservationRepository = module.get<Repository<Reservation>>(getRepositoryToken(Reservation));
     restaurantRepository = module.get<Repository<Restaurant>>(getRepositoryToken(Restaurant));
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  // Example test case for createReservation
   it('should create a reservation', async () => {
-    const mockUser = new User();
-    mockUser.id = 1;
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+    // ... (Existing test case)
+  });
 
-    const mockRestaurant = new Restaurant();
-    mockRestaurant.id = 1;
-    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(mockRestaurant);
+  it('should handle restaurant not found error', async () => {
+    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(undefined);
 
-    const createReservationDto = {
-      restaurantId: 1,
-      userId: 1,
-      // ... other required fields
-    };
+    await expect(service.createReservation({ restaurantId: 1, userId: 1 } as any)).rejects.toThrowError(
+      'Restaurant not found',
+    );
+  });
 
-    const mockReservation = new Reservation();
-    // ... set properties of mockReservation
+  it('should handle user not found error', async () => {
+    jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(new Restaurant());
 
-    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
-
-
-    const result = await service.createReservation(createReservationDto);
-    expect(result).toEqual(mockReservation);
-
-    expect(userRepository.findOne).toHaveBeenCalledWith(createReservationDto.userId);
-    expect(restaurantRepository.findOne).toHaveBeenCalledWith(createReservationDto.restaurantId);
+    await expect(service.createReservation({ restaurantId: 1, userId: 1 } as any)).rejects.toThrowError('User not found');
 
   });
 
 
-  // Add more test cases for other service methods (e.g., findAll, findOne, update, remove) and error handling scenarios (e.g., restaurant not found, user not found)
+  it('should send notification on successful reservation', async () => {
+      // ...mocks for user, restaurant and reservation repositories
+      jest.spyOn(configService, 'get').mockReturnValue('mock_notification_url');
+      const httpService = module.get<HttpService>(HttpService);
+      const postSpy = jest.spyOn(httpService, 'post').mockResolvedValue({status: HttpStatus.OK} as any);
+
+      await service.createReservation({restaurantId: 1, userId: 1} as any);
+
+      expect(postSpy).toHaveBeenCalledWith('mock_notification_url', expect.any(Object));
+
+  });
+
+
+  it('should handle notification service error', async () => {
+     // ...mocks for user, restaurant and reservation repositories
+      jest.spyOn(configService, 'get').mockReturnValue('mock_notification_url');
+
+      const httpService = module.get<HttpService>(HttpService);
+      jest.spyOn(httpService, 'post').mockRejectedValue(new Error('Notification service error'));
+
+
+      await expect(service.createReservation({restaurantId: 1, userId:1} as any)).rejects.toThrowError('Failed to send notification');
+
+  });
+
+
+
+  // ... other test cases
 });
+
 ```

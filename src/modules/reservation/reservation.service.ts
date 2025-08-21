@@ -1,43 +1,66 @@
 ```typescript
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NotificationService } from '../notification/notification.service'; // Import NotificationService
 
 @Injectable()
 export class ReservationService {
-  constructor(@Inject(ConfigService) private configService: ConfigService) {}
+  constructor(
+    @Inject(ConfigService) private configService: ConfigService,
+    private notificationService: NotificationService, // Inject NotificationService
+  ) {}
 
   async makeReservation(restaurantId: string, data: any): Promise<any> {
-    const apiKey = this.configService.get('RESTAURANT_API_KEY'); // Get API key from config service
+    // ... existing code ...
 
-    if (!apiKey) {
-      throw new Error('Restaurant API key not configured.');
-    }
-
-    // ... rest of the reservation logic using apiKey ...
     try {
-      // Example using fetch API:
-      const response = await fetch(`https://restaurant-api.example.com/reservations/${restaurantId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
+      // ... existing code ...
 
-      if (!response.ok) {
-        throw new Error(`Restaurant API request failed: ${response.status} ${response.statusText}`);
-      }
+      const reservation = await response.json();
 
-      return await response.json();
+      // Notify user about successful reservation
+      await this.notificationService.sendNotification(data.userId, 'Reservation successful', `Your reservation for ${data.numberOfPeople} people at ${restaurantId} is confirmed.`);
+
+      return reservation;
 
     } catch (error) {
-      console.error("Error making reservation:", error);
-      throw error; // Re-throw the error to be handled by the controller
+      // ... existing code ...
+    }
+  }
+
+  async updateReservation(id: string, data: any): Promise<any> {
+    // ... logic to update reservation ...
+
+    try {
+      // ... update logic
+
+      // Notify user about successful modification
+      await this.notificationService.sendNotification(data.userId, 'Reservation modified', `Your reservation (ID: ${id}) has been successfully modified.`);
+
+
+      return updatedReservation;
+    }
+    catch (error) {
+      // ... error handling
     }
   }
 
 
+  async cancelReservation(id: string, userId: string): Promise<any> {
+    // ... logic to cancel reservation ...
+
+    try {
+      // ... cancellation logic
+
+      // Notify user about successful cancellation
+      await this.notificationService.sendNotification(userId, 'Reservation cancelled', `Your reservation (ID: ${id}) has been successfully cancelled.`);
+
+      return { message: 'Reservation cancelled successfully' };
+
+    } catch (error) {
+      // ... error handling
+    }
+  }
   // ... other methods ...
 }
 
