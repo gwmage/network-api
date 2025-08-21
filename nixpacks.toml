@@ -1,0 +1,17 @@
+{
+  "name": "my-nest-project",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.16",
+    "pg": "^8.11.3"
+  },
+  "scripts": {
+    "start:prod": "node dist/main",
+    "build": "nest build"
+  }
+}
