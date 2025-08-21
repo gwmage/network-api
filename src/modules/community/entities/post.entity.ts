@@ -8,10 +8,12 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Category } from './category.entity';
 import { Tag } from './tag.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class Post {
@@ -34,6 +36,9 @@ export class Post {
   @ManyToMany(() => Tag, (tag) => tag.posts)
   @JoinTable()
   tags: Tag[];
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 
   @CreateDateColumn()
   createdAt: Date;

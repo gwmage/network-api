@@ -20,24 +20,83 @@ export class CommunityService {
     private commentRepository: Repository<Comment>,
   ) {}
 
-  // ... (Existing code remains unchanged)
+  async create(createCommunityPostDto: CreateCommunityPostDto): Promise<CommunityPost> {
+    const newPost = this.communityPostRepository.create(createCommunityPostDto);
+    return await this.communityPostRepository.save(newPost);
+  }
+
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    filter?: string,
+    categories?: string[],
+    tags?: string[],
+  ): Promise<PaginatedCommunityPostsDto> {
+    const options: FindManyOptions<CommunityPost> = {
+      skip: (page - 1) * limit,
+      take: limit,
+      where: {},
+    };
+
+    if (filter) {
+      options.where = [
+        { title: Like(`%${filter}%`) },
+        { content: Like(`%${filter}%`) },
+      ];
+    }
+
+    if (categories) {
+      options.where = { ...options.where, category: In(categories) };
+    }
+
+    if (tags) {
+      options.where = { ...options.where, tags: In(tags) };
+    }
+
+    const [items, total] = await this.communityPostRepository.findAndCount(options);
+
+    return {
+      items,
+      meta: {
+        currentPage: page,
+        itemsPerPage: limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async findOne(id: number): Promise<CommunityPost> {
+    return await this.communityPostRepository.findOneBy({ id });
+  }
+
+  async update(id: number, updateCommunityPostDto: UpdateCommunityPostDto): Promise<CommunityPost> {
+    await this.communityPostRepository.update(id, updateCommunityPostDto);
+    return await this.communityPostRepository.findOneBy({ id });
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.communityPostRepository.delete(id);
+  }
 
   async createComment(postId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
     const newComment = this.commentRepository.create({
       ...createCommentDto,
       post: { id: postId },
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
     return await this.commentRepository.save(newComment);
   }
 
+  async findAllComments(postId: number): Promise<Comment[]> {
+    return await this.commentRepository.findBy({ post: { id: postId } });
+  }
+
+  async findOneComment(postId: number, id: number): Promise<Comment> {
+    return await this.commentRepository.findOneBy({ id, post: { id: postId } });
+  }
 
   async updateComment(postId: number, id: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {
-    await this.commentRepository.update({ id, post: { id: postId } }, {
-      ...updateCommentDto,
-      updatedAt: new Date(),
-    });
+    await this.commentRepository.update({ id, post: { id: postId } }, updateCommentDto);
     return await this.commentRepository.findOneBy({ id, post: { id: postId } });
   }
 

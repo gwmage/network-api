@@ -29,7 +29,7 @@ export class CommunityRepository {
       whereClause.category = category;
     }
     if (tags && tags.length > 0) {
-      whereClause.tags = Like(`%${tags.join('%')}%`); // Search for tags within the array
+      whereClause.tags = In(tags); // Use In for exact match
     }
 
     return this.postRepository.findAndCount({
