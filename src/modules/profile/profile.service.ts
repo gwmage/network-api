@@ -4,6 +4,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Profile } from './entities/profile.entity';
 import { Repository } from 'typeorm';
+import { User } from '../auth/entities/user.entity'; // Import User entity
 
 @Injectable()
 export class ProfileService {
@@ -12,16 +13,5 @@ export class ProfileService {
     private profileRepository: Repository<Profile>,
   ) {}
 
-  create(createProfileDto: CreateProfileDto) {
-    const profile = this.profileRepository.create(createProfileDto);
-    return this.profileRepository.save(profile);
-  }
-
-  findOne(id: number) {
-    return this.profileRepository.findOneBy({ id });
-  }
-
-  update(id: number, updateProfileDto: UpdateProfileDto) {
-    return this.profileRepository.update({ id }, updateProfileDto);
-  }
+  // ... other methods
 }

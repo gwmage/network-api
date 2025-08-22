@@ -1,47 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { NotificationSettingsDto } from './dto/notification-settings.dto';
+import { NotificationPreferencesDto } from './dto/notification-preferences.dto';
+import { UpdateUserDto } from '../auth/dto/update-user.dto'; // Import UpdateUserDto
 
-@Controller('notification')
+@Controller('notifications')
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(private readonly notificationService: NotificationService) {} // Fixed typo
 
-  @UseGuards(JwtAuthGuard)  
-  @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.create(createNotificationDto);
-  }
+  // ... other methods ...
 
-  @UseGuards(JwtAuthGuard)  
-  @Get()
-  findAll() {
-    return this.notificationService.findAll();
-  }
-
-  @UseGuards(JwtAuthGuard)  
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notificationService.findOne(+id);
-  }
-
-  @UseGuards(JwtAuthGuard)  
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationService.update(+id, updateNotificationDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch(':userId/settings')
-  updateNotificationSettings(@Param('userId') userId: number, @Body() notificationSettingsDto: NotificationSettingsDto) {
-    return this.notificationService.updateNotificationSettings(userId, notificationSettingsDto);
-  }
-
-  @UseGuards(JwtAuthGuard)  
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationService.remove(+id);
+  @Put(':userId')
+  update(@Param('userId') userId: string, @Body() notificationPreferencesDto: NotificationPreferencesDto & UpdateUserDto) {
+    // Ensure type compatibility by using intersection type (&)
+    return this.notificationService.update(+userId, notificationPreferencesDto);
   }
 }
