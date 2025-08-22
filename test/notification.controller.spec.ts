@@ -9,27 +9,25 @@ import { User } from '../src/users/user.entity';
 
 describe('NotificationController', () => {
   let controller: NotificationController;
-  let service: NotificationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotificationController],
       providers: [
-        NotificationService, 
-        UsersService, 
+        NotificationService,
+        UsersService, // Added UsersService to providers
         {
           provide: getRepositoryToken(Notification),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(User),
+          provide: getRepositoryToken(User), // Added User repository token
           useClass: Repository,
         },
       ],
     }).compile();
 
     controller = module.get<NotificationController>(NotificationController);
-    service = module.get<NotificationService>(NotificationService);
   });
 
   it('should be defined', () => {
