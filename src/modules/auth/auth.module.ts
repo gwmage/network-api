@@ -11,22 +11,20 @@ import { UsersModule } from '../users/users.module'; // Import UsersModule
 
 @Module({
   imports: [
-    UsersModule, // Add UsersModule to imports
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get('JWT_EXPIRES_IN'),
-        },
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1d' },
       }),
+      inject: [ConfigService],
     }),
-    ConfigModule,
+    UsersModule, // Add UsersModule to imports
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
+  exports: [AuthService], // Export AuthService if needed by other modules
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
