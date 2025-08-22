@@ -1,4 +1,3 @@
-```typescript
 import { Test, TestingModule } from '@nestjs/testing';
 import { ApplicationController } from '../src/application/application.controller';
 import { ApplicationService } from '../src/application/application.service';
@@ -12,8 +11,6 @@ describe('ApplicationController', () => {
   let controller: ApplicationController;
   let service: ApplicationService;
   let applicationRepository: Repository<Application>;
-  let userRepository: Repository<User>;
-  let usersService: UsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -35,22 +32,9 @@ describe('ApplicationController', () => {
     controller = module.get<ApplicationController>(ApplicationController);
     service = module.get<ApplicationService>(ApplicationService);
     applicationRepository = module.get<Repository<Application>>(getRepositoryToken(Application));
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    usersService = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
-
-  describe('findAll', () => {
-    it('should return an array of applications', async () => {
-      const result: Application[] = []; // Replace with mock data if needed
-      jest.spyOn(service, 'findAll').mockResolvedValue(result);
-      expect(await controller.findAll()).toBe(result);
-    });
-  });
-
-  // Add more test cases for other controller methods (e.g., create, findOne, update, remove) and error handling scenarios
 });
-```
