@@ -29,6 +29,9 @@ export class Post {
   @ManyToOne(() => User, (user) => user.posts)
   author: User;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
   @ManyToMany(() => Category, (category) => category.posts)
   @JoinTable()
   categories: Category[];
@@ -40,8 +43,6 @@ export class Post {
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];
 
-  @CreateDateColumn()
-  createdAt: Date;
 
   @Column({ default: 0 })
   commentCount: number;

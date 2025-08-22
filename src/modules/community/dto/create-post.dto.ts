@@ -17,10 +17,6 @@ export class CreatePostDto {
   @IsOptional()
   @IsString({ each: true })
   tags?: string[];
-
-  @IsNotEmpty()
-  @IsString()
-  authorId: string;
 }
 
 ```
