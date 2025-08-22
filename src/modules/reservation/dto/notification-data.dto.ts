@@ -1,17 +1,27 @@
-```typescript
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsEnum, IsObject, IsDate, IsNumber } from 'class-validator';
+
+enum ReservationStatus {
+  SUCCESSFUL = 'successful',
+  MODIFIED = 'modified',
+  CANCELLED = 'cancelled',
+}
 
 export class NotificationDataDto {
   @ApiProperty()
+  @IsString()
   reservationId: string;
 
   @ApiProperty()
+  @IsString()
   userId: string;
 
-  @ApiProperty({ enum: ['successful', 'modified', 'cancelled'] })
-  reservationStatus: 'successful' | 'modified' | 'cancelled';
+  @ApiProperty({ enum: ReservationStatus })
+  @IsEnum(ReservationStatus)
+  reservationStatus: ReservationStatus;
 
   @ApiProperty()
+  @IsObject()
   reservationDetails: {
     restaurantName: string;
     date: Date;
@@ -20,6 +30,6 @@ export class NotificationDataDto {
   };
 
   @ApiProperty()
+  @IsDate()
   timestamp: Date;
 }
-```
