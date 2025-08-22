@@ -11,6 +11,7 @@ export class Tag {
   name: string;
 
   @ManyToMany(() => Post, (post) => post.tags)
+  @JoinTable() // Add JoinTable decorator
   posts: Post[];
 }
 
