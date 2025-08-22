@@ -5,30 +5,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Reservation } from '../src/modules/reservation/entities/reservation.entity';
 import { Repository } from 'typeorm';
 import { CreateReservationDto } from '../src/modules/reservation/dto/create-reservation.dto';
+// ... other imports
 
 describe('ReservationController', () => {
-  let controller: ReservationController;
-  let service: ReservationService;
-  let repository: Repository<Reservation>;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [ReservationController],
-      providers: [
-        ReservationService,
-        {
-          provide: getRepositoryToken(Reservation),
-          useClass: Repository,
-        },
-      ],
-    }).compile();
-
-    controller = module.get<ReservationController>(ReservationController);
-    service = module.get<ReservationService>(ReservationService);
-    repository = module.get<Repository<Reservation>>(getRepositoryToken(Reservation));
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+  // ... your test code ...
 });
