@@ -7,8 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoginMiddleware } from './middleware/login.middleware';
-import { UsersService } from '../users/users.service'; // Import UsersService
-import { UsersModule } from '../users/users.module';
+import { UsersModule } from '../users/users.module'; // Import UsersModule
 
 @Module({
   imports: [
@@ -17,9 +16,9 @@ import { UsersModule } from '../users/users.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
+        secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: 3600,
+          expiresIn: configService.get<string>('JWT_EXPIRES_IN'),
         },
       }),
     }),
@@ -27,7 +26,6 @@ import { UsersModule } from '../users/users.module';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports: [AuthService] // Consider exporting AuthService if needed by other modules
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

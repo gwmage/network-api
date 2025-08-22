@@ -4,9 +4,28 @@ import { ApplicationService } from '../src/modules/application/application.servi
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Application } from '../src/modules/application/entities/application.entity';
 import { Repository } from 'typeorm';
-import { User } from '../src/modules/auth/entities/user.entity';  // Correct import path
+import { User } from '../src/modules/auth/entities/user.entity';
 import { UsersService } from '../src/modules/users/users.service';
 
 describe('ApplicationController', () => {
-  // ... your test code ...
+  let controller: ApplicationController;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [ApplicationController],
+      providers: [
+        ApplicationService,
+         {
+          provide: getRepositoryToken(Application),
+          useClass: Repository,
+        },
+      ],
+    }).compile();
+
+    controller = module.get<ApplicationController>(ApplicationController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
 });

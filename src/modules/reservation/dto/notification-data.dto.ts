@@ -1,30 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsDate, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class NotificationDataDto {
   @ApiProperty()
-  @IsString()
-  reservationId: string;
+  reservationId: number;
 
   @ApiProperty()
-  @IsString()
-  userId: string;
-
-  @ApiProperty({ enum: ['successful', 'modified', 'cancelled'] })
-  @IsString()
-  reservationStatus: 'successful' | 'modified' | 'cancelled';
+  restaurantName: string;
 
   @ApiProperty()
-  reservationDetails: {
-    restaurantName: string;
-    date: Date;
-    time: string;
-    numberOfPeople: number;
-  };
+  date: Date;
 
   @ApiProperty()
-  @IsDate()
-  @Type(() => Date)  // Use Type decorator for date transformation
-  timestamp: Date;
+  time: string;
 }
