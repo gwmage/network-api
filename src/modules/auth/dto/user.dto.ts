@@ -1,34 +1,12 @@
-```typescript
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
 
 export class UserDto {
-  @IsNotEmpty()
-  @IsEmail()
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
   email: string;
 
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @IsNotEmpty()
-  notificationPreferences: {
-    push: boolean;
-    email: boolean;
-  };
-
-  @IsNotEmpty()
-  activities: Activity[];
-}
-
-export class Activity {
-  @IsNotEmpty()
-  @IsString()
-  type: string;
-
-  @IsNotEmpty()
-  timestamp: Date;
-
-  @IsNotEmpty()
+  @ApiProperty()
   data: any;
 }
-```
