@@ -10,24 +10,22 @@ import { LoginMiddleware } from './middleware/login.middleware';
 
 @Module({
   imports: [
-    ConfigModule,
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
-        signOptions: {
-          expiresIn: 3600,
-        },
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1d' }, // Example expiration time
       }),
+      inject: [ConfigService],
     }),
+    ConfigModule, // Make sure ConfigModule is imported
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, ConfigService],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoginMiddleware).forRoutes('login');
+    consumer.apply(LoginMiddleware).forRoutes('*'); // Example: Apply to all routes
   }
 }

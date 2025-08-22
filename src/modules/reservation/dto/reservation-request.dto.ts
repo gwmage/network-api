@@ -1,6 +1,6 @@
-```typescript
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsOptional, IsString, IsDateString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class ReservationRequestDto {
   @ApiProperty({ required: false })
@@ -23,7 +23,8 @@ export class ReservationRequestDto {
   restaurantId: number;
 
   @ApiProperty()
-  @IsDate()
+  @IsDateString()
+  @Type(() => Date)  
   date: Date;
 
   @ApiProperty()
@@ -34,5 +35,3 @@ export class ReservationRequestDto {
   @IsNumber()
   numberOfPeople: number;
 }
-
-```
