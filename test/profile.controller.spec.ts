@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileController } from '../src/profile/profile.controller';
 import { ProfileService } from '../src/profile/profile.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Profile } from '../src/profile/profile.entity';
-import { Repository } from 'typeorm';
-import { UsersService } from '../src/users/users.service';
 import { User } from '../src/users/user.entity';
+import { Repository } from 'typeorm';
+import { UpdateProfileDto } from '../src/profile/dto/update-profile.dto';
+import { UsersService } from '../src/users/users.service';
 
 describe('ProfileController', () => {
   let controller: ProfileController;
@@ -15,13 +15,9 @@ describe('ProfileController', () => {
       controllers: [ProfileController],
       providers: [
         ProfileService,
-        UsersService,
+        UsersService, // Provide the UsersService
         {
-          provide: getRepositoryToken(Profile),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(User),
+          provide: getRepositoryToken(User), // Inject the User entity repository
           useClass: Repository,
         },
       ],

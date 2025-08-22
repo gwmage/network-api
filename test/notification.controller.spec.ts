@@ -14,8 +14,8 @@ describe('NotificationController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotificationController],
       providers: [
-        NotificationService, 
-        UsersService,
+        NotificationService,
+        UsersService, // Add UsersService here
         {
           provide: getRepositoryToken(Notification),
           useClass: Repository,

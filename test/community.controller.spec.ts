@@ -4,13 +4,11 @@ import { CommunityService } from '../src/community/community.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Community } from '../src/community/community.entity';
 import { Repository } from 'typeorm';
-import { Comment } from '../src/community/comment.entity';
+import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
+import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
 
 describe('CommunityController', () => {
   let controller: CommunityController;
-  let service: CommunityService;
-  let communityRepository: Repository<Community>;
-  let commentRepository: Repository<Comment>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,17 +19,10 @@ describe('CommunityController', () => {
           provide: getRepositoryToken(Community),
           useClass: Repository,
         },
-        {
-          provide: getRepositoryToken(Comment),
-          useClass: Repository,
-        },
       ],
     }).compile();
 
     controller = module.get<CommunityController>(CommunityController);
-    service = module.get<CommunityService>(CommunityService);
-    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
-    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
   });
 
   it('should be defined', () => {

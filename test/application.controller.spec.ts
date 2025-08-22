@@ -10,14 +10,14 @@ import { UsersService } from '../src/users/users.service';
 describe('ApplicationController', () => {
   let controller: ApplicationController;
   let service: ApplicationService;
-  let applicationRepository: Repository<Application>;
+  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ApplicationController],
       providers: [
         ApplicationService,
-        UsersService,
+        UsersService, // Provide UsersService
         {
           provide: getRepositoryToken(Application),
           useClass: Repository,
@@ -31,7 +31,7 @@ describe('ApplicationController', () => {
 
     controller = module.get<ApplicationController>(ApplicationController);
     service = module.get<ApplicationService>(ApplicationService);
-    applicationRepository = module.get<Repository<Application>>(getRepositoryToken(Application));
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   it('should be defined', () => {

@@ -4,6 +4,7 @@ import { ReservationService } from '../src/reservation/reservation.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Reservation } from '../src/reservation/reservation.entity';
 import { Repository } from 'typeorm';
+import { CreateReservationDto } from '../src/reservation/dto/create-reservation.dto';
 
 describe('ReservationController', () => {
   let controller: ReservationController;
