@@ -15,5 +15,20 @@ export class UserDto {
     push: boolean;
     email: boolean;
   };
+
+  @IsNotEmpty()
+  activities: Activity[];
+}
+
+export class Activity {
+  @IsNotEmpty()
+  @IsString()
+  type: string;
+
+  @IsNotEmpty()
+  timestamp: Date;
+
+  @IsNotEmpty()
+  data: any;
 }
 ```

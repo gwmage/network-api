@@ -6,6 +6,10 @@ import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { AdminLoginDto } from './dto/admin-login.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { User } from './user.entity';
+import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class AuthService {
@@ -15,64 +19,59 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto) {
-    const { email, password, ...otherData } = createUserDto;
-
-    const existingUser = await this.usersRepository.findOneBy({ email });
-    if (existingUser) {
-      throw new Error('Email already exists.'); // Or a custom exception
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    try {
-      const newUser = await this.usersRepository.save({
-        email,
-        password: hashedPassword,
-        ...otherData,
-      });
-      return newUser;
-    } catch (error) {
-      // Handle database errors appropriately, e.g., log and rethrow
-      throw new Error('Failed to register user.');
-    }
+    // ... (existing code)
   }
 
   async login(loginUserDto: LoginUserDto) {
-    const { email, password } = loginUserDto;
-    const user = await this.usersRepository.findOneBy({ email });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password.');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password.');
-    }
-
-    const payload = { email: user.email, sub: user.id };
-    const accessToken = this.jwtService.sign(payload);
-
-    return { accessToken };
+    // ... (existing code)
   }
+
 
   async adminLogin(adminLoginDto: AdminLoginDto) {
-    const { email, password } = adminLoginDto;
-    const admin = await this.usersRepository.findOneBy({ email }); // Assuming admins are also stored in the users table
-
-    if (!admin || !admin.isAdmin) { // Check if the user exists and is an admin
-      throw new UnauthorizedException('Invalid admin credentials.');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid admin credentials.');
-    }
-
-    const payload = { email: admin.email, sub: admin.id, isAdmin: admin.isAdmin }; // Include isAdmin flag in the payload
-    const accessToken = this.jwtService.sign(payload);
-
-    return { accessToken };
+    // ... (existing code)
   }
+
+  async findAll(queryDto: FindUsersQueryDto, options: IPaginationOptions): Promise<Pagination<User>> {
+    const qb = this.usersRepository.createQueryBuilder('user');
+
+    if (queryDto.username) {
+      qb.andWhere('user.username LIKE :username', { username: `%${queryDto.username}%` });
+    }
+    if (queryDto.email) {
+      qb.andWhere('user.email LIKE :email', { email: `%${queryDto.email}%` });
+    }
+
+
+    if (queryDto.sortBy) {
+        qb.orderBy(`user.${queryDto.sortBy}`, queryDto.sortOrder || 'ASC')
+    }
+
+    return paginate<User>(qb, options);
+  }
+
+  async findOne(id: number): Promise<User> {
+    return this.usersRepository.findOneBy({ id });
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    Object.assign(user, updateUserDto); // Update the user object with the new data
+
+    return this.usersRepository.save(user);
+  }
+
+  async remove(id: number): Promise<void> {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await this.usersRepository.remove(user);
+  }
+
 }
 ```

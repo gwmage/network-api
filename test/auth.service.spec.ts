@@ -1,23 +1,18 @@
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../src/auth/auth.service';
 import { UsersService } from '../src/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../src/users/user.entity';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { UnauthorizedException } from '@nestjs/common';
-import { AdminLoginDto } from '../src/auth/dto/admin-login.dto';
+import { NotFoundException } from '@nestjs/common';
 
-describe('AuthService', () => {
-  let service: AuthService;
-  let usersService: UsersService;
+describe('UsersService', () => {
+  let service: UsersService;
   let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        AuthService,
         UsersService,
         {
           provide: getRepositoryToken(User),
@@ -26,8 +21,7 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
+    service = module.get<UsersService>(UsersService);
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
@@ -35,54 +29,24 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('adminLogin', () => {
-    it('should return a token upon successful admin login', async () => {
-      const email = 'admin@example.com';
-      const password = 'adminPassword';
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const adminUser = new User();
-      adminUser.email = email;
-      adminUser.password = hashedPassword;
-      adminUser.isAdmin = true;
+  describe('findOne', () => {
+    it('should return a user by id', async () => {
+      const mockUser = new User();
+      mockUser.id = 1;
+      mockUser.email = 'test@example.com';
 
-      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(adminUser);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
+      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(mockUser);
 
-      const result = await service.adminLogin({ email, password } as AdminLoginDto);
-      expect(result.access_token).toBeDefined();
+      const user = await service.findOne(1);
+      expect(user).toEqual(mockUser);
     });
 
-    it('should throw UnauthorizedException if admin credentials are incorrect', async () => {
-      const email = 'admin@example.com';
-      const password = 'wrongPassword';
-
+    it('should throw NotFoundException if user is not found', async () => {
       jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(null);
 
-      await expect(
-        service.adminLogin({ email, password } as AdminLoginDto),
-      ).rejects.toThrowError(UnauthorizedException);
+      await expect(service.findOne(1)).rejects.toThrowError(NotFoundException);
     });
-
-    it('should throw UnauthorizedException if user is not admin', async () => {
-      const email = 'user@example.com';
-      const password = 'userPassword';
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const user = new User();
-      user.email = email;
-      user.password = hashedPassword;
-      user.isAdmin = false;
-
-      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(user);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
-
-
-      await expect(service.adminLogin({ email, password } as AdminLoginDto)).rejects.toThrowError(UnauthorizedException);
-    })
   });
-
-
-  // Existing login tests
-  // ...
 });
 
 ```

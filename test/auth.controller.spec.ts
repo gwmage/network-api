@@ -39,6 +39,36 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
+  describe('login', () => {
+    it('should log in a user successfully', async () => {
+      const loginDto: LoginDto = {
+        email: 'test@example.com',
+        password: 'testPassword',
+      };
+      const expectedAccessToken = 'mockedAccessToken';
+      jest.spyOn(authService, 'login').mockResolvedValue({ accessToken: expectedAccessToken });
+
+      const result = await controller.login(loginDto);
+      expect(result).toEqual({ accessToken: expectedAccessToken });
+    });
+
+    it('should handle invalid user credentials', async () => {
+      const loginDto: LoginDto = {
+        email: 'test@example.com',
+        password: 'wrongPassword',
+      };
+      jest.spyOn(authService, 'login').mockRejectedValue(new UnauthorizedException('Invalid credentials'));
+
+      try {
+        await controller.login(loginDto);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+        expect(error.message).toEqual('Invalid credentials');
+      }
+    });
+  });
+
+
   describe('adminLogin', () => {
     it('should log in an admin successfully', async () => {
       const loginDto: LoginDto = {
@@ -67,9 +97,6 @@ describe('AuthController', () => {
       }
     });
   });
-
-
-  // ... other test cases ...
 });
 
 ```

@@ -1,43 +1,77 @@
 ```typescript
-import { Body, Controller, Post, HttpCode, HttpStatus, UnauthorizedException, UseGuards, Request } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { AdminLoginDto } from './dto/admin-login.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Put,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UsersService } from '../user/user.service';
+import { UpdateUserDto } from '../user/dto/update-user.dto';
 
-@Controller('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+@Controller('users')
+@UseGuards(JwtAuthGuard)
+export class UserController {
+  constructor(private readonly userService: UsersService) {}
 
-  @Post('/register')
-  async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+  @Get()
+  async findAll(@Req() req: Request) {
+    return this.userService.findAll();
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Post('/login')
-  async login(@Body() loginDto: LoginDto): Promise<{ access_token: string }> {
-    try {
-      const jwt = await this.authService.login(loginDto);
-      return jwt;
-    } catch (error) {
-      throw new UnauthorizedException({ message: 'Invalid credentials' });
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const user = await this.userService.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException({ message: 'User not found' });
     }
+
+    return user;
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Post('/admin/login')
-  async adminLogin(@Body() adminLoginDto: AdminLoginDto): Promise<{ access_token: string }> {
-    try {
-      const jwt = await this.authService.adminLogin(adminLoginDto);
-      return jwt;
-    } catch (error) {
-      throw new UnauthorizedException({ message: 'Invalid admin credentials' });
+
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: Request,
+  ) {
+    // Check if the authenticated user is authorized to update this user.
+    // Usually, this means checking if the authenticated user ID matches the ID of the user being updated.
+    // You'll likely need to add a 'user' property to the Request object in your AuthGuard.
+    const reqUser = req.user;
+    if(reqUser.id !== id && !reqUser.isAdmin) { // Example authorization check. Adjust as needed.
+      throw new UnauthorizedException('You are not authorized to update this user.');
     }
+
+    return this.userService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+     // Similar authorization check as in the update method
+    const reqUser = req.user;
+    if(reqUser.id !== id && !reqUser.isAdmin) { // Example authorization check. Adjust as needed.
+      throw new UnauthorizedException('You are not authorized to delete this user.');
+    }
+    return this.userService.remove(id);
   }
 
 
+  @Get(':id/activity')
+  async findUserActivity(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return this.userService.findUserActivity(id);
+  }
 }
 
 ```
