@@ -1,21 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {ApiProperty} from "@nestjs/swagger";
 
 export class ReservationResponseDto {
-    @ApiProperty()
-    id: number;
+  @ApiProperty()
+  id: number;
 
-    @ApiProperty()
-    restaurantId: number;
+  @ApiProperty()
+  restaurantId: number;
 
-    @ApiProperty()
-    userId: number;
+  @ApiProperty()
+  date: Date;
 
-    @ApiProperty()
-    date: Date;
+  @ApiProperty()
+  time: string;
 
-    @ApiProperty()
-    time: string;
-
-    @ApiProperty()
-    numberOfPeople: number;
+  @ApiProperty()
+  numberOfPeople: number;
 }
