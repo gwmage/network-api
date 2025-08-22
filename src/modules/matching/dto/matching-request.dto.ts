@@ -18,19 +18,4 @@ export class MatchingRequestDto {
   @IsArray()
   @IsNumber({}, { each: true })
   excludeUserIds?: number[];
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  search?: string; 
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  page?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  limit?: number;
 }

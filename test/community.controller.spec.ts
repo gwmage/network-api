@@ -9,6 +9,8 @@ import { UpdateCommunityDto } from '../src/modules/community/dto/update-communit
 
 describe('CommunityController', () => {
   let controller: CommunityController;
+  let service: CommunityService;
+  let repository: Repository<Community>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,6 +25,8 @@ describe('CommunityController', () => {
     }).compile();
 
     controller = module.get<CommunityController>(CommunityController);
+    service = module.get<CommunityService>(CommunityService);
+    repository = module.get<Repository<Community>>(getRepositoryToken(Community));
   });
 
   it('should be defined', () => {
