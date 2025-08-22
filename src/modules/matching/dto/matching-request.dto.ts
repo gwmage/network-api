@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsOptional } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class MatchingRequestDto {
   @ApiProperty({
@@ -18,4 +18,9 @@ export class MatchingRequestDto {
   @IsArray()
   @IsNumber({}, { each: true })
   excludeUserIds?: number[];
+
+  @ApiProperty({required: false})
+  @IsString()
+  @IsOptional()
+  search?: string;
 }

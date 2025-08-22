@@ -29,5 +29,8 @@ export class ApplicationInfoDto {
 }
 
 export class GetApplicationInfoListRequestDto {
-  // Add properties as needed
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

@@ -1,18 +1,22 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateReservationDto {
-    @ApiProperty()
-    restaurantId: number;
+  @ApiProperty()
+  @IsNumber()
+  restaurantId: number;
 
-    @ApiProperty()
-    userId: number;
+  @ApiProperty()
+  @IsDate()
+  @Type(() => Date)
+  date: Date;
 
-    @ApiProperty()
-    date: Date;
+  @ApiProperty()
+  @IsString()
+  time: string;
 
-    @ApiProperty()
-    time: string;
-
-    @ApiProperty()
-    numberOfPeople: number;
+  @ApiProperty()
+  @IsNumber()
+  numberOfPeople: number;
 }
