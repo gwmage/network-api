@@ -16,5 +16,22 @@ export class NotificationRepository extends Repository<Notification> {
       notificationRepository.queryRunner,
     );
   }
+
+  async createNotification(notification: Partial<Notification>): Promise<Notification> {
+    return this.notificationRepository.save(notification);
+  }
+
+  async getNotificationsForUser(userId: number): Promise<Notification[]> {
+    return this.notificationRepository.find({ where: { userId } });
+  }
+
+  async markNotificationAsRead(notificationId: number): Promise<void> {
+    await this.notificationRepository.update(notificationId, { readStatus: true });
+  }
+
+  // Add other methods as needed, e.g., deleting notifications
+  async deleteNotification(notificationId: number): Promise<void> {
+    await this.notificationRepository.delete(notificationId);
+  }
 }
 ```
