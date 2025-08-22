@@ -14,18 +14,17 @@ import { LoginMiddleware } from './middleware/login.middleware';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' }, // Example expiration time
+        secret: configService.get<string>('JWT_ACCESS_SECRET'),
+        signOptions: { expiresIn: configService.get<string>('JWT_ACCESS_EXPIRES_IN') },
       }),
       inject: [ConfigService],
     }),
-    ConfigModule, // Make sure ConfigModule is imported
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoginMiddleware).forRoutes('*'); // Example: Apply to all routes
+    consumer.apply(LoginMiddleware).forRoutes('login');
   }
 }

@@ -12,5 +12,5 @@ export class ProfileController {
     return this.profileService.create(createProfileDto);
   }
 
-  // ... rest of your controller code
+  // ... other controller methods
 }
