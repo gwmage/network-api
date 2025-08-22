@@ -1,11 +1,22 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString, IsBoolean, IsEnum } from 'class-validator';
+import { NotificationMethod } from '../../notification/entities/notification.entity';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @ApiProperty()
-  name: string;
+  @IsString()
+  @IsOptional()
+  name?: string; 
 
-  @ApiProperty()
-  email: string;
+  @IsBoolean()
+  @IsOptional()
+  email?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  push?: boolean;
+
+  @IsEnum(NotificationMethod)
+  @IsOptional()
+  preferredMethod?: NotificationMethod;
 }

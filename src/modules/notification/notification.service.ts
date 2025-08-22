@@ -1,51 +1,42 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Notification } from './entities/notification.entity';
+import { Notification, NotificationMethod } from './entities/notification.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
-import { NotificationPreferencesDto } from './dto/notification-preferences.dto';
+import { NotificationSettingsDto } from './dto/notification-settings.dto';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
-    private usersService: UsersService
+    private usersService: UsersService, // Inject UsersService
   ) {}
 
-  async create(user, createNotificationDto: CreateNotificationDto) {
-    const newNotification = this.notificationRepository.create(createNotificationDto);
-    newNotification.user = user;
-    return this.notificationRepository.save(newNotification);
-  }
-
-  async findAll(user) {
-    return this.notificationRepository.find({ where: { user: { id: user.id } } });
-  }
-
-  async findOne(id: number) {
-    const notification = await this.notificationRepository.findOne({ where: { id } });
-    if (!notification) {
-      throw new NotFoundException(`Notification with ID ${id} not found`);
-    }
-    return notification;
-  }
-
-  async update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    const notification = await this.findOne(id);
-    this.notificationRepository.merge(notification, updateNotificationDto);
+  async create(createNotificationDto: CreateNotificationDto) {
+    const notification = this.notificationRepository.create(createNotificationDto);
     return this.notificationRepository.save(notification);
   }
 
-  async remove(id: number) {
-    const notification = await this.findOne(id);
-    return this.notificationRepository.remove(notification);
+  findAll() {
+    return this.notificationRepository.find();
   }
 
-  async updatePreferences(user, notificationPreferencesDto: NotificationPreferencesDto) {
-    const updatedUser = await this.usersService.update(user.id, notificationPreferencesDto); 
-    return updatedUser;
+  findOne(id: number) {
+    return this.notificationRepository.findOneBy({ id });
+  }
+
+  update(id: number, updateNotificationDto: UpdateNotificationDto) {
+    return this.notificationRepository.update(id, updateNotificationDto);
+  }
+
+  async updateNotificationSettings(userId: number, notificationSettingsDto: NotificationSettingsDto) {
+    return this.usersService.update(userId, notificationSettingsDto); // Use UsersService to update user
+  }
+
+  remove(id: number) {
+    return this.notificationRepository.delete(id);
   }
 }
