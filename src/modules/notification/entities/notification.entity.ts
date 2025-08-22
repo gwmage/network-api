@@ -1,23 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { NotificationType } from '../dto/notification.dto';
+import { User } from "src/modules/users/entities/user.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Notification {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column({ type: 'enum', enum: NotificationType, default: NotificationType.EMAIL })
-  type: NotificationType;
+    @Column()
+    message: string;
 
-  @Column({ type: 'uuid' })
-  userId: string;
-
-  @Column()
-  title: string;
-
-  @Column()
-  message: string;
-
-  @Column({ type: 'jsonb', nullable: true })
-  data?: any;
+    @ManyToOne(() => User, (user) => user.notifications)
+    user: User;
 }
