@@ -1,33 +1,36 @@
-```typescript
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ReservationResponseDto {
   @ApiProperty()
-  id: string;
+  @IsNumber()
+  id: number;
 
   @ApiProperty()
-  restaurantId: string;
+  @IsNumber()
+  restaurantId: number;
+
 
   @ApiProperty()
-  userId: string;
+  @IsString()
+  startTime: string; // Or Date
 
   @ApiProperty()
-  customerName: string;
+  @IsNumber()
+  numberOfPeople: number;
 
   @ApiProperty()
-  customerEmail: string;
+  @IsString()
+  @IsOptional()
+  specialRequests?: string;
 
   @ApiProperty()
-  customerPhone: string;
+  @IsString()
+  @IsOptional()
+  createdAt?: Date;
 
   @ApiProperty()
-  reservationDate: Date;
-
-  @ApiProperty()
-  reservationTime: string;
-
-  @ApiProperty()
-  partySize: number;
+  @IsString()
+  @IsOptional()
+  updatedAt?: Date;
 }
-
-```

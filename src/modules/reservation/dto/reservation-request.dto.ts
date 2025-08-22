@@ -1,37 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNumber, IsOptional, IsString, IsDateString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ReservationRequestDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  page?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  limit?: number;
-
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Restaurant ID',
+    example: 1,
+  })
   @IsNumber()
   restaurantId: number;
 
-  @ApiProperty()
-  @IsDateString()
-  @Type(() => Date)  
-  date: Date;
-
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Start time of the reservation',
+    example: '2024-05-10T19:30:00Z',
+  })
   @IsString()
-  time: string;
+  startTime: string; // Or Date if you are using Date objects
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Number of people',
+    example: 2,
+  })
   @IsNumber()
   numberOfPeople: number;
+
+  @ApiProperty({
+    description: 'Any special requests (optional)',
+    example: 'Allergic to peanuts',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  specialRequests?: string;
 }
