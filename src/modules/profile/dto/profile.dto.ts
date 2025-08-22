@@ -1,33 +1,34 @@
-```typescript
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class ProfileDto {
-  @IsNotEmpty()
+  @ApiProperty()
+  @IsNumber()
+  id: number;
+
+  @ApiProperty()
+  @IsNumber()
+  userId: number; 
+
+  @ApiProperty()
   @IsString()
-  username: string;
+  nickname: string;
 
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-
+  @ApiProperty()
+  @IsString()
   @IsOptional()
-  @IsString()
-  first_name?: string;
+  introduction?: string;
 
+  @ApiProperty()
+  @IsDate()
+  @Type(() => Date)
   @IsOptional()
-  @IsString()
-  last_name?: string;
+  createdAt?: Date;
 
+  @ApiProperty()
+  @IsDate()
+  @Type(() => Date)
   @IsOptional()
-  @IsString()
-  profile_picture?: string;
-
-  @IsOptional()
-  @IsString()
-  bio?: string;
-
-  @IsOptional()
-  @IsString()
-  interests?: string;
+  updatedAt?: Date;
 }
-```

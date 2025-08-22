@@ -7,26 +7,29 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoginMiddleware } from './middleware/login.middleware';
-import { UsersModule } from '../users/users.module';
+import { Profile } from '../profile/entities/profile.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Profile]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1d' },
+        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRATION_TIME') },
       }),
       inject: [ConfigService],
     }),
-    UsersModule, // Import UsersModule
+    ConfigModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
+  exports: [AuthService] // Export AuthService
 })
 export class AuthModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoginMiddleware).forRoutes('login');
+    configure(consumer: MiddlewareConsumer) {
+      consumer
+        .apply(LoginMiddleware)
+        .forRoutes('auth/login')
+    }
   }
-}

@@ -1,6 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class RestaurantSearchDto {
-    @ApiProperty()
-    query: string;
+    @ApiProperty({ required: false })
+    @IsString()
+    @IsOptional()
+    search?: string;
 }

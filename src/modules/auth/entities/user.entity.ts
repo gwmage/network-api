@@ -1,10 +1,5 @@
-```typescript
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-
-export enum NotificationMethod {
-  PUSH = 'push',
-  EMAIL = 'email',
-}
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Profile } from '../../profile/entities/profile.entity';
 
 @Entity()
 export class User {
@@ -15,40 +10,12 @@ export class User {
   email: string;
 
   @Column()
-  password: string;
-
-  @Column()
-  name: string;
-
-  @Column()
-  contactNumber: string;
+  password?: string;
 
   @Column({ nullable: true })
-  preferences: string;
+  refreshToken?: string;
 
-  @Column({ nullable: true })
-  interests: string;
-
-  @Column({ nullable: true })
-  region: string;
-
-  @Column('enum', { array: true, enum: NotificationMethod, default: [] })
-  notificationPreferences: NotificationMethod[];
-
-  @Column({ type: 'jsonb', nullable: true })
-  notificationSettings: {
-    matchResult: boolean;
-    reservationInfo: boolean;
-    // Add other notification types as needed
-  };
-
-  @Column({ type: 'jsonb', nullable: true })
-  activity: any;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @OneToOne(() => Profile, { cascade: true, eager: true})
+  @JoinColumn()
+  profile: Profile;
 }
-```
