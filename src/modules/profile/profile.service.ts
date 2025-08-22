@@ -2,36 +2,36 @@ import { Injectable } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Profile } from './entities/profile.entity';
+import { User } from '../auth/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProfileService {
   constructor(
-    @InjectRepository(Profile)
-    private profileRepository: Repository<Profile>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
-  async create(userId: number, createProfileDto: CreateProfileDto) {
-    const profile = this.profileRepository.create({
-      ...createProfileDto,
-      user: { id: userId },
-    });
-    return this.profileRepository.save(profile);
+  async create(createProfileDto: CreateProfileDto, userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {      
+      return null
+    } else {
+      user.profile = createProfileDto
+      return this.usersRepository.save(user);
+    }
   }
 
   findOne(id: number) {
-    return this.profileRepository.findOne({ where: { id } });
+    return this.usersRepository.findOne({where: {id}, relations: ['profile']});
   }
 
-  async update(userId: number, updateProfileDto: UpdateProfileDto) {
-    const profile = await this.profileRepository.findOne({
-      where: { user: { id: userId } },
-    });
-    if (!profile) {
-      throw new Error('Profile not found'); // Or a custom exception
+  async update(id: number, updateProfileDto: UpdateProfileDto, userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      return null
     }
-    Object.assign(profile, updateProfileDto); // Or use a more specific update method
-    return this.profileRepository.save(profile);
+    user.profile = updateProfileDto
+    return this.usersRepository.save(user);
   }
 }
