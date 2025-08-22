@@ -1,16 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
-import { ProfileService } from './profile.service';
+import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ProfileService } from './profile.service';
+import { Request } from 'express';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Req() req, @Body() createProfileDto: CreateProfileDto) {
+  create(@Req() req: Request, @Body() createProfileDto: CreateProfileDto) {
     return this.profileService.create(req.user.id, createProfileDto);
   }
 
@@ -19,9 +18,8 @@ export class ProfileController {
     return this.profileService.findOne(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Patch()
-  update(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
+  @Put()
+  update(@Req() req: Request, @Body() updateProfileDto: UpdateProfileDto) {
     return this.profileService.update(req.user.id, updateProfileDto);
   }
 }

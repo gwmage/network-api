@@ -5,9 +5,9 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { FindPostQueryDto } from './dto/find-post-query.dto';
-import { PaginationQueryDto } from './dto/pagination-query.dto'; // Correct import
+import { PaginationQueryDto } from './dto/pagination-query.dto'; // Import PaginationQueryDto
 
 @Controller('community')
 export class CommunityController {
-  // ... rest of the code
+  // ... your existing code ...
 }
