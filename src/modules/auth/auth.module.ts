@@ -1,4 +1,3 @@
-```typescript
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -18,18 +17,17 @@ import { LoginMiddleware } from './middleware/login.middleware';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: configService.get('JWT_EXPIRES_IN') },
+        signOptions: {
+          expiresIn: 3600,
+        },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, ConfigService],
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoginMiddleware).forRoutes('auth/login'); // Apply middleware to the login route
+    consumer.apply(LoginMiddleware).forRoutes('login');
   }
 }
-
-```
