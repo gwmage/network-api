@@ -14,7 +14,36 @@ export class CommunityRepository {
     private readonly commentRepository: Repository<Comment>,
   ) {}
 
-  // ... (Existing post methods)
+  async createPost(post: Post): Promise<Post> {
+    return this.postRepository.save(post);
+  }
+
+  async findAllPosts(
+    where?: FindOptionsWhere<Post>,
+    skip?: number,
+    take?: number,
+  ): Promise<Post[]> {
+    return this.postRepository.find({
+      where,
+      skip,
+      take,
+      order: { createdAt: 'DESC' }, // Order posts by creation date (latest first)
+    });
+  }
+
+
+  async findPostById(id: number): Promise<Post | null> {
+    return this.postRepository.findOne({ where: { id } });
+  }
+
+  async updatePost(id: number, updatedPost: Post): Promise<Post | null> {
+    await this.postRepository.update(id, updatedPost);
+    return this.findPostById(id);
+  }
+
+  async deletePost(id: number): Promise<DeleteResult> {
+    return this.postRepository.delete(id);
+  }
 
   async createComment(comment: Comment): Promise<Comment> {
     return this.commentRepository.save(comment);
