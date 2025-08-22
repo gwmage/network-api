@@ -1,4 +1,3 @@
-```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
@@ -16,13 +15,13 @@ export class ApplicationInfoDto {
   status: string;
 
   @ApiProperty()
-  @IsString()
   @IsOptional()
+  @IsString()
   createdAt?: Date;
 
   @ApiProperty()
-  @IsString()
   @IsOptional()
+  @IsString()
   updatedAt?: Date;
 }
 
@@ -51,5 +50,3 @@ export class GetApplicationInfoListResponseDto {
   @IsNumber()
   totalCount: number;
 }
-
-```
