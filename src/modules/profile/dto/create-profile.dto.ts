@@ -1,21 +1,19 @@
-```typescript
-import { IsNotEmpty, IsString, IsOptional, IsUrl } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsDateString } from 'class-validator';
 
 export class CreateProfileDto {
-  @IsOptional()
-  @IsUrl()
-  profile_image?: string;
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
 
   @IsNotEmpty()
   @IsString()
-  name: string;
+  lastName: string;
 
   @IsOptional()
   @IsString()
   bio?: string;
 
   @IsOptional()
-  @IsString({ each: true })
-  interests?: string[];
+  @IsDateString()
+  birthDate?: Date;
 }
-```
