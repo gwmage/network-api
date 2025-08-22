@@ -1,51 +1,23 @@
-```typescript
-import { User } from 'src/modules/auth/entities/user.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-
-export enum NotificationType {
-  COMMENT = 'comment',
-  // Add other notification types as needed
-}
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { NotificationType } from '../dto/notification.dto';
 
 @Entity()
 export class Notification {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.notifications)
-  user: User;
-
-  @Column({
-    type: 'enum',
-    enum: NotificationType,
-    nullable: true, // Allow for other notification types without a specific type
-  })
+  @Column({ type: 'enum', enum: NotificationType, default: NotificationType.EMAIL })
   type: NotificationType;
 
-  @Column({ nullable: true }) // Allow for generic notifications without a target
-  targetId: number;
+  @Column({ type: 'uuid' })
+  userId: string;
+
+  @Column()
+  title: string;
 
   @Column()
   message: string;
 
-  @Column({ default: 'push' })
-  deliveryMethod: 'push' | 'email' | 'sms'; // Add other methods as needed
-
-  @Column({ default: false })
-  readStatus: boolean;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column({ type: 'jsonb', nullable: true })
+  data?: any;
 }
-
-```
