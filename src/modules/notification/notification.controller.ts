@@ -1,47 +1,47 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { NotificationPreferencesDto } from './dto/notification-preferences.dto';
+import { NotificationSettingsDto } from './dto/notification-settings.dto';
 
-@Controller('notifications')
+@Controller('notification')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)  
   @Post()
-  create(@Request() req, @Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.create(req.user, createNotificationDto);
+  create(@Body() createNotificationDto: CreateNotificationDto) {
+    return this.notificationService.create(createNotificationDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)  
   @Get()
-  findAll(@Request() req) {
-    return this.notificationService.findAll(req.user);
+  findAll() {
+    return this.notificationService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)  
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.notificationService.findOne(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)  
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
     return this.notificationService.update(+id, updateNotificationDto);
   }
 
   @UseGuards(JwtAuthGuard)
+  @Patch(':userId/settings')
+  updateNotificationSettings(@Param('userId') userId: number, @Body() notificationSettingsDto: NotificationSettingsDto) {
+    return this.notificationService.updateNotificationSettings(userId, notificationSettingsDto);
+  }
+
+  @UseGuards(JwtAuthGuard)  
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.notificationService.remove(+id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch('preferences')
-  updatePreferences(@Request() req, @Body() notificationPreferencesDto: NotificationPreferencesDto) {
-    return this.notificationService.updatePreferences(req.user, notificationPreferencesDto);
   }
 }

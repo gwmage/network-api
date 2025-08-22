@@ -1,18 +1,20 @@
-```typescript
-import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
-import { NotificationChannel } from './notification.dto';
+import { IsString, IsOptional, IsBoolean, IsEnum } from 'class-validator';
+import { NotificationMethod } from '../entities/notification.entity';
 
 export class NotificationSettingsDto {
-  @IsNotEmpty()
-  @IsBoolean()
-  matchingResults: boolean;
-
-  @IsNotEmpty()
-  @IsBoolean()
-  reservationUpdates: boolean;
-
+  @IsString()
   @IsOptional()
-  @IsEnum(NotificationChannel)
-  deliveryMethod?: NotificationChannel; // Default: PUSH
+  name?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  email?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  push?: boolean;
+
+  @IsEnum(NotificationMethod)
+  @IsOptional()
+  preferredMethod?: NotificationMethod;
 }
-```
