@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsDate, IsDateString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ApplicationInfoDto {
   @ApiProperty()
@@ -15,19 +15,29 @@ export class ApplicationInfoDto {
   status: string;
 
   @ApiProperty()
-  @IsDateString()
+  @IsString()
   @IsOptional()
   createdAt?: Date;
 
   @ApiProperty()
-  @IsDateString()
+  @IsString()
   @IsOptional()
   updatedAt?: Date;
 }
 
 export class GetApplicationInfoListRequestDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  name?: string;
+  search?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  page?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  limit?: number;
 }
