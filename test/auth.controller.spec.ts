@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../src/modules/auth/auth.controller';
 import { AuthService } from '../src/modules/auth/auth.service';
-import { UsersService } from '../src/modules/users/users.service'; 
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../src/modules/auth/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -12,7 +11,6 @@ import { UnauthorizedException } from '@nestjs/common';
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: AuthService;
-  let usersService: UsersService;
   let userRepository: Repository<User>;
 
   beforeEach(async () => {
@@ -20,7 +18,6 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
-        UsersService,
         {
           provide: getRepositoryToken(User),
           useClass: Repository,
@@ -30,7 +27,6 @@ describe('AuthController', () => {
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService); 
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
