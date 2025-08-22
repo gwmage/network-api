@@ -9,7 +9,10 @@ import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
 import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
 import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
 import { Comment } from '../src/community/comment.entity';
-import { PageOptionsDto } from '../src/common/dtos/page-options.dto';
+import { NotFoundException } from '@nestjs/common';
+import { PaginationQueryDto } from '../src/community/dto/pagination-query.dto';
+import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
+
 
 describe('CommunityController', () => {
   let controller: CommunityController;
@@ -75,18 +78,19 @@ describe('CommunityController', () => {
 
   describe('findAll', () => {
     it('should return an array of community posts', async () => {
-      const pageOptionsDto: PageOptionsDto = { page: 1, limit: 10 };
-      const communities: Community[] = [{ id: 1, title: 'Test Title 1', content: 'Test Content 1' }, { id: 2, title: 'Test Title 2', content: 'Test Content 2' }];
+      const paginationQueryDto: PaginationQueryDto = { limit: 10, offset: 0 };
+      const communities: Community[] = [{ id: 1, title: 'Test Title', content: 'Test Content' }];
       jest.spyOn(service, 'findAll').mockResolvedValue(communities);
 
-      expect(await controller.findAll(pageOptionsDto)).toEqual(communities);
+      expect(await controller.findAll(paginationQueryDto)).toEqual(communities);
     });
   });
+
 
   describe('createComment', () => {
     it('should create a new comment', async () => {
       const postId = 1;
-      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
+      const createCommentDto: CreateCommentDto = { content: 'New Comment' };
       const createdComment: Comment = { id: 1, ...createCommentDto, post: { id: postId } as Community };
       jest.spyOn(service, 'createComment').mockResolvedValue(createdComment);
 
@@ -94,13 +98,43 @@ describe('CommunityController', () => {
     });
   });
 
-  describe('getComments', () => {
-    it('should return an array of comments for a post', async () => {
+  describe('updateComment', () => {
+    it('should update an existing comment', async () => {
       const postId = 1;
-      const comments: Comment[] = [{ id: 1, content: 'Test Comment', post: { id: postId } as Community }];
-      jest.spyOn(service, 'getComments').mockResolvedValue(comments);
+      const commentId = 1;
+      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment' };
+      const updatedComment: Comment = { id: commentId, ...updateCommentDto, post: { id: postId } as Community };
+      jest.spyOn(service, 'updateComment').mockResolvedValue(updatedComment);
 
-      expect(await controller.getComments(postId)).toEqual(comments);
+      expect(await controller.updateComment(postId, commentId, updateCommentDto)).toEqual(updatedComment);
+    });
+
+    it('should throw NotFoundException if comment not found', async () => {
+      const postId = 1;
+      const commentId = 999;
+      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment' };
+      jest.spyOn(service, 'updateComment').mockRejectedValue(new NotFoundException('Comment not found'));
+
+      await expect(controller.updateComment(postId, commentId, updateCommentDto)).rejects.toThrowError(NotFoundException);
+    });
+  });
+
+
+  describe('deleteComment', () => {
+    it('should delete a comment', async () => {
+      const postId = 1;
+      const commentId = 1;
+      jest.spyOn(service, 'deleteComment').mockResolvedValue(undefined);
+
+      expect(await controller.deleteComment(postId, commentId)).toBeUndefined();
+    });
+
+    it('should throw NotFoundException if comment not found', async () => {
+      const postId = 1;
+      const commentId = 999;
+      jest.spyOn(service, 'deleteComment').mockRejectedValue(new NotFoundException('Comment not found'));
+
+      await expect(controller.deleteComment(postId, commentId)).rejects.toThrowError(NotFoundException);
     });
   });
 });

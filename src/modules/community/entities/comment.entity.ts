@@ -5,7 +5,6 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  OneToMany,
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Post } from './post.entity';
@@ -26,19 +25,6 @@ export class Comment {
 
   @ManyToOne(() => Post, (post) => post.comments)
   post: Post;
-
-
-  @Column({ type: 'int', nullable: true })
-  parentCommentId: number | null;
-
-  @OneToMany(() => Comment, (comment) => comment.parentComment)
-  replies: Comment[];
-
-  @ManyToOne(() => Comment, (comment) => comment.replies, { onDelete: 'CASCADE' })
-  parentComment: Comment | null;
-
-  @Column({ type: 'boolean', default: false })
-  deleted: boolean;
 }
 
 ```
