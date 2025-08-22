@@ -42,6 +42,8 @@ export class User {
     // Add other notification types as needed
   };
 
+  @Column({ type: 'jsonb', nullable: true })
+  activity: any;
 
   @CreateDateColumn()
   createdAt: Date;
