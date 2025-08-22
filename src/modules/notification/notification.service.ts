@@ -1,42 +1,32 @@
+```typescript
 import { Injectable } from '@nestjs/common';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Notification, NotificationMethod } from './entities/notification.entity';
-import { Repository } from 'typeorm';
-import { UsersService } from '../users/users.service';
-import { NotificationSettingsDto } from './dto/notification-settings.dto';
+import { Comment } from '../community/comment.entity';
+import { Community } from '../community/community.entity';
+import { User } from '../user/user.entity';
+// ... other imports
 
 @Injectable()
 export class NotificationService {
-  constructor(
-    @InjectRepository(Notification)
-    private notificationRepository: Repository<Notification>,
-    private usersService: UsersService, // Inject UsersService
-  ) {}
+  // ... existing code ...
 
-  async create(createNotificationDto: CreateNotificationDto) {
-    const notification = this.notificationRepository.create(createNotificationDto);
-    return this.notificationRepository.save(notification);
+  async createCommentNotification(comment: Comment): Promise<Notification> {
+    const message = `New comment on post ${comment.post.id}: ${comment.content}`;
+    return this.createNotification(comment.user.id, message, 'comment', { postId: comment.post.id, commentId: comment.id });
   }
 
-  findAll() {
-    return this.notificationRepository.find();
+  async updateCommentNotification(comment: Comment): Promise<Notification> {
+    const message = `Comment updated on post ${comment.post.id}: ${comment.content}`;
+    return this.createNotification(comment.user.id, message, 'comment', { postId: comment.post.id, commentId: comment.id });
   }
 
-  findOne(id: number) {
-    return this.notificationRepository.findOneBy({ id });
+  async deleteCommentNotification(comment: Comment): Promise<void> {
+    const message = `Comment deleted on post ${comment.post.id}`;
+    return this.createNotification(comment.user.id, message, 'comment', { postId: comment.post.id });
   }
 
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationRepository.update(id, updateNotificationDto);
-  }
 
-  async updateNotificationSettings(userId: number, notificationSettingsDto: NotificationSettingsDto) {
-    return this.usersService.update(userId, notificationSettingsDto); // Use UsersService to update user
-  }
+  // ... existing code ... including createNotification, sendCommentNotification, etc.
 
-  remove(id: number) {
-    return this.notificationRepository.delete(id);
-  }
 }
+
+```

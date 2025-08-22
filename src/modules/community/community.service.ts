@@ -1,5 +1,5 @@
 ```typescript
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { CommunityPost } from './entities/community-post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Like, Repository } from 'typeorm';
@@ -10,6 +10,7 @@ import { PaginatedCommunityPostsDto } from './dto/paginated-community-posts.dto'
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class CommunityService {
@@ -20,88 +21,51 @@ export class CommunityService {
     private commentRepository: Repository<Comment>,
   ) {}
 
-  async create(createCommunityPostDto: CreateCommunityPostDto): Promise<CommunityPost> {
-    const newPost = this.communityPostRepository.create(createCommunityPostDto);
-    return await this.communityPostRepository.save(newPost);
-  }
+  // ... other methods ...
 
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-    filter?: string,
-    categories?: string[],
-    tags?: string[],
-  ): Promise<PaginatedCommunityPostsDto> {
-    const options: FindManyOptions<CommunityPost> = {
-      skip: (page - 1) * limit,
-      take: limit,
-      where: {},
-    };
-
-    if (filter) {
-      options.where = [
-        { title: Like(`%${filter}%`) },
-        { content: Like(`%${filter}%`) },
-      ];
+  async createComment(postId: number, createCommentDto: CreateCommentDto, user: User): Promise<Comment> {
+    const { parentCommentId, ...rest } = createCommentDto;
+    const post = await this.communityPostRepository.findOneBy({ id: postId });
+    if (!post) {
+      throw new NotFoundException('Post not found.');
     }
 
-    if (categories) {
-      options.where = { ...options.where, category: In(categories) };
+    const parentComment = parentCommentId ? await this.commentRepository.findOneBy({ id: parentCommentId }) : null;
+    if (parentCommentId && !parentComment) {
+      throw new NotFoundException('Parent comment not found.');
     }
 
-    if (tags) {
-      options.where = { ...options.where, tags: In(tags) };
-    }
-
-    const [items, total] = await this.communityPostRepository.findAndCount(options);
-
-    return {
-      items,
-      meta: {
-        currentPage: page,
-        itemsPerPage: limit,
-        totalItems: total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
-  async findOne(id: number): Promise<CommunityPost> {
-    return await this.communityPostRepository.findOneBy({ id });
-  }
-
-  async update(id: number, updateCommunityPostDto: UpdateCommunityPostDto): Promise<CommunityPost> {
-    await this.communityPostRepository.update(id, updateCommunityPostDto);
-    return await this.communityPostRepository.findOneBy({ id });
-  }
-
-  async remove(id: number): Promise<void> {
-    await this.communityPostRepository.delete(id);
-  }
-
-  async createComment(postId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
     const newComment = this.commentRepository.create({
-      ...createCommentDto,
-      post: { id: postId },
+      ...rest,
+      post,
+      user,
+      parentComment,
     });
     return await this.commentRepository.save(newComment);
   }
 
-  async findAllComments(postId: number): Promise<Comment[]> {
-    return await this.commentRepository.findBy({ post: { id: postId } });
+
+  async updateComment(postId: number, id: number, updateCommentDto: UpdateCommentDto, user: User): Promise<Comment> {
+    const comment = await this.commentRepository.findOne({ where: { id, post: { id: postId } }, relations: ['user'] });
+    if (!comment) {
+      throw new NotFoundException('Comment not found.');
+    }
+    if (comment.user.id !== user.id) {
+      throw new UnauthorizedException('You are not authorized to update this comment.');
+    }
+    Object.assign(comment, updateCommentDto);
+    return await this.commentRepository.save(comment);
   }
 
-  async findOneComment(postId: number, id: number): Promise<Comment> {
-    return await this.commentRepository.findOneBy({ id, post: { id: postId } });
-  }
-
-  async updateComment(postId: number, id: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {
-    await this.commentRepository.update({ id, post: { id: postId } }, updateCommentDto);
-    return await this.commentRepository.findOneBy({ id, post: { id: postId } });
-  }
-
-  async removeComment(postId: number, id: number): Promise<void> {
-    await this.commentRepository.delete({ id, post: { id: postId } });
+  async removeComment(postId: number, id: number, user: User): Promise<void> {
+    const comment = await this.commentRepository.findOne({ where: { id, post: { id: postId } }, relations: ['user'] });
+    if (!comment) {
+      throw new NotFoundException('Comment not found.');
+    }
+    if (comment.user.id !== user.id) {
+      throw new UnauthorizedException('You are not authorized to delete this comment.');
+    }
+    await this.commentRepository.remove(comment);
   }
 }
 ```

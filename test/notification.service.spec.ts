@@ -11,10 +11,9 @@ import { Community } from '../src/community/community.entity';
 describe('NotificationService', () => {
   let service: NotificationService;
   let notificationRepository: Repository<Notification>;
-  let commentRepository: Repository<Comment>
-  let communityRepository: Repository<Community>
+  let commentRepository: Repository<Comment>;
+  let communityRepository: Repository<Community>;
   let userRepository: Repository<User>;
-
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,7 +35,6 @@ describe('NotificationService', () => {
           provide: getRepositoryToken(Community),
           useClass: Repository,
         },
-
       ],
     }).compile();
 
@@ -50,8 +48,6 @@ describe('NotificationService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-
-  // ... (Existing tests)
 
   describe('createCommentNotification', () => {
     it('should create a notification for a new comment', async () => {
@@ -74,7 +70,16 @@ describe('NotificationService', () => {
 
       const result = await service.createCommentNotification(comment.id);
       expect(result).toEqual(createdNotification);
-    })
+    });
+
+    it('should handle errors when creating a comment notification', async () => {
+      const commentId = 1;
+      const error = new Error('Failed to create notification');
+
+      jest.spyOn(commentRepository, 'findOne').mockRejectedValue(error);
+
+      await expect(service.createCommentNotification(commentId)).rejects.toThrowError(error);
+    });
   });
 });
 
