@@ -9,29 +9,19 @@ import { Repository } from 'typeorm';
 export class ProfileService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
+    private usersRepository: Repository<User>
+  ){}
 
   async create(createProfileDto: CreateProfileDto, userId: number) {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {      
-      return null
-    } else {
-      user.profile = createProfileDto
-      return this.usersRepository.save(user);
-    }
+    const user = await this.usersRepository.findOne({where: {id: userId}});
+    user.profile = createProfileDto;
+    return this.usersRepository.save(user);
   }
 
-  findOne(id: number) {
-    return this.usersRepository.findOne({where: {id}, relations: ['profile']});
-  }
 
   async update(id: number, updateProfileDto: UpdateProfileDto, userId: number) {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      return null
-    }
-    user.profile = updateProfileDto
+    const user = await this.usersRepository.findOne({where: {id: userId}});
+    user.profile = updateProfileDto;
     return this.usersRepository.save(user);
   }
 }
