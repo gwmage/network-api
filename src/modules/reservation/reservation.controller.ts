@@ -1,10 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, Query, Req } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @Controller('reservation')
 export class ReservationController {
-  // ... rest of the code
+  constructor(private readonly reservationService: ReservationService) { }
+
+  @Post()
+  async create(@Body() createReservationDto: CreateReservationDto, @Req() req: Request) {
+    try {
+      return await this.reservationService.create(createReservationDto, req.user['id']);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
