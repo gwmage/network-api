@@ -1,6 +1,5 @@
-```typescript
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber } from 'class-validator';
+import { IsArray } from 'class-validator';
 import { MatchingInfoDto } from './matching-info.dto';
 
 
@@ -9,5 +8,3 @@ export class MatchingResponseDto {
   @IsArray()
   groups: MatchingInfoDto[];
 }
-
-```
