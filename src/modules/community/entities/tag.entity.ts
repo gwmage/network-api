@@ -1,5 +1,5 @@
 ```typescript
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn, JoinTable } from 'typeorm';
 import { Post } from './post.entity';
 
 @Entity()
@@ -11,7 +11,7 @@ export class Tag {
   name: string;
 
   @ManyToMany(() => Post, (post) => post.tags)
-  @JoinTable() // Add JoinTable decorator
+  @JoinTable()
   posts: Post[];
 }
 
