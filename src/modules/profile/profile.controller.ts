@@ -1,24 +1,25 @@
-import { Body, Controller, Get, Post, Put, Req, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, Param } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfileService } from './profile.service';
+import { Request } from 'express';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Post()
-  create(@Req() req: Request, @Body() createProfileDto: CreateProfileDto) {
-    return this.profileService.create(req.user['id'], createProfileDto);
+  create(@Body() createProfileDto: CreateProfileDto, @Req() req: Request) {
+    return this.profileService.create(createProfileDto, req.user['id']);
   }
 
-  @Get()
-  findOne(@Req() req: Request) {
-    return this.profileService.findOne(req.user['id']);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.profileService.findOne(+id);
   }
 
-  @Put()
-  update(@Req() req: Request, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profileService.update(req.user['id'], updateProfileDto);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto, @Req() req: Request) {
+    return this.profileService.update(+id, updateProfileDto, req.user['id']);
   }
 }
