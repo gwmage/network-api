@@ -16,13 +16,13 @@ export class ApplicationInfoDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsString() 
-  createdAt?: Date;
+  @IsString()
+  createdAt?: string;
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  updatedAt?: Date;
+  updatedAt?: string;
 }
 
 export class GetApplicationInfoListRequestDto {
@@ -40,13 +40,4 @@ export class GetApplicationInfoListRequestDto {
   @IsOptional()
   @IsNumber()
   limit?: number;
-}
-
-export class GetApplicationInfoListResponseDto {
-  @ApiProperty({ type: [ApplicationInfoDto] })
-  applications: ApplicationInfoDto[];
-
-  @ApiProperty()
-  @IsNumber()
-  totalCount: number;
 }
