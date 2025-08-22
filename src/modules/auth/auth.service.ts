@@ -1,3 +1,4 @@
+```typescript
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersRepository } from './users.repository';
@@ -24,7 +25,7 @@ export class AuthService {
     const user = await this.usersRepository.findOne({ where: { username } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const payload = { username };
+      const payload = { username, isAdmin: user.isAdmin }; // Include isAdmin flag in payload
       const accessToken = await this.jwtService.sign(payload);
       return { accessToken };
     } else {
@@ -34,8 +35,10 @@ export class AuthService {
 
   async adminSignIn(adminLoginDto: AdminLoginDto): Promise<{ accessToken: string }> {
     const { username, password } = adminLoginDto;
-    if (username === 'admin' && password === 'admin') {      
-      const payload = { username };
+    const user = await this.usersRepository.findOne({ where: { username, isAdmin: true } }); // Check for isAdmin flag
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const payload = { username, isAdmin: user.isAdmin }; // Include isAdmin flag in payload
       const accessToken = await this.jwtService.sign(payload);
       return { accessToken };
     } else {
@@ -51,3 +54,4 @@ export class AuthService {
     return this.usersRepository.updateUser(id, updateUserDto);
   }
 }
+```
