@@ -1,34 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProfileController } from '../src/profile/profile.controller';
-import { ProfileService } from '../src/profile/profile.service';
+import { ProfileController } from '../src/modules/profile/profile.controller';
+import { ProfileService } from '../src/modules/profile/profile.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Profile } from '../src/profile/profile.entity';
+import { User } from '../src/modules/auth/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UpdateProfileDto } from '../src/profile/dto/update-profile.dto';
-import { UsersService } from '../src/users/users.service';
-import { User } from '../src/users/user.entity';
+import { UpdateProfileDto } from '../src/modules/profile/dto/update-profile.dto';
+import { UsersService } from '../src/modules/auth/auth.service';
 
 describe('ProfileController', () => {
   let controller: ProfileController;
+  let service: ProfileService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProfileController],
       providers: [
         ProfileService,
-        UsersService, // Provide UsersService
+        UsersService,
         {
-          provide: getRepositoryToken(Profile),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(User), // Provide User repository
+          provide: getRepositoryToken(User),
           useClass: Repository,
         },
       ],
     }).compile();
 
     controller = module.get<ProfileController>(ProfileController);
+    service = module.get<ProfileService>(ProfileService);
   });
 
   it('should be defined', () => {
