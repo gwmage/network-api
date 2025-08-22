@@ -1,22 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
-import { IsOptional, IsString, IsBoolean, IsEnum } from 'class-validator';
-import { NotificationMethod } from '../../notification/entities/notification.entity';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  name?: string; 
+  name?: string;
 
-  @IsBoolean()
   @IsOptional()
-  email?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  push?: boolean;
-
-  @IsEnum(NotificationMethod)
-  @IsOptional()
-  preferredMethod?: NotificationMethod;
+  @IsEmail()
+  email?: string; // Ensure email is optional
 }
