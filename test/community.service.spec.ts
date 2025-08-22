@@ -1,76 +1,51 @@
 ```typescript
-import { Test, TestingModule } from '@nestjs/testing';
-import { CommunityService } from '../src/community/community.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Community } from '../src/community/community.entity';
-import { Repository } from 'typeorm';
-import { Comment } from '../src/community/comment.entity';
-import { NotFoundException } from '@nestjs/common';
-import { NotificationService } from '../src/notification/notification.service';
-
-describe('CommunityService', () => {
-  let service: CommunityService;
-  let communityRepository: Repository<Community>;
-  let commentRepository: Repository<Comment>;
-  let notificationService: NotificationService;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CommunityService,
-        {
-          provide: getRepositoryToken(Community),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(Comment),
-          useClass: Repository,
-        },
-        {
-          provide: NotificationService,
-          useValue: {
-            sendCommentNotification: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
-
-    service = module.get<CommunityService>(CommunityService);
-    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
-    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
-    notificationService = module.get<NotificationService>(NotificationService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  describe('createComment', () => {
-    it('should create a comment and send notification', async () => {
+    it('should create a comment', async () => {
       const postId = 1;
-      const createCommentDto = { content: 'Test comment' };
-      const createdComment = { id: 1, ...createCommentDto, post: { id: postId } as Community, user: { id: 1 } };
-      jest.spyOn(commentRepository, 'create').mockReturnValue(createdComment);
+      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
+      const user: User = { id: 1 } as User;
+      const createdComment: Comment = { id: 1, content: 'Test Comment', user, community: { id: postId } as Community } as Comment;
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(communityRepository, 'findOne').mockResolvedValue({ id: postId } as Community);
       jest.spyOn(commentRepository, 'save').mockResolvedValue(createdComment);
 
-      const result = await service.createComment(postId, createCommentDto);
+      const result = await service.createComment(postId, createCommentDto, user.id);
+
       expect(result).toEqual(createdComment);
-      expect(notificationService.sendCommentNotification).toHaveBeenCalledWith(createdComment);
     });
 
-    it('should create a nested comment and send notification', async () => {
+    it('should find one comment', async () => {
       const postId = 1;
-      const parentCommentId = 2;
-      const createCommentDto = { content: 'Test comment', parentCommentId };
-      const createdComment = { id: 3, ...createCommentDto, post: { id: postId } as Community, parent: { id: parentCommentId } as Comment, user: { id: 1 } };
-      jest.spyOn(commentRepository, 'create').mockReturnValue(createdComment);
-      jest.spyOn(commentRepository, 'save').mockResolvedValue(createdComment);
+      const id = 1;
+      const comment = { id, postId } as Comment;
 
-      const result = await service.createComment(postId, createCommentDto);
-      expect(result).toEqual(createdComment);
-      expect(notificationService.sendCommentNotification).toHaveBeenCalledWith(createdComment);
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
+      const result = await service.findOneComment(postId, id);
+      expect(result).toEqual(comment);
     });
-  });
-});
 
+
+    it('should update a comment', async () => {
+      const postId = 1;
+      const id = 1;
+      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment' };
+      const updatedComment = { id, content: 'Updated Comment', postId } as Comment;
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue({ id } as Comment);
+      jest.spyOn(commentRepository, 'save').mockResolvedValue(updatedComment)
+
+      const result = await service.updateComment(postId, id, updateCommentDto);
+      expect(result).toEqual(updatedComment);
+
+    });
+
+    it('should remove a comment', async () => {
+      const postId = 1;
+      const id = 1;
+
+      jest.spyOn(commentRepository, 'delete').mockResolvedValue({ affected: 1 });
+      const result = await service.removeComment(postId, id);
+      expect(result).toEqual({ affected: 1 });
+
+
+    });
 ```

@@ -13,8 +13,8 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
   content?: string;
 
   @IsOptional()
-  @IsString({ each: true })
-  categories?: string[];
+  @IsString()
+  category?: string;
 
   @IsOptional()
   @IsString({ each: true })

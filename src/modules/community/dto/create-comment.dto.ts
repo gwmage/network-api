@@ -1,22 +1,19 @@
 ```typescript
-import { IsNotEmpty, IsString, IsOptional, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { UserDto } from '../../user/dto/user.dto';
 
 export class CreateCommentDto {
   @IsNotEmpty()
   @IsString()
   content: string;
 
-  @IsNotEmpty()
-  @IsUUID()
+  @IsOptional()
+  @IsString()
   postId: string;
 
   @IsOptional()
-  @IsUUID()
+  @IsString()
   parentId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  parentCommentId?: string;
 
   @IsOptional()
   @IsString()
@@ -25,6 +22,9 @@ export class CreateCommentDto {
   @IsOptional()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsNotEmpty()
+  author: UserDto;
 }
 
 ```
