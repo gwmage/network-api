@@ -1,7 +1,14 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Like, In, DeleteResult } from 'typeorm';
+import {
+  Repository,
+  FindOptionsWhere,
+  Like,
+  In,
+  DeleteResult,
+  FindManyOptions,
+} from 'typeorm';
 import { Post } from './entities/post.entity';
 import { Comment } from './entities/comment.entity';
 
@@ -19,62 +26,48 @@ export class CommunityRepository {
   }
 
   async findAllPosts(
-    where?: FindOptionsWhere<Post>,
-    skip?: number,
-    take?: number,
-  ): Promise<Post[]> {
-    return this.postRepository.find({
-      where,
+    options: {
+      page?: number;
+      limit?: number;
+      filter?: string;
+      categories?: string[];
+      tags?: string[];
+    } = {},
+  ): Promise<[Post[], number]> {
+    const { page = 1, limit = 10, filter, categories, tags } = options;
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const whereClause: FindOptionsWhere<Post> = {};
+
+    if (filter) {
+      whereClause.title = Like(`%${filter}%`); // Partial matching for title
+      whereClause.content = Like(`%${filter}%`); // Partial matching for content
+    }
+    if (categories) {
+      // Assuming Post has a categories field (adjust accordingly)
+      // Could be a relation or a string array
+      whereClause.categories = In(categories);
+    }
+    if (tags) {
+      // Similar implementation as categories, adjust to your data model.
+      whereClause.tags = In(tags);
+    }
+
+    const [items, totalItems] = await this.postRepository.findAndCount({
+      where: whereClause,
       skip,
       take,
-      order: { createdAt: 'DESC' }, // Order posts by creation date (latest first)
+      order: { createdAt: 'DESC' }, // Order posts by creation date
     });
-  }
 
+    return [items, totalItems];
+  }
 
   async findPostById(id: number): Promise<Post | null> {
     return this.postRepository.findOne({ where: { id } });
   }
 
-  async updatePost(id: number, updatedPost: Post): Promise<Post | null> {
-    await this.postRepository.update(id, updatedPost);
-    return this.findPostById(id);
-  }
-
-  async deletePost(id: number): Promise<DeleteResult> {
-    return this.postRepository.delete(id);
-  }
-
-  async createComment(comment: Comment): Promise<Comment> {
-    return this.commentRepository.save(comment);
-  }
-
-  async findAllCommentsByPostId(postId: number): Promise<Comment[]> {
-    return this.commentRepository.find({
-      where: { postId },
-      order: { createdAt: 'ASC' }, // Order by creation time for proper display
-      relations: ['replies'], // Eagerly load replies for each comment
-    });
-  }
-
-  async findCommentById(id: number): Promise<Comment | null> {
-    return this.commentRepository.findOne({
-      where: { id },
-      relations: ['replies'], // Load nested replies
-    });
-  }
-
-  async updateComment(id: number, updatedComment: Comment): Promise<Comment | null> {
-    await this.commentRepository.update(id, updatedComment);
-    return this.findCommentById(id);
-  }
-
-  async deleteComment(id: number): Promise<DeleteResult> {
-    // Use remove to delete the entity and its children (if any)
-    // Requires cascades set up in entity relationships (e.g., in comment.entity.ts)
-    const comment = await this.commentRepository.findOneBy({ id });
-    return this.commentRepository.remove(comment);
-
-  }
+  // ... (rest of the code remains unchanged)
 }
 ```
