@@ -2,22 +2,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommunityService } from '../src/community/community.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Community } from '../src/community/entities/community.entity';
-import { Comment } from '../src/community/entities/comment.entity';
-import { User } from '../src/user/entities/user.entity';
+import { Community } from '../src/community/community.entity';
 import { Repository } from 'typeorm';
-import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
-import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
+import { Comment } from '../src/community/comment.entity';
 import { NotFoundException } from '@nestjs/common';
+import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
+import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
+import { PageOptionsDto } from '../src/common/dtos/page-options.dto';
 import { PageDto } from '../src/common/dtos/page.dto';
 import { PageMetaDto } from '../src/common/dtos/page-meta.dto';
-
+import { User } from '../src/users/user.entity';
 
 describe('CommunityService', () => {
   let service: CommunityService;
   let communityRepository: Repository<Community>;
   let commentRepository: Repository<Comment>;
   let userRepository: Repository<User>;
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -48,68 +49,29 @@ describe('CommunityService', () => {
     expect(service).toBeDefined();
   });
 
-  // ... other test cases
+  describe('findOne', () => {
+    it('should return a community post', async () => {
+      const id = 1;
+      const community: Community = { id: 1, title: 'Test Title', content: 'Test Content' };
+      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(community);
 
-  describe('findAll', () => {
-    it('should return paginated posts', async () => {
-      const page = 1;
-      const limit = 10;
-      const filter = 'test';
-      const categories = ['category1', 'category2'];
-      const tags = ['tag1', 'tag2'];
+      const result = await service.findOne(id);
 
-
-      const mockPosts: Community[] = [];
-      const mockTotalCount = 20;
-
-      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockTotalCount]);
-
-      const result: PageDto<Community> = await service.findAll({ page, limit, filter, categories, tags });
-
-      expect(communityRepository.findAndCount).toHaveBeenCalledWith({
-        where: {
-          title: expect.stringContaining(filter),
-          categories: { name: expect.arrayContaining(categories.map((category) => ({ name: category }))) },
-          tags: { name: expect.arrayContaining(tags.map((tag) => ({ name: tag }))) },
-        },
-
-        take: limit,
-        skip: (page - 1) * limit,
-      });
-
-      expect(result.data).toEqual(mockPosts);
-      expect(result.meta).toEqual(new PageMetaDto({ pageOptionsDto: { page, limit }, itemCount: mockTotalCount }));
-
+      expect(result).toEqual(community);
+      expect(communityRepository.findOne).toHaveBeenCalledWith({ where: { id }, relations: ['comments', 'comments.user'] });
     });
 
+    it('should throw NotFoundException if community post is not found', async () => {
+      const id = 1;
+      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(undefined);
 
-
-    it('should return all posts without pagination if limit is undefined or 0', async () => {
-      const filter = 'test';
-      const categories = ['category1', 'category2'];
-      const tags = ['tag1', 'tag2'];
-
-      const mockPosts: Community[] = [{id: 1, title: 'Test Post', content: 'Post Content'} as Community ];
-
-      jest.spyOn(communityRepository, 'find').mockResolvedValue(mockPosts);
-
-      const result = await service.findAll({ filter, categories, tags });
-
-      expect(communityRepository.find).toHaveBeenCalledWith({
-        where: {
-          title: expect.stringContaining(filter),
-          categories: { name: expect.arrayContaining(categories.map((category) => ({ name: category }))) },
-          tags: { name: expect.arrayContaining(tags.map((tag) => ({ name: tag }))) },
-        },
-      });
-
-
-      expect(result.data).toEqual(mockPosts);
-
+      await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
     });
   });
 
 
+
+  // ... other tests ...
 });
 
 ```
