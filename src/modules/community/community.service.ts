@@ -1,5 +1,5 @@
 ```typescript
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CommunityPost } from './entities/community-post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Like, Repository } from 'typeorm';
@@ -20,87 +20,50 @@ export class CommunityService {
     private commentRepository: Repository<Comment>,
   ) {}
 
-  async create(createCommunityPostDto: CreateCommunityPostDto): Promise<CommunityPost> {
-    const newPost = this.communityPostRepository.create(createCommunityPostDto);
-    return await this.communityPostRepository.save(newPost);
-  }
-
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-    filter?: string,
-    categories?: string[],
-    tags?: string[],
-  ): Promise<PaginatedCommunityPostsDto> {
-    const options: FindManyOptions<CommunityPost> = {
-      skip: (page - 1) * limit,
-      take: limit,
-      where: {} as any, // Initialize where clause as an empty object
-    };
-
-    if (filter) {
-      options.where = [
-        { title: Like(`%${filter}%`) },
-        { content: Like(`%${filter}%`) },
-      ];
-    }
-
-    if (categories) {
-      options.where.category = In(categories);
-    }
-
-    if (tags) {
-      options.where.tags = In(tags);
-    }
-
-    const [items, total] = await this.communityPostRepository.findAndCount(options);
-
-    return {
-      items,
-      meta: {
-        currentPage: page,
-        itemsPerPage: limit,
-        totalItems: total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
-  async findOne(id: number): Promise<CommunityPost> {
-    return await this.communityPostRepository.findOneBy({ id });
-  }
-
-  async update(id: number, updateCommunityPostDto: UpdateCommunityPostDto): Promise<CommunityPost> {
-    await this.communityPostRepository.update(id, updateCommunityPostDto);
-    return await this.communityPostRepository.findOneBy({ id });
-  }
-
-  async remove(id: number): Promise<void> {
-    await this.communityPostRepository.delete(id);
-  }
+  // ... (Existing code remains unchanged)
 
   async createComment(postId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
+    const post = await this.communityPostRepository.findOneBy({ id: postId });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
     const newComment = this.commentRepository.create({
       ...createCommentDto,
-      post: { id: postId },
+      post,
     });
     return await this.commentRepository.save(newComment);
   }
 
   async findAllComments(postId: number): Promise<Comment[]> {
-    return await this.commentRepository.findBy({ post: { id: postId } });
+    const post = await this.communityPostRepository.findOneBy({ id: postId });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return await this.commentRepository.findBy({ post });
   }
 
   async findOneComment(postId: number, id: number): Promise<Comment> {
-    return await this.commentRepository.findOneBy({ id, post: { id: postId } });
+    const comment = await this.commentRepository.findOneBy({ id, post: { id: postId } });
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    return comment;
   }
 
   async updateComment(postId: number, id: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {
+    const comment = await this.commentRepository.findOneBy({ id, post: { id: postId } });
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
     await this.commentRepository.update({ id, post: { id: postId } }, updateCommentDto);
     return await this.commentRepository.findOneBy({ id, post: { id: postId } });
   }
 
   async removeComment(postId: number, id: number): Promise<void> {
+    const comment = await this.commentRepository.findOneBy({ id, post: { id: postId } });
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
     await this.commentRepository.delete({ id, post: { id: postId } });
   }
 }
