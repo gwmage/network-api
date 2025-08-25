@@ -1,3 +1,4 @@
+```typescript
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { User } from '../../auth/entities/user.entity'; // Assuming User entity is in the auth module
 
@@ -6,19 +7,20 @@ export class Profile {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  firstName: string;
-
-  @Column()
-  lastName: string;
+  @Column({ nullable: true })
+  profilePictureUrl: string;
 
   @Column({ nullable: true })
-  bio: string;
+  name: string;
 
-  @Column({ type: 'date', nullable: true })
-  birthDate: Date;
+  @Column({ nullable: true })
+  selfIntroduction: string;
+
+  @Column({ type: 'text', array: true, nullable: true })
+  areasOfInterest: string[];
 
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
 }
+```

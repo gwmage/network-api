@@ -1,3 +1,4 @@
+```typescript
 import { Injectable } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -26,6 +27,12 @@ export class ProfileService {
     return profile;
   }
 
+  async findOne(userId: number): Promise<Profile | null> {
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['profile']});
+    return user ? user.profile : null;
+  }
+
+
   async update(id: number, updateProfileDto: UpdateProfileDto, userId: number): Promise<Profile> {
     const user = await this.userRepository.findOne({where: {id: userId}, relations: ['profile']});
     if (!user) {
@@ -39,3 +46,5 @@ export class ProfileService {
     return user.profile;
   }
 }
+
+```

@@ -1,5 +1,6 @@
+```typescript
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, IsDate } from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsDate, IsUrl, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ProfileDto {
@@ -11,14 +12,24 @@ export class ProfileDto {
   @IsNumber()
   userId: number; 
 
-  @ApiProperty()
-  @IsString()
-  nickname: string;
+  @ApiProperty({ description: 'Profile picture URL' })
+  @IsUrl()
+  @IsOptional()
+  profilePicture?: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'User\'s name' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ description: 'Self-introduction' })
   @IsString()
   @IsOptional()
-  introduction?: string;
+  selfIntroduction?: string;
+
+  @ApiProperty({ description: 'Areas of interest', type: [String] })
+  @IsArray()
+  @IsOptional()
+  interests?: string[];
 
   @ApiProperty()
   @IsDate()
@@ -32,3 +43,4 @@ export class ProfileDto {
   @IsOptional()
   updatedAt?: Date;
 }
+```
