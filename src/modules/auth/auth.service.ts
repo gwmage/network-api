@@ -25,7 +25,7 @@ export class AuthService {
     const user = await this.usersRepository.findOne({ where: { username } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const payload = { username, isAdmin: user.isAdmin }; // Include isAdmin flag in payload
+      const payload = { username, isAdmin: user.isAdmin };
       const accessToken = await this.jwtService.sign(payload);
       return { accessToken };
     } else {
@@ -35,14 +35,14 @@ export class AuthService {
 
   async adminSignIn(adminLoginDto: AdminLoginDto): Promise<{ accessToken: string }> {
     const { username, password } = adminLoginDto;
-    const user = await this.usersRepository.findOne({ where: { username, isAdmin: true } }); // Check for isAdmin flag
+    const user = await this.usersRepository.findOne({ where: { username, isAdmin: true } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const payload = { username, isAdmin: user.isAdmin }; // Include isAdmin flag in payload
+      const payload = { username, isAdmin: true }; // Ensure isAdmin is true in the payload
       const accessToken = await this.jwtService.sign(payload);
       return { accessToken };
     } else {
-      throw new UnauthorizedException('Please check your login credentials');
+      throw new UnauthorizedException('Please check your admin login credentials');
     }
   }
 
@@ -54,4 +54,5 @@ export class AuthService {
     return this.usersRepository.updateUser(id, updateUserDto);
   }
 }
+
 ```

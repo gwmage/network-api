@@ -1,9 +1,11 @@
+```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { Profile } from '../profile/profile.entity';
 import { Group } from '../group/group.entity';
 import { Repository } from 'typeorm';
+import { Match } from './match.entity';
 
 @Injectable()
 export class MatchingService {
@@ -16,38 +18,42 @@ export class MatchingService {
     private profileRepository: Repository<Profile>,
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
+    @InjectRepository(Match)
+    private matchRepository: Repository<Match>,
   ) {}
 
-  // Example matching logic (replace with your actual implementation)
-  async findMatches(userId: number): Promise<User[]> {
-    try {
-      const user = await this.usersRepository.findOne({
-        where: { id: userId },
-        relations: ['profile'], // Ensure profile is loaded
-      });
+  // ... (Existing findMatches method)
 
-      if (!user) {
-        throw new Error(`User with ID ${userId} not found`);
-      }
+  async createMatch(users: User[]): Promise<Match> {
+    const match = new Match();
+    match.users = users;
+    return this.matchRepository.save(match);
+  }
 
-      // Accessing user.profile will not be undefined here
-      const userProfile = user.profile;
+  async getAllMatches(): Promise<Match[]> {
+    return this.matchRepository.find({ relations: ['users'] });
+  }
 
-      // Example: Find users with similar interests
-      const matches = await this.usersRepository.find({
-        where: {
-          // Example criteria (replace with your actual matching criteria)
-          profile: {
-            interests: userProfile.interests, // Example using a common interest
-          },
-        },
-        relations: ['profile'],
-      });
+  async getMatchById(id: number): Promise<Match> {
+    return this.matchRepository.findOne({ where: { id }, relations: ['users'] });
+  }
 
-      return matches;
-    } catch (error) {
-      this.logger.error(`Matching process failed: ${error.message}`, error.stack);
-      throw error; // Re-throw the error after logging
+  async updateMatch(id: number, users: User[]): Promise<Match> {
+    const match = await this.getMatchById(id);
+    if (!match) {
+      throw new Error(`Match with ID ${id} not found`);
     }
+    match.users = users;
+    return this.matchRepository.save(match);
+  }
+
+  async deleteMatch(id: number): Promise<void> {
+    const match = await this.getMatchById(id);
+    if (!match) {
+      throw new Error(`Match with ID ${id} not found`);
+    }
+    await this.matchRepository.remove(match);
   }
 }
+
+```
