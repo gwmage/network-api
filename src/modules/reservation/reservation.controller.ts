@@ -1,3 +1,4 @@
+```typescript
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, Query, Req } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
@@ -16,4 +17,15 @@ export class ReservationController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.reservationService.findOne(+id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
+
+```
