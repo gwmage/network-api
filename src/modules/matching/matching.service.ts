@@ -4,42 +4,37 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { Profile } from '../profile/profile.entity';
 import { Group } from '../group/group.entity';
-import { Repository, In, Like } from 'typeorm'; // Import In and Like
+import { Repository, In, Like } from 'typeorm';
 import { Match } from './match.entity';
 
 @Injectable()
 export class MatchingService {
   // ... (Existing code)
 
-  async findMatches(userId: number, regions?: string[], interests?: string[]): Promise<User[]> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: ['profile'],
-    });
+  async generateExplanation(group: Group): Promise<string> {
+    const explanation = `Group ${group.id} was formed based on the following criteria:\n`;
+    const members = await this.usersRepository.findByIds(group.members);
 
-    if (!user) {
-      this.logger.error(`User with ID ${userId} not found`);
-      return [];
+    const regions = [...new Set(members.map(member => member.region))];
+    const interests = [...new Set(members.flatMap(member => member.interests.split(',')))];
+
+
+    if (regions.length > 0) {
+      const regionsString = regions.map(region => `"${region}"`).join(', ');
+      explanation += `- Regions: ${regionsString}\n`;
     }
 
-    const query = this.usersRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.profile', 'profile');
-
-    if (regions && regions.length > 0) {
-      query.andWhere('user.region IN (:...regions)', { regions });
-    }
-
-    if (interests && interests.length > 0) {
-      query.andWhere('user.interests LIKE ANY (ARRAY[:...interests])', { interests: interests.map(interest => `%${interest}%`) });
+    if (interests.length > 0) {
+      const interestsString = interests.map(interest => `"${interest.trim()}"`).join(', '); // Trim whitespace from interests
+      explanation += `- Interests: ${interestsString}\n`;
     }
 
 
-    const users = await query
-      .where('user.id != :userId', { userId })
-      .getMany();
+    // Add other criteria as needed (e.g., skill level, availability, etc.)
 
-    return users;
+    return explanation;
+
+
   }
 
   // ... (Existing code)
