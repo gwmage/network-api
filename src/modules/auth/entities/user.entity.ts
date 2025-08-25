@@ -25,6 +25,10 @@ export class User {
 
   @Column({ type: 'jsonb', nullable: true })
   interests: any;
+
+  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
+  location: Point;
 }
 
+import { Point } from 'geojson'; // Import necessary type
 ```

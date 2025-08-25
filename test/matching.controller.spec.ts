@@ -59,12 +59,12 @@ describe('MatchingController', () => {
       jest.spyOn(service, 'findMatch').mockResolvedValue(mockResult);
 
       expect(await controller.findMatch(mockUserId)).toBe(mockResult);
-      expect(service.findMatch).toHaveBeenCalledWith(mockUserId, {}); // Expect empty filter object
+      expect(service.findMatch).toHaveBeenCalledWith(mockUserId, {});
     });
 
     it('should handle errors', async () => {
       const mockUserId = 1;
-      const mockError = new HttpException('Some error occurred', 500); // Use HttpException
+      const mockError = new HttpException('Some error occurred', 500);
       jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
 
       await expect(controller.findMatch(mockUserId)).rejects.toThrowError(mockError);

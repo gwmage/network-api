@@ -15,6 +15,17 @@ export class MatchingController {
 
   // ... existing code ...
 
+  @Post('matching')
+  async initiateMatching(@Body() userInput: UserMatchingInputDTO): Promise<any> {
+    try {
+      const matchingResult = await this.matchingService.initiateMatching(userInput);
+      return matchingResult;
+    } catch (error) {
+      console.error('Error initiating matching:', error);
+      throw error; // Re-throw the error to be handled by the global exception filter
+    }
+  }
+
   @Get('groups/:groupId/visualization')
   async getMatchingVisualization(@Param('groupId', ParseIntPipe) groupId: number, @Res() res: Response): Promise<any> {
     try {
@@ -35,6 +46,7 @@ export class MatchingController {
       throw error;
     }
   }
-}
 
+
+}
 ```
