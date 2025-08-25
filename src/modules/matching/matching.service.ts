@@ -6,35 +6,48 @@ import { Profile } from '../profile/profile.entity';
 import { Group } from '../group/group.entity';
 import { Repository, In, Like } from 'typeorm';
 import { Match } from './match.entity';
+import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
+import { MatchingGroupDto } from './dto/matching-group.dto';
 
 @Injectable()
 export class MatchingService {
   // ... (Existing code)
 
+  async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
+    const users = await this.usersRepository.find(); // Fetch all users
+
+    // Filter users based on input criteria (if provided)
+    const filteredUsers = input.criteria ? users.filter(user => 
+      Object.keys(input.criteria).every(key =>
+        input.criteria[key] === user[key]
+      )) : users;
+
+
+    const groups: MatchingGroupDto[] = [];
+    let currentGroup: MatchingGroupDto = { groupId: 1, matchingScore: 0, participants: [] };
+    let groupCount = 1;
+
+
+    // Simple grouping logic (replace with your AI algorithm)
+    for (const user of filteredUsers) {
+      if (currentGroup.participants.length < 5) { //Limit to 5
+        currentGroup.participants.push({ userId: user.id });
+      } else {
+        groups.push(currentGroup);
+        groupCount++;
+        currentGroup = { groupId: groupCount, matchingScore: 0, participants: [{ userId: user.id }] };
+      }
+    }
+    groups.push(currentGroup); // Add the last group
+
+
+
+    return groups;
+  }
+
+
   async generateExplanation(group: Group): Promise<string> {
-    const explanation = `Group ${group.id} was formed based on the following criteria:\n`;
-    const members = await this.usersRepository.findByIds(group.members);
-
-    const regions = [...new Set(members.map(member => member.region))];
-    const interests = [...new Set(members.flatMap(member => member.interests.split(',')))];
-
-
-    if (regions.length > 0) {
-      const regionsString = regions.map(region => `"${region}"`).join(', ');
-      explanation += `- Regions: ${regionsString}\n`;
-    }
-
-    if (interests.length > 0) {
-      const interestsString = interests.map(interest => `"${interest.trim()}"`).join(', '); // Trim whitespace from interests
-      explanation += `- Interests: ${interestsString}\n`;
-    }
-
-
-    // Add other criteria as needed (e.g., skill level, availability, etc.)
-
-    return explanation;
-
-
+    // ... (Existing code)
   }
 
   // ... (Existing code)

@@ -1,3 +1,4 @@
+```typescript
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
 
@@ -18,4 +19,12 @@ export class User {
   @OneToOne(() => Profile, { cascade: true, eager: true})
   @JoinColumn()
   profile: Profile;
+
+  @Column({ type: 'jsonb', nullable: true })
+  preferences: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  interests: any;
 }
+
+```
