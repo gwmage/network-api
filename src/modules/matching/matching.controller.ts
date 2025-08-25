@@ -5,6 +5,7 @@ import { UserData } from './dto/user-data.dto';
 import { MatchResultDto } from './dto/match-result.dto';
 import { MatchDto } from './dto/match.dto';
 import { MatchFilterDto } from './dto/match-filter.dto';
+import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
 
 
 @Controller('admin/matches') // Added /admin prefix for future permission management
@@ -12,6 +13,11 @@ export class MatchingController {
   constructor(private readonly matchingService: MatchingService) {}
 
   // ... existing code ...
+
+  @Post('matching')
+  async startMatching(@Body() input: UserMatchingInputDTO): Promise<any> {
+    return this.matchingService.startMatching(input);
+  }
 
   @Get('groups')
   async getMatchingGroups(@Query() filter: MatchFilterDto): Promise<MatchResultDto> {

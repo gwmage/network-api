@@ -29,16 +29,15 @@ export class UserRepository extends Repository<User> {
     const whereClause: FindOptionsWhere<User> = {};
 
     if (search) {
-      whereClause.username = ILike(`%${search}%`); // Partial matching for username
-      // Add other fields for searching if needed (e.g., email, first_name, etc.)
+      whereClause.username = ILike(`%${search}%`); 
     }
 
-    const query = this.createQueryBuilder('user') // Explicitly specify alias for sorting
+    const query = this.createQueryBuilder('user')
       .where(whereClause);
 
     if (sort) {
       const [sortBy, sortOrder] = sort.split(':');
-      query.orderBy(`user.${sortBy}`, sortOrder.toUpperCase() as 'ASC' | 'DESC'); // Use alias here
+      query.orderBy(`user.${sortBy}`, sortOrder.toUpperCase() as 'ASC' | 'DESC');
     }
 
     return query.take(take).skip(skip).getManyAndCount();
@@ -46,7 +45,14 @@ export class UserRepository extends Repository<User> {
   }
 
   async findUserById(id: number): Promise<User | null> {
-    return this.findOne({ where: { id } });
+    return this.findOne({ where: { id }, relations: ['profile'] });
+  }
+
+  async findUserForMatching(id: number): Promise<User | null> {
+    return this.findOne({
+      where: { id },
+      relations: ['profile', 'profile.preferences', 'profile.interests'],
+    });
   }
 
 
@@ -59,10 +65,8 @@ export class UserRepository extends Repository<User> {
     await this.delete(id);
   }
 
-  async getUserActivity(id: number): Promise<any> { // Replace 'any' with the actual type of user activity
-    // Implement logic to fetch user activity based on user ID
-    // This might involve querying related tables or other data sources
-    return null; // Placeholder
+  async getUserActivity(id: number): Promise<any> {
+    return null; 
   }
 
 }

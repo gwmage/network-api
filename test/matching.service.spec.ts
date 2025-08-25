@@ -56,9 +56,38 @@ describe('MatchingService', () => {
       console.log(`Execution time for ${numProfiles} profiles: ${executionTime} ms`);
       expect(executionTime).toBeLessThan(500); // Adjust threshold as needed
     }, 10000); // Increase timeout if necessary
+
+
+    it('should handle various input sizes', async () => {
+      const profileSizes = [10, 100, 500, 1000];
+      for (const numProfiles of profileSizes) {
+        const mockProfiles: Profile[] = [];
+        for (let i = 0; i < numProfiles; i++) {
+          mockProfiles.push({
+            id: i + 1,
+            userId: i + 1,
+            interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4) + 1),
+            region: ['서울', '부산', '대구'][Math.floor(Math.random() * 3)],
+            // ... other properties
+          } as Profile);
+        }
+
+        jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
+        const startTime = performance.now();
+        await service.findMatch(1);
+        const endTime = performance.now();
+        const executionTime = endTime - startTime;
+        console.log(`Execution time for ${numProfiles} profiles: ${executionTime} ms`);
+
+          // Add expectations or assertions based on your performance goals
+          // For example, you might check if execution time grows linearly
+          //  or stays within acceptable limits
+      }
+
+
+    }, 30000)
+
   });
-
-
 });
 
 ```
