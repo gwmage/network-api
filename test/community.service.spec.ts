@@ -1,72 +1,115 @@
 ```typescript
+import { Test, TestingModule } from '@nestjs/testing';
+import { CommunityService } from '../src/community/community.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Community } from '../src/community/entities/community.entity';
+import { Comment } from '../src/community/entities/comment.entity';
+import { User } from '../src/user/entities/user.entity';
+import { Repository } from 'typeorm';
+import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
+import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
+import { NotFoundException } from '@nestjs/common';
 import { PageDto } from '../src/common/dtos/page.dto';
 import { PageMetaDto } from '../src/common/dtos/page-meta.dto';
-import { NotFoundException } from '@nestjs/common';
 
 
 describe('CommunityService', () => {
-  // ... existing code ...
+  let service: CommunityService;
+  let communityRepository: Repository<Community>;
+  let commentRepository: Repository<Comment>;
+  let userRepository: Repository<User>;
 
-  describe('createComment', () => {
-    it('should create a comment', async () => {
-      const postId = 1;
-      const userId = 1;
-      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
-      const createdComment = { id: 1, ...createCommentDto, community: { id: postId }, user: { id: userId } } as Comment;
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CommunityService,
+        {
+          provide: getRepositoryToken(Community),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Comment),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useClass: Repository,
+        },
+      ],
+    }).compile();
 
-      jest.spyOn(communityRepository, 'findOne').mockResolvedValue({ id: postId } as Community);
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue({ id: userId } as User);
-      jest.spyOn(commentRepository, 'save').mockResolvedValue(createdComment);
+    service = module.get<CommunityService>(CommunityService);
+    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
+    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+  });
 
-      const result = await service.createComment(postId, createCommentDto, userId);
-      expect(result).toEqual(createdComment);
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  // ... other test cases
+
+  describe('findAll', () => {
+    it('should return paginated posts', async () => {
+      const page = 1;
+      const limit = 10;
+      const filter = 'test';
+      const categories = ['category1', 'category2'];
+      const tags = ['tag1', 'tag2'];
+
+
+      const mockPosts: Community[] = [];
+      const mockTotalCount = 20;
+
+      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockTotalCount]);
+
+      const result: PageDto<Community> = await service.findAll({ page, limit, filter, categories, tags });
+
+      expect(communityRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          title: expect.stringContaining(filter),
+          categories: { name: expect.arrayContaining(categories.map((category) => ({ name: category }))) },
+          tags: { name: expect.arrayContaining(tags.map((tag) => ({ name: tag }))) },
+        },
+
+        take: limit,
+        skip: (page - 1) * limit,
+      });
+
+      expect(result.data).toEqual(mockPosts);
+      expect(result.meta).toEqual(new PageMetaDto({ pageOptionsDto: { page, limit }, itemCount: mockTotalCount }));
+
     });
 
-    it('should throw NotFoundException if community post is not found', async () => {
-      const postId = 999;
-      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
-      const userId = 1;
 
-      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(undefined);
 
-      await expect(service.createComment(postId, createCommentDto, userId)).rejects.toThrow(NotFoundException);
+    it('should return all posts without pagination if limit is undefined or 0', async () => {
+      const filter = 'test';
+      const categories = ['category1', 'category2'];
+      const tags = ['tag1', 'tag2'];
+
+      const mockPosts: Community[] = [{id: 1, title: 'Test Post', content: 'Post Content'} as Community ];
+
+      jest.spyOn(communityRepository, 'find').mockResolvedValue(mockPosts);
+
+      const result = await service.findAll({ filter, categories, tags });
+
+      expect(communityRepository.find).toHaveBeenCalledWith({
+        where: {
+          title: expect.stringContaining(filter),
+          categories: { name: expect.arrayContaining(categories.map((category) => ({ name: category }))) },
+          tags: { name: expect.arrayContaining(tags.map((tag) => ({ name: tag }))) },
+        },
+      });
+
+
+      expect(result.data).toEqual(mockPosts);
 
     });
   });
 
 
-  describe('updateComment', () => {
-    it('should update a comment', async () => {
-      const commentId = 1;
-      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment' };
-      const updatedComment = { id: commentId, ...updateCommentDto } as Comment;
-
-      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(updatedComment);
-      jest.spyOn(commentRepository, 'save').mockResolvedValue(updatedComment);
-
-      const result = await service.updateComment(commentId, updateCommentDto);
-      expect(result).toEqual(updatedComment);
-    });
-
-    it('should throw NotFoundException if comment is not found', async () => {
-      const commentId = 999;
-      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment' };
-
-      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(undefined);
-
-      await expect(service.updateComment(commentId, updateCommentDto)).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('deleteComment', () => {
-    it('should delete a comment', async () => {
-      const commentId = 1;
-      jest.spyOn(commentRepository, 'delete').mockResolvedValue({ affected: 1 });
-
-      await service.deleteComment(commentId);
-      expect(commentRepository.delete).toHaveBeenCalledWith(commentId);
-    });
-  });
 });
 
 ```

@@ -5,12 +5,19 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { SearchPostDto } from './dto/search-post.dto';
 
 @Controller('community')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
   // ... (Existing Post related endpoints)
+
+  @Get('posts/search')
+  searchPosts(@Query() searchPostDto: SearchPostDto) {
+    return this.communityService.searchPosts(searchPostDto);
+  }
+
 
   @Post('posts/:postId/comments')
   createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto) {
