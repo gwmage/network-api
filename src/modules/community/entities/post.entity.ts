@@ -5,15 +5,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  ManyToOne,
   ManyToMany,
   JoinTable,
-  OneToMany,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
 import { Category } from './category.entity';
 import { Tag } from './tag.entity';
-import { Comment } from './comment.entity';
 
 @Entity()
 export class Post {
@@ -26,9 +22,6 @@ export class Post {
   @Column({ type: 'text' })
   content: string;
 
-  @ManyToOne(() => User, (user) => user.posts)
-  author: User;
-
   @ManyToMany(() => Category, (category) => category.posts)
   @JoinTable()
   categories: Category[];
@@ -37,17 +30,10 @@ export class Post {
   @JoinTable()
   tags: Tag[];
 
-  @OneToMany(() => Comment, (comment) => comment.post)
-  comments: Comment[];
-
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @Column({ default: 0 })
-  commentCount: number;
 }
-
 ```
