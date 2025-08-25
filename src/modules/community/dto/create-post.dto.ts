@@ -18,5 +18,4 @@ export class CreatePostDto {
   @IsString({ each: true })
   tags?: string[];
 }
-
 ```
