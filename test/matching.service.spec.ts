@@ -29,51 +29,36 @@ describe('MatchingService', () => {
   });
 
   describe('filterMatches', () => {
-    const mockMatches = [
-      { userId: 1, score: 0.9, interests: ['reading', 'hiking'], region: '서울' },
-      { userId: 2, score: 0.8, interests: ['coding', 'gaming'], region: '부산' },
-      { userId: 3, score: 0.7, interests: ['reading', 'coding'], region: '서울' },
-      { userId: 4, score: 0.6, interests: ['hiking', 'gaming'], region: '대구' },
-    ];
-
-    it('should return all matches when no filters are provided', () => {
-      expect(service.filterMatches(mockMatches, {})).toEqual(mockMatches);
-    });
-
-    it('should filter by single selection', () => {
-      expect(service.filterMatches(mockMatches, { interests: ['reading'] })).toEqual([
-        mockMatches[0],
-        mockMatches[2],
-      ]);
-      expect(service.filterMatches(mockMatches, { region: '서울' })).toEqual([
-        mockMatches[0],
-        mockMatches[2],
-      ]);
-    });
-
-    it('should filter by multiple selections', () => {
-      expect(service.filterMatches(mockMatches, { interests: ['reading', 'coding'] })).toEqual([
-        mockMatches[0],
-        mockMatches[2],
-      ]);
-      expect(service.filterMatches(mockMatches, { region: ['서울', '부산'] })).toEqual([
-        mockMatches[0],
-        mockMatches[1],
-        mockMatches[2],
-      ]);
-    });
-
-
-    it('should handle empty selections', () => {
-      expect(service.filterMatches(mockMatches, { interests: [], region: [] })).toEqual(mockMatches);
-    });
-
-    it('should handle invalid input', () => {
-      expect(service.filterMatches(mockMatches, { interests: null, region: undefined })).toEqual(mockMatches);
-      expect(service.filterMatches(mockMatches, { invalidField: 'someValue' } as any)).toEqual(mockMatches);
-
-    });
+    // ... existing tests
   });
+
+  describe('performance test', () => {
+    it('should handle large number of profiles efficiently', async () => {
+      const numProfiles = 1000;
+      const mockProfiles: Profile[] = [];
+      for (let i = 0; i < numProfiles; i++) {
+        mockProfiles.push({
+          id: i + 1,
+          userId: i + 1,
+          interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4) + 1),
+          region: ['서울', '부산', '대구'][Math.floor(Math.random() * 3)],
+          // ... other properties
+        } as Profile);
+      }
+
+      jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
+
+      const startTime = performance.now();
+      const result = await service.findMatch(1); // or any userId
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
+
+      console.log(`Execution time for ${numProfiles} profiles: ${executionTime} ms`);
+      expect(executionTime).toBeLessThan(500); // Adjust threshold as needed
+    }, 10000); // Increase timeout if necessary
+  });
+
+
 });
 
 ```

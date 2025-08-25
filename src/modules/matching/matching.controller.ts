@@ -24,6 +24,17 @@ export class MatchingController {
       throw error; // Re-throw the error to be handled by a global exception filter
     }
   }
+
+  @Get('explain/:groupId')
+    async getMatchingExplanation(@Param('groupId', ParseIntPipe) groupId: number): Promise<string> {
+        try {
+            const explanation = await this.matchingService.getMatchExplanation(groupId);
+            return explanation;
+        } catch (error) {
+            console.error('Error fetching matching explanation:', error);
+            throw error;
+        }
+    }
 }
 
 ```
