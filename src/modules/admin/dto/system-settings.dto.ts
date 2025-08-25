@@ -1,58 +1,27 @@
 ```typescript
-import { IsNotEmpty, IsString, IsUrl, IsOptional, IsBoolean, IsNumber } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class SystemSettingsDto {
   @IsNotEmpty()
   @IsString()
   appName: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @IsUrl()
   appUrl: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   appLogo: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsBoolean()
   maintenanceMode: boolean;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   maintenanceMessage: string;
 
-  @IsOptional()
-  @IsNumber()
-  matchingInterval: number;
-}
-
-export class UpdateSystemSettingsDto {
-  @IsOptional()
-  @IsString()
-  appName?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsUrl()
-  appUrl?: string;
-
-  @IsOptional()
-  @IsString()
-  appLogo?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  maintenanceMode?: boolean;
-
-  @IsOptional()
-  @IsString()
-  maintenanceMessage?: string;
-
-  @IsOptional()
-  @IsNumber()
-  matchingInterval?: number;
-}
-
-```
+  @IsNotEmpty()
+  @IsNumb

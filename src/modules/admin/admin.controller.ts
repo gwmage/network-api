@@ -1,22 +1,23 @@
 ```typescript
 import { Controller, Get, Put, Body } from '@nestjs/common';
+import { AdminService } from './admin.service';
 import { SystemSettingsDto } from './dto/system-settings.dto';
+import { SystemSettings } from './entities/system-settings.entity';
+import { UpdateSystemSettingsDto } from './dto/update-system-settings.dto';
 
 @Controller('admin')
 export class AdminController {
-  // ... other controller methods
+  constructor(private readonly adminService: AdminService) {}
 
   @Get('settings')
-  getSettings() {
-    // TODO: Fetch system settings from database or configuration
-    return { setting1: 'value1', setting2: 'value2' }; // Placeholder
+  async getSystemSettings(): Promise<SystemSettings> {
+    return this.adminService.getSystemSettings();
   }
 
   @Put('settings')
-  updateSettings(@Body() settings: SystemSettingsDto) {
-    // TODO: Update system settings in database or configuration
-    console.log('Received settings:', settings);
-    return { message: 'Settings updated successfully' }; // Placeholder
+  async updateSystemSettings(@Body() settings: UpdateSystemSettingsDto) {
+    return this.adminService.updateSystemSettings(settings);
   }
 }
+
 ```
