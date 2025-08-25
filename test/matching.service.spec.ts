@@ -1,17 +1,5 @@
 ```typescript
-import { Test, TestingModule } from '@nestjs/testing';
-import { MatchingService } from '../src/matching/matching.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Profile } from '../src/profile/profile.entity';
-import { Repository } from 'typeorm';
-
-describe('MatchingService', () => {
-  let service: MatchingService;
-  let profileRepository: Repository<Profile>;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
+        providers: [
         MatchingService,
         {
           provide: getRepositoryToken(Profile),
@@ -60,12 +48,16 @@ describe('MatchingService', () => {
 
     it('should handle various input sizes', async () => {
       const profileSizes = [10, 100, 500, 1000];
-      for (const numProfiles of profileSizes) {
+      const expectedMaxTimes = [10, 50, 250, 500]; // Example: Adjust as needed
+
+      for (let i = 0; i < profileSizes.length; i++) {
+        const numProfiles = profileSizes[i];
+        const maxTime = expectedMaxTimes[i];
         const mockProfiles: Profile[] = [];
-        for (let i = 0; i < numProfiles; i++) {
+        for (let j = 0; j < numProfiles; j++) {
           mockProfiles.push({
-            id: i + 1,
-            userId: i + 1,
+            id: j + 1,
+            userId: j + 1,
             interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4) + 1),
             region: ['서울', '부산', '대구'][Math.floor(Math.random() * 3)],
             // ... other properties
@@ -79,13 +71,9 @@ describe('MatchingService', () => {
         const executionTime = endTime - startTime;
         console.log(`Execution time for ${numProfiles} profiles: ${executionTime} ms`);
 
-          // Add expectations or assertions based on your performance goals
-          // For example, you might check if execution time grows linearly
-          //  or stays within acceptable limits
+        expect(executionTime).toBeLessThan(maxTime);
       }
-
-
-    }, 30000)
+    }, 30000);
 
   });
 });
