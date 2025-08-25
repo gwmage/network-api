@@ -1,7 +1,7 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { GroupAssignment } from './entities/group-assignment.entity';
 
@@ -32,5 +32,10 @@ export class MatchingRepository extends Repository<GroupAssignment> {
       where: { userId },
     });
   }
+
+  async findGroupAssignments(where: FindOptionsWhere<GroupAssignment>): Promise<GroupAssignment[]> {
+    return this.groupAssignmentRepository.find({ where });
+  }
 }
+
 ```
