@@ -1,35 +1,74 @@
 ```typescript
 import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/user.entity';
-import { Profile } from '../profile/profile.entity';
-import { Group } from '../group/group.entity';
-import { Repository, In, Like } from 'typeorm';
-import { Match } from './match.entity';
-import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
-import { MatchingGroupDto } from './dto/matching-group.dto';
+import { User } from '../users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { Match } from './entities/match.entity';
+import { NotificationService } from '../notifications/notification.service';
 
 @Injectable()
 export class MatchingService {
-  // ... (Existing code)
+  private readonly logger = new Logger(MatchingService.name);
 
-  async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
-    const startTime = performance.now();
-    // ... (Existing matching logic)
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Match)
+    private matchRepository: Repository<Match>,
+    private notificationService: NotificationService,
+  ) {}
 
-    const endTime = performance.now();
-    const executionTime = endTime - startTime;
-    this.logger.log(`Matching execution time: ${executionTime}ms`);
+  async triggerMatching(): Promise<{ status: string }> {
+    try {
+      // Instead of directly running the matching, we set a flag or
+      // use a message queue (e.g., Redis, RabbitMQ) to signal the matching process
+      // This allows for asynchronous processing and prevents blocking the request.
 
-    return matchingGroups;
+      this.runMatching(); // Schedule an immediate run
+
+
+      return { status: 'Matching process initiated.' };
+    } catch (error) {
+      this.logger.error(`Failed to trigger matching: ${error.message}`, error.stack);
+      throw error; // Re-throw the error to be handled by a global exception filter
+    }
   }
 
 
-  async generateExplanation(groupId: number): Promise<string> {
-    // ... existing code
+  async getMatchingStatus(): Promise<{ status: string }> {
+    // Check the flag or query the message queue for the current status
+    // For demonstration, we return a placeholder
+    return { status: 'Matching process is scheduled.' };
   }
 
-  // ... (Existing code)
+
+
+  @Cron(CronExpression.EVERY_WEEK)
+  async runMatching() {
+    this.logger.log('Starting AI matching process...');
+
+    try {
+      const users = await this.userRepository.find({
+        where: {
+          // Add any necessary filtering criteria here
+        },
+      });
+
+      const matchedGroups = this.matchUsers(users);
+
+      const savedMatches = await this.saveMatches(matchedGroups);
+
+      // Send notifications after successful match and save
+      await this.sendMatchNotifications(savedMatches);
+
+      this.logger.log('Matching process completed successfully.');
+    } catch (error) {
+      this.logger.error(`Matching process failed: ${error.message}`, error.stack);
+    }
+  }
+
+  // ... other methods (saveMatches, sendMatchNotifications, matchUsers remain unchanged)
 }
 
 ```

@@ -1,42 +1,39 @@
 ```typescript
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
-  Post, // Import Post
-  Put,
-  Req,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
-import { Request } from 'express';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { UsersService } from '../user/user.service';
-import { UpdateUserDto } from '../user/dto/update-user.dto';
-import { AuthService } from './auth.service'; // Import AuthService
-import { AdminLoginDto } from './dto/admin-login.dto'; // Import DTO
+import { Body, Controller, Post, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { AdminLoginDto } from './dto/admin-login.dto';
 
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
-@Controller('users')
-@UseGuards(JwtAuthGuard)
-export class UserController {
-  constructor(
-    private readonly userService: UsersService,
-    private readonly authService: AuthService, // Inject AuthService
-  ) {}
+  @Post('/register')
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
 
-  // ... other methods
+  @HttpCode(HttpStatus.OK)
+  @Post('/login')
+  async login(@Body() loginDto: LoginDto): Promise<{ access_token: string }> {
+    try {
+      const jwt = await this.authService.login(loginDto);
+      return jwt;
+    } catch (error) {
+      throw new UnauthorizedException({ message: 'Invalid credentials' });
+    }
+  }
 
-  @Post('admin/login') // New admin login endpoint
-  @HttpCode(HttpStatus.OK) // Explicitly set status code to 200
-  async adminLogin(@Body() adminLoginDto: AdminLoginDto): Promise<{ accessToken: string }> {
-    return this.authService.adminLogin(adminLoginDto);
+  @HttpCode(HttpStatus.OK)
+  @Post('/admin/login')
+  async adminLogin(@Body() adminLoginDto: AdminLoginDto): Promise<{ access_token: string }> {
+    try {
+      const jwt = await this.authService.adminLogin(adminLoginDto);
+      return jwt;
+    } catch (error) {
+      throw new UnauthorizedException({ message: 'Invalid admin credentials' });
+    }
   }
 }
-
 ```

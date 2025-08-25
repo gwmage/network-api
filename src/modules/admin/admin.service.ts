@@ -1,12 +1,12 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/user.entity';
 import { Repository } from 'typeorm';
-import { Profile } from '../profile/profile.entity';
-import { Group } from '../group/group.entity';
-import { SystemSettings } from './system-settings.entity';
-import { UpdateSystemSettingsDto } from './dto/system-settings.dto';
+import { User } from '../users/entities/user.entity';
+import { Profile } from '../profiles/entities/profile.entity';
+import { Group } from '../groups/entities/group.entity';
+import { SystemSettings } from './entities/system-settings.entity';
+import { UpdateSystemSettingsDto } from './dto/update-system-settings.dto';
 
 @Injectable()
 export class AdminService {
@@ -14,7 +14,8 @@ export class AdminService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
     @InjectRepository(Group) private groupRepository: Repository<Group>,
-    @InjectRepository(SystemSettings) private systemSettingsRepository: Repository<SystemSettings>,
+    @InjectRepository(SystemSettings)
+    private systemSettingsRepository: Repository<SystemSettings>,
   ) {}
 
   // ... other methods
@@ -25,19 +26,25 @@ export class AdminService {
     if (!settings) {
       // Create default settings if none exist
       const defaultSettings = this.systemSettingsRepository.create({
-        appName: 'Default App Name',
-        appUrl: 'http://localhost:3000',
-        // ... other default values
+        // ... default settings values
       });
-      return this.systemSettingsRepository.save(defaultSettings);
+      return await this.systemSettingsRepository.save(defaultSettings);
     }
     return settings;
   }
 
-  async updateSystemSettings(settings: UpdateSystemSettingsDto): Promise<SystemSettings> {
-    await this.systemSettingsRepository.update(1, settings);
-    return this.systemSettingsRepository.findOneBy({ id: 1 });
+  async updateSystemSettings(
+    updateSystemSettingsDto: UpdateSystemSettingsDto,
+  ): Promise<SystemSettings> {
+    const settings = await this.systemSettingsRepository.findOne({ where: { id: 1 } });
+    if (!settings) {
+      throw new Error('System settings not found.'); // Or create default settings
+    }
+
+    // Update settings based on DTO
+    Object.assign(settings, updateSystemSettingsDto);
+
+    return await this.systemSettingsRepository.save(settings);
   }
 }
-
 ```

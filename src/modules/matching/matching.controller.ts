@@ -1,52 +1,91 @@
 ```typescript
-import { Body, Controller, Get, Post, Put, Delete, Param, ParseIntPipe, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Delete, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { MatchingService } from './matching.service';
 import { UserData } from './dto/user-data.dto';
 import { MatchResultDto } from './dto/match-result.dto';
-import { MatchDto } from './dto/match.dto';
-import { MatchFilterDto } from './dto/match-filter.dto';
-import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
-import { Response } from 'express';
 
-
-@Controller('admin/matches') // Added /admin prefix for future permission management
+@Controller('matching')
 export class MatchingController {
   constructor(private readonly matchingService: MatchingService) {}
 
-  // ... existing code ...
-
-  @Post('matching')
-  async initiateMatching(@Body() userInput: UserMatchingInputDTO): Promise<any> {
+  @Post()
+  async initiateMatching() {
     try {
-      const matchingResult = await this.matchingService.initiateMatching(userInput);
+      return await this.matchingService.initiateMatching();
+    } catch (error) {
+      throw new HttpException('Failed to initiate matching', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get('status')
+  async getMatchingStatus() {
+    try {
+      return await this.matchingService.getMatchingStatus();
+    } catch (error) {
+      throw new HttpException('Failed to get matching status', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+  @Post('users')
+  async createUser(@Body() userData: UserData) {
+    try {
+      return await this.matchingService.createUser(userData);
+    } catch (error) {
+      throw new HttpException('Failed to create user', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+  }
+
+  @Get('groups')
+  async getMatchingGroups(): Promise<MatchResultDto> {
+    try {
+      const matchingResult = await this.matchingService.findMatch();
       return matchingResult;
     } catch (error) {
-      console.error('Error initiating matching:', error);
-      throw error; // Re-throw the error to be handled by the global exception filter
+        throw new HttpException('Failed to retrieve matching groups', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Get('groups/:groupId/visualization')
-  async getMatchingVisualization(@Param('groupId', ParseIntPipe) groupId: number, @Res() res: Response): Promise<any> {
+  @Get('matches')
+  async getAllMatches() {
     try {
-      const visualizationData = await this.matchingService.getMatchVisualization(groupId);
-      // Assuming visualizationData can be a string (e.g., SVG), a JSON object, or a Buffer
-      if (typeof visualizationData === 'string') {
-        res.send(visualizationData); // For string data like SVG
-      } else if (Buffer.isBuffer(visualizationData)) {
-        res.send(visualizationData); // For binary data like images
-      }
-      else {
-        res.json(visualizationData); // For JSON data
-      }
-
-
+      return await this.matchingService.getAllMatches();
     } catch (error) {
-      console.error('Error fetching matching visualization:', error);
-      throw error;
+      throw new HttpException('Failed to get all matches', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('matches/:id')
+  async getMatchById(@Param('id') id: string) {
+    try {
+      return await this.matchingService.getMatchById(id);
+    } catch (error) {
+      throw new HttpException('Failed to get match', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+  @Put('matches/:id')
+  async updateMatch(@Param('id') id: string, @Body() updateData: any) { // Define updateData DTO
+    try {
+      return await this.matchingService.updateMatch(id, updateData);
+    } catch (error) {
+      throw new HttpException('Failed to update match', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Delete('matches/:id')
+  async deleteMatch(@Param('id') id: string) {
+    try {
+      return await this.matchingService.deleteMatch(id);
+    } catch (error) {
+      throw new HttpException('Failed to delete match', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 
 
 }
+
 ```
