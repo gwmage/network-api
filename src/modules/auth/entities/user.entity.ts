@@ -1,6 +1,7 @@
 ```typescript
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
+import { Point } from 'geojson';
 
 @Entity()
 export class User {
@@ -16,7 +17,7 @@ export class User {
   @Column({ nullable: true })
   refreshToken?: string;
 
-  @OneToOne(() => Profile, { cascade: true, eager: true})
+  @OneToOne(() => Profile, { cascade: true, eager: true })
   @JoinColumn()
   profile: Profile;
 
@@ -30,5 +31,4 @@ export class User {
   location: Point;
 }
 
-import { Point } from 'geojson'; // Import necessary type
 ```
