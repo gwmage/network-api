@@ -1,3 +1,4 @@
+```typescript
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateReservationDto {
@@ -12,4 +13,15 @@ export class CreateReservationDto {
 
   @ApiProperty()
   restaurantId: number;
+
+  @ApiProperty()
+  customerName: string;
+
+  @ApiProperty()
+  customerEmail: string;
+
+  @ApiProperty()
+  customerPhone: string;
 }
+
+```
