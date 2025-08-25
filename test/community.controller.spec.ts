@@ -57,6 +57,14 @@ describe('CommunityController', () => {
 
       expect(await controller.createComment(postId, createCommentDto)).toEqual(createdComment);
     });
+
+    it('should throw NotFoundException if post is not found', async () => {
+      const postId = 999;
+      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
+      jest.spyOn(service, 'createComment').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.createComment(postId, createCommentDto)).rejects.toThrow(NotFoundException);
+    });
   });
 
   describe('updateComment', () => {
@@ -108,6 +116,14 @@ describe('CommunityController', () => {
       jest.spyOn(service, 'getComments').mockResolvedValue(comments);
 
       expect(await controller.getComments(postId)).toEqual(comments);
+    });
+
+    it('should throw NotFoundException if post is not found', async () => {
+      const postId = 999;
+      jest.spyOn(service, 'getComments').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.getComments(postId)).rejects.toThrow(NotFoundException);
+
     });
   });
 
