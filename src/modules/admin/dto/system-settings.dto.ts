@@ -54,4 +54,5 @@ export class UpdateSystemSettingsDto {
   @IsNumber()
   matchingInterval?: number;
 }
+
 ```

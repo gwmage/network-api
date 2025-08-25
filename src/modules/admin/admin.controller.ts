@@ -1,21 +1,22 @@
 ```typescript
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Put, Body } from '@nestjs/common';
+import { SystemSettingsDto } from './dto/system-settings.dto';
 
 @Controller('admin')
 export class AdminController {
-  // @Get('users')
-  // getUsers() {
-  //   // Logic for user management
-  // }
+  // ... other controller methods
 
-  // @Get('matching')
-  // getMatching() {
-  //   // Logic for matching management
-  // }
+  @Get('settings')
+  getSettings() {
+    // TODO: Fetch system settings from database or configuration
+    return { setting1: 'value1', setting2: 'value2' }; // Placeholder
+  }
 
-  // @Get('settings')
-  // getSettings() {
-  //   // Logic for system settings
-  // }
+  @Put('settings')
+  updateSettings(@Body() settings: SystemSettingsDto) {
+    // TODO: Update system settings in database or configuration
+    console.log('Received settings:', settings);
+    return { message: 'Settings updated successfully' }; // Placeholder
+  }
 }
 ```

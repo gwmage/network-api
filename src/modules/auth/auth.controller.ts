@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Post, // Import Post
   Put,
   Req,
   UnauthorizedException,
@@ -17,60 +18,24 @@ import { Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersService } from '../user/user.service';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
+import { AuthService } from './auth.service'; // Import AuthService
+import { AdminLoginDto } from './dto/admin-login.dto'; // Import DTO
+
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly authService: AuthService, // Inject AuthService
+  ) {}
 
-  @Get()
-  async findAll(@Req() req: Request) {
-    return this.userService.findAll();
-  }
+  // ... other methods
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-    const user = await this.userService.findOne(id);
-    if (!user) {
-      throw new UnauthorizedException({ message: 'User not found' });
-    }
-
-    return user;
-  }
-
-
-  @Put(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-    @Req() req: Request,
-  ) {
-    // Check if the authenticated user is authorized to update this user.
-    // Usually, this means checking if the authenticated user ID matches the ID of the user being updated.
-    // You'll likely need to add a 'user' property to the Request object in your AuthGuard.
-    const reqUser = req.user;
-    if(reqUser.id !== id && !reqUser.isAdmin) { // Example authorization check. Adjust as needed.
-      throw new UnauthorizedException('You are not authorized to update this user.');
-    }
-
-    return this.userService.update(id, updateUserDto);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-     // Similar authorization check as in the update method
-    const reqUser = req.user;
-    if(reqUser.id !== id && !reqUser.isAdmin) { // Example authorization check. Adjust as needed.
-      throw new UnauthorizedException('You are not authorized to delete this user.');
-    }
-    return this.userService.remove(id);
-  }
-
-
-  @Get(':id/activity')
-  async findUserActivity(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-    return this.userService.findUserActivity(id);
+  @Post('admin/login') // New admin login endpoint
+  @HttpCode(HttpStatus.OK) // Explicitly set status code to 200
+  async adminLogin(@Body() adminLoginDto: AdminLoginDto): Promise<{ accessToken: string }> {
+    return this.authService.adminLogin(adminLoginDto);
   }
 }
 
