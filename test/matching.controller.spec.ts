@@ -8,6 +8,7 @@ import { Profile } from '../src/modules/profile/entities/profile.entity';
 import { Group } from '../src/modules/group/entities/group.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
+import { HttpException } from '@nestjs/common';
 
 describe('MatchingController', () => {
   let controller: MatchingController;
@@ -61,13 +62,29 @@ describe('MatchingController', () => {
       expect(service.findMatch).toHaveBeenCalledWith(mockUserId, {}); // Expect empty filter object
     });
 
-
     it('should handle errors', async () => {
       const mockUserId = 1;
-      const mockError = new Error('Some error occurred');
+      const mockError = new HttpException('Some error occurred', 500); // Use HttpException
       jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
 
       await expect(controller.findMatch(mockUserId)).rejects.toThrowError(mockError);
+    });
+  });
+
+  describe('initiateMatching', () => {
+    it('should initiate matching successfully', async () => {
+      const mockResult = { message: 'Matching initiated' };
+      jest.spyOn(service, 'initiateMatching').mockResolvedValue(mockResult);
+
+      expect(await controller.initiateMatching()).toBe(mockResult);
+      expect(service.initiateMatching).toHaveBeenCalled();
+    });
+
+    it('should handle errors', async () => {
+      const mockError = new HttpException('Some error occurred', 500);
+      jest.spyOn(service, 'initiateMatching').mockRejectedValue(mockError);
+
+      await expect(controller.initiateMatching()).rejects.toThrowError(mockError);
     });
   });
 });

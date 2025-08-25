@@ -14,11 +14,18 @@ export class UserMatch {
   @ManyToOne(() => Match, (match) => match.userMatches)
   match: Match;
 
+  @Column({ type: 'float', nullable: true })
+  matchingScore: number;
+
+  @Column({ nullable: true })
+  groupId: number;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  matchedAt: Date;
+
+
   @Column({ default: true })
   isActive: boolean;
-
-  // Add other fields as needed, e.g.,
-  // @Column()
-  // matchingScore: number; 
 }
+
 ```
