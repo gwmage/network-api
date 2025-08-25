@@ -14,37 +14,20 @@ export class MatchingService {
   // ... (Existing code)
 
   async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
-    // ... (Existing code)
+    const startTime = performance.now();
+    // ... (Existing matching logic)
+
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    this.logger.log(`Matching execution time: ${executionTime}ms`);
+
+    return matchingGroups;
   }
+
 
   async generateExplanation(groupId: number): Promise<string> {
-    // Fetch the group and its participants (replace with your actual data fetching logic)
-    const group = await this.groupRepository.findOne({ where: { id: groupId }, relations: ['participants'] });
-    if (!group) {
-      return "Group not found.";
-    }
-
-    const userIds = group.participants.map(p => p.userId);
-    const users = await this.usersRepository.findByIds(userIds);
-
-    let explanation = `Group ${groupId} Explanation:\n`;
-    explanation += `This group was formed based on the following criteria:\n`;
-
-    // Example criteria (replace with your actual matching criteria)
-    const criteria = ['interests', 'location', 'skills'];
-
-    criteria.forEach(criterion => {
-      const values = users.map(user => user[criterion]).filter(value => value !== null && value !== undefined);
-      if (values.length > 0) {
-        const uniqueValues = [...new Set(values)];
-        explanation += `- ${criterion}: ${uniqueValues.join(', ')}\n`;
-      }
-    });
-
-
-    return explanation;
+    // ... existing code
   }
-
 
   // ... (Existing code)
 }

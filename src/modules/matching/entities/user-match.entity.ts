@@ -23,7 +23,6 @@ export class UserMatch {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   matchedAt: Date;
 
-
   @Column({ default: true })
   isActive: boolean;
 }
