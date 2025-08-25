@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, IsOptional, IsArray } from 'class-validator';
 export class UserMatchingInputDTO {
   @IsNotEmpty()
   @IsString()
-  location: string;
+  region: string;
 
   @IsOptional()
   @IsString()

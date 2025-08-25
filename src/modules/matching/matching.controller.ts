@@ -3,22 +3,25 @@ import { Body, Controller, Get, Post, Put, Delete, Param, HttpException, HttpSta
 import { MatchingService } from './matching.service';
 import { UserData } from './dto/user-data.dto';
 import { MatchResultDto } from './dto/match-result.dto';
+import { MatchingStatusDto } from './dto/matching-status.dto';
+
 
 @Controller('matching')
 export class MatchingController {
   constructor(private readonly matchingService: MatchingService) {}
 
   @Post()
-  async initiateMatching() {
+  async initiateMatching(): Promise<{ message: string }> {
     try {
-      return await this.matchingService.initiateMatching();
+      await this.matchingService.initiateMatching();
+      return { message: 'Matching initiated successfully' };
     } catch (error) {
       throw new HttpException('Failed to initiate matching', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get('status')
-  async getMatchingStatus() {
+  async getMatchingStatus(): Promise<MatchingStatusDto> {
     try {
       return await this.matchingService.getMatchingStatus();
     } catch (error) {
@@ -28,7 +31,7 @@ export class MatchingController {
 
 
   @Post('users')
-  async createUser(@Body() userData: UserData) {
+  async createUser(@Body() userData: UserData): Promise<UserData> {
     try {
       return await this.matchingService.createUser(userData);
     } catch (error) {
@@ -48,7 +51,7 @@ export class MatchingController {
   }
 
   @Get('matches')
-  async getAllMatches() {
+  async getAllMatches()  {
     try {
       return await this.matchingService.getAllMatches();
     } catch (error) {

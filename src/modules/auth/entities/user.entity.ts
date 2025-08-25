@@ -21,14 +21,17 @@ export class User {
   @JoinColumn()
   profile: Profile;
 
+  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
+  location: Point;
+
   @Column({ type: 'jsonb', nullable: true })
   preferences: any;
 
   @Column({ type: 'jsonb', nullable: true })
   interests: any;
 
-  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
-  location: Point;
+  @Column({ nullable: true })
+  region: string;
 }
 
 ```

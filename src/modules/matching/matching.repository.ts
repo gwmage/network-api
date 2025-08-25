@@ -1,9 +1,10 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { MatchingGroup } from './entities/matching-group.entity';
 import { UserMatch } from './entities/user-match.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class MatchingRepository {
@@ -12,6 +13,8 @@ export class MatchingRepository {
     private readonly matchingGroupRepository: Repository<MatchingGroup>,
     @InjectRepository(UserMatch)
     private readonly userMatchRepository: Repository<UserMatch>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async createMatchingGroup(matchingGroup: MatchingGroup): Promise<MatchingGroup> {
@@ -36,6 +39,20 @@ export class MatchingRepository {
 
   async findUserMatches(where: FindOptionsWhere<UserMatch>): Promise<UserMatch[]> {
     return this.userMatchRepository.find({ where });
+  }
+
+  async findUsersByIds(userIds: number[]): Promise<User[]> {
+    return this.userRepository.find({
+      where: { id: In(userIds) },
+    });
+  }
+
+  async saveMatchingResults(
+    matchingGroup: MatchingGroup,
+    userMatches: UserMatch[],
+  ): Promise<void> {
+    await this.matchingGroupRepository.save(matchingGroup);
+    await this.userMatchRepository.save(userMatches);
   }
 }
 ```

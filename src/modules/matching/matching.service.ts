@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Match } from './entities/match.entity';
 import { NotificationService } from '../notifications/notification.service';
 
@@ -21,54 +21,74 @@ export class MatchingService {
 
   async triggerMatching(): Promise<{ status: string }> {
     try {
-      // Instead of directly running the matching, we set a flag or
-      // use a message queue (e.g., Redis, RabbitMQ) to signal the matching process
-      // This allows for asynchronous processing and prevents blocking the request.
-
-      this.runMatching(); // Schedule an immediate run
-
-
+      // Initiate matching process (e.g., set a flag, add a message to a queue)
+      this.runMatching();
       return { status: 'Matching process initiated.' };
     } catch (error) {
       this.logger.error(`Failed to trigger matching: ${error.message}`, error.stack);
-      throw error; // Re-throw the error to be handled by a global exception filter
+      throw error;
     }
   }
 
-
   async getMatchingStatus(): Promise<{ status: string }> {
-    // Check the flag or query the message queue for the current status
-    // For demonstration, we return a placeholder
-    return { status: 'Matching process is scheduled.' };
+    // Check the status of the matching process
+    return { status: 'Matching process is scheduled or running.' }; // Placeholder
   }
-
-
 
   @Cron(CronExpression.EVERY_WEEK)
   async runMatching() {
     this.logger.log('Starting AI matching process...');
-
     try {
       const users = await this.userRepository.find({
         where: {
           // Add any necessary filtering criteria here
         },
+        relations: ['preferences', 'interests'] // Include eager loading for relations
       });
 
       const matchedGroups = this.matchUsers(users);
-
       const savedMatches = await this.saveMatches(matchedGroups);
-
-      // Send notifications after successful match and save
       await this.sendMatchNotifications(savedMatches);
-
       this.logger.log('Matching process completed successfully.');
     } catch (error) {
       this.logger.error(`Matching process failed: ${error.message}`, error.stack);
     }
   }
 
-  // ... other methods (saveMatches, sendMatchNotifications, matchUsers remain unchanged)
+
+  private async saveMatches(matchedGroups: User[][]): Promise<Match[]> {
+    const savedMatches: Match[] = [];
+    for (const group of matchedGroups) {
+      const match = new Match();
+      match.users = group;
+      const savedMatch = await this.matchRepository.save(match);
+      savedMatches.push(savedMatch);
+    }
+    return savedMatches;
+  }
+
+
+  private async sendMatchNotifications(matches: Match[]): Promise<void> {
+    for (const match of matches) {
+      for (const user of match.users) {
+        await this.notificationService.sendNotification(user, 'You have been matched with a new group!');
+      }
+    }
+  }
+
+  private matchUsers(users: User[]): User[][] {
+    // Placeholder for the actual matching algorithm
+    // This should be replaced with your AI-powered matching logic
+    const matchedGroups: User[][] = [];
+    const groupSize = 5; // Desired group size
+
+    // Simple example: divide users into groups of 5
+    for (let i = 0; i < users.length; i += groupSize) {
+      matchedGroups.push(users.slice(i, i + groupSize));
+    }
+
+    return matchedGroups;
+  }
 }
 
 ```
