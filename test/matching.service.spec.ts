@@ -51,7 +51,41 @@ describe('MatchingService', () => {
       const filteredMatches = service.filterMatches(matches, {});
       expect(filteredMatches).toEqual(matches);
     });
+
+    it('should return an empty array if no matches are provided', () => {
+      const matches: Profile[] = [];
+      const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
+
+      const filteredMatches = service.filterMatches(matches, filters);
+      expect(filteredMatches).toEqual([]);
+    });
+
+    it('should handle null and undefined values in filters', () => {
+      const matches: Profile[] = [
+        { id: 1, userId: 2, region: '서울', interests: ['reading', 'hiking'] } as Profile,
+      ];
+      const filters1: MatchFilterDto = { region: null, interests: ['reading'] };
+      const filters2: MatchFilterDto = { region: '서울', interests: undefined };
+
+      const filteredMatches1 = service.filterMatches(matches, filters1);
+      const filteredMatches2 = service.filterMatches(matches, filters2);
+
+      expect(filteredMatches1).toEqual([matches[0]]);
+      expect(filteredMatches2).toEqual([matches[0]]);
+
+    });
+
+    it('should handle empty arrays in filters', () => {
+      const matches: Profile[] = [
+        { id: 1, userId: 2, region: '서울', interests: ['reading', 'hiking'] } as Profile,
+      ];
+      const filters: MatchFilterDto = { region: '서울', interests: [] };
+
+      const filteredMatches = service.filterMatches(matches, filters);
+      expect(filteredMatches).toEqual([matches[0]]);
+    });
   });
+
 
 
   describe('performance test', () => {
