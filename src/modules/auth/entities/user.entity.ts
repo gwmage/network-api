@@ -1,7 +1,6 @@
 ```typescript
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
-import { Point } from 'geojson'; // Import necessary type
 
 @Entity()
 export class User {
@@ -12,23 +11,18 @@ export class User {
   email: string;
 
   @Column()
-  password?: string;
+  name: string;
 
   @Column({ nullable: true })
-  refreshToken?: string;
+  phone_number: string;
 
-  @OneToOne(() => Profile, { cascade: true, eager: true})
+
+  @OneToOne(() => Profile, (profile) => profile.user)
   @JoinColumn()
   profile: Profile;
 
   @Column({ type: 'jsonb', nullable: true })
-  preferences: any;
-
-  @Column({ type: 'jsonb', nullable: true })
-  interests: any;
-
-  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
-  location: Point;
+  notificationPreferences: { push: boolean; email: boolean };
 }
 
 ```

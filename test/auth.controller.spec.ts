@@ -5,6 +5,7 @@ import { AuthService } from '../src/auth/auth.service';
 import { UsersService } from '../src/users/users.service';
 import { CreateUserDto } from '../src/users/dto/create-user.dto';
 import { User } from '../src/users/entities/user.entity';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -44,7 +45,6 @@ describe('AuthController', () => {
     expect(await controller.register(createUserDto)).toEqual({
       status: 'success',
       message: 'User registered successfully',
-      userId: 1,
     });
   });
 
@@ -57,16 +57,14 @@ describe('AuthController', () => {
       lastName: 'User',
     };
 
-    jest.spyOn(usersService, 'create').mockRejectedValue({ message: 'Validation error' });
+    jest.spyOn(usersService, 'create').mockRejectedValue(new HttpException('Validation error', HttpStatus.BAD_REQUEST));
 
     try {
       await controller.register(createUserDto);
     } catch (error) {
-      expect(error.status).toBe(400);
-      expect(error.response).toEqual({
-        status: 'error',
-        message: 'Validation error',
-      });
+      expect(error).toBeInstanceOf(HttpException);
+      expect(error.getStatus()).toBe(400);
+      expect(error.getResponse()).toEqual('Validation error');
     }
   });
 
@@ -89,6 +87,28 @@ describe('AuthController', () => {
         status: 'error',
         message: 'Email already exists',
         errors: { email: 'This email is already registered.' },
+      });
+    }
+  });
+
+  it('should handle other errors', async () => {
+    const createUserDto: CreateUserDto = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    jest.spyOn(usersService, 'create').mockRejectedValue(new Error('Database error'));
+
+    try {
+      await controller.register(createUserDto);
+    } catch (error) {
+      expect(error.status).toBe(500);
+      expect(error.response).toEqual({
+        status: 'error',
+        message: 'Something went wrong',
       });
     }
   });

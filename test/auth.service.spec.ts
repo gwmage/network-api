@@ -78,7 +78,6 @@ describe('AuthService', () => {
       }
     });
 
-
     it('should handle other errors during registration', async () => {
       const createUserDto: CreateUserDto = {
         username: 'testuser',
@@ -99,4 +98,5 @@ describe('AuthService', () => {
     });
   });
 });
+
 ```
