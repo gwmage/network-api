@@ -20,5 +20,4 @@ export class RegisterDto {
   @IsString()
   contactNumber: string;
 }
-
 ```

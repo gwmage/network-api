@@ -1,39 +1,51 @@
 ```typescript
-import { Body, Controller, Post, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Post, HttpStatus, HttpException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { AdminLoginDto } from './dto/admin-login.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-  @Post('/register')
-  async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('/login')
-  async login(@Body() loginDto: LoginDto): Promise<{ access_token: string }> {
+  @Post('register')
+  async register(@Body() createUserDto: CreateUserDto) {
     try {
-      const jwt = await this.authService.login(loginDto);
-      return jwt;
+      await this.authService.register(createUserDto);
+      return {
+        status: 'success',
+        message: 'User registered successfully',
+      };
     } catch (error) {
-      throw new UnauthorizedException({ message: 'Invalid credentials' });
-    }
-  }
+      if (error.code === '23505') {
+        throw new HttpException(
+          {
+            status: 'error',
+            message: 'Email already exists',
+            errors: { email: 'This email is already registered.' },
+          },
+          HttpStatus.CONFLICT,
+        );
+      } else if (error.message.includes('Validation failed')) {
+        throw new HttpException(
+          {
+            status: 'error',
+            message: error.message,
+            errors: error.errors || {},
+          },
+          HttpStatus.BAD_REQUEST,
+        );
 
-  @HttpCode(HttpStatus.OK)
-  @Post('/admin/login')
-  async adminLogin(@Body() adminLoginDto: AdminLoginDto): Promise<{ access_token: string }> {
-    try {
-      const jwt = await this.authService.adminLogin(adminLoginDto);
-      return jwt;
-    } catch (error) {
-      throw new UnauthorizedException({ message: 'Invalid admin credentials' });
+      } else {
+        throw new HttpException(
+          {
+            status: 'error',
+            message: 'An error occurred during registration',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 }
+
 ```

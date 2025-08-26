@@ -1,18 +1,14 @@
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from '../src/modules/auth/auth.controller';
-import { AuthService } from '../src/modules/auth/auth.service';
-import { UsersService } from '../src/modules/users/users.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../src/modules/auth/entities/user.entity';
-import { Repository } from 'typeorm';
-import { UnauthorizedException } from '@nestjs/common';
-import { LoginDto } from '../src/modules/auth/dto/login.dto';
-
+import { AuthController } from '../src/auth/auth.controller';
+import { AuthService } from '../src/auth/auth.service';
+import { UsersService } from '../src/users/users.service';
+import { CreateUserDto } from '../src/users/dto/create-user.dto';
+import { User } from '../src/users/entities/user.entity';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
+  let usersService: UsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,53 +16,81 @@ describe('AuthController', () => {
       providers: [
         {
           provide: AuthService,
-          useValue: {
-            adminLogin: jest.fn(),
-          },
+          useValue: {}, // We're not testing the service here, so an empty object is sufficient
         },
-        UsersService,
         {
-          provide: getRepositoryToken(User),
-          useClass: Repository,
+          provide: UsersService,
+          useValue: {},
         },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
+    usersService = module.get<UsersService>(UsersService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('should register a new user', async () => {
+    const createUserDto: CreateUserDto = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+    const createdUser: User = { id: 1, ...createUserDto } as User;
+
+    jest.spyOn(usersService, 'create').mockResolvedValue(createdUser);
+
+    expect(await controller.register(createUserDto)).toEqual({
+      status: 'success',
+      message: 'User registered successfully',
+      userId: 1,
+    });
   });
 
-  describe('adminLogin', () => {
-    it('should log in an admin successfully', async () => {
-      const loginDto: LoginDto = {
-        email: 'admin@example.com',
-        password: 'adminPassword',
-      };
-      const expectedAccessToken = 'mockedAdminAccessToken';
-      jest.spyOn(authService, 'adminLogin').mockResolvedValue({ accessToken: expectedAccessToken });
+  it('should handle validation errors', async () => {
+    const createUserDto: CreateUserDto = {
+      username: '', // Invalid username
+      email: 'invalid_email', // Invalid email
+      password: 'short', // Short password
+      firstName: 'Test',
+      lastName: 'User',
+    };
 
-      const result = await controller.adminLogin(loginDto);
-      expect(result).toEqual({ accessToken: expectedAccessToken });
-    });
+    jest.spyOn(usersService, 'create').mockRejectedValue({ message: 'Validation error' });
 
-    it('should handle invalid admin credentials', async () => {
-      const loginDto: LoginDto = {
-        email: 'admin@example.com',
-        password: 'wrongPassword',
-      };
-      jest.spyOn(authService, 'adminLogin').mockRejectedValue(new UnauthorizedException('Invalid credentials'));
+    try {
+      await controller.register(createUserDto);
+    } catch (error) {
+      expect(error.status).toBe(400);
+      expect(error.response).toEqual({
+        status: 'error',
+        message: 'Validation error',
+      });
+    }
+  });
 
-      try {
-        await controller.adminLogin(loginDto);
-      } catch (error) {
-        expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(error.message).toBe('Invalid credentials');
-      }
-    });
+  it('should handle duplicate email', async () => {
+    const createUserDto: CreateUserDto = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    jest.spyOn(usersService, 'create').mockRejectedValue({ code: '23505' }); // Duplicate key error code
+
+    try {
+      await controller.register(createUserDto);
+    } catch (error) {
+      expect(error.status).toBe(409);
+      expect(error.response).toEqual({
+        status: 'error',
+        message: 'Email already exists',
+        errors: { email: 'This email is already registered.' },
+      });
+    }
   });
 });
 
