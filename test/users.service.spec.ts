@@ -49,14 +49,18 @@ describe('UsersService', () => {
     });
   });
 
-
   describe('findAll', () => {
-    // ... (Existing filtering logic tests)
+    it('should return an array of users', async () => {
+      const mockUsers: User[] = [{ id: 1, username: 'user1' } as User, { id: 2, username: 'user2' } as User];
+      jest.spyOn(userRepository, 'find').mockResolvedValue(mockUsers);
+      const users = await service.findAll();
+      expect(users).toEqual(mockUsers);
+    });
   });
 
   describe('findOne', () => {
     it('should find a user by id', async () => {
-      const mockUser = { id: 1, name: 'John Doe' };
+      const mockUser = { id: 1, username: 'John Doe' } as User;
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
       const result = await service.findOne(1);
       expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
@@ -66,8 +70,8 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should update a user', async () => {
-      const updateUserDto: UpdateUserDto = { name: 'Updated Name' };
-      const mockUser = { id: 1, name: 'John Doe' };
+      const updateUserDto: UpdateUserDto = { username: 'Updated Name' };
+      const mockUser = { id: 1, username: 'John Doe' } as User;
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
       jest.spyOn(userRepository, 'save').mockResolvedValue({ ...mockUser, ...updateUserDto });
       const result = await service.update(1, updateUserDto);
@@ -79,15 +83,13 @@ describe('UsersService', () => {
 
   describe('remove', () => {
     it('should remove a user', async () => {
-      const mockUser = { id: 1, name: 'John Doe' };
+      const mockUser = { id: 1, username: 'John Doe' } as User;
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
       jest.spyOn(userRepository, 'remove').mockResolvedValue(mockUser);
       const result = await service.remove(1);
       expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
       expect(userRepository.remove).toHaveBeenCalledWith(mockUser);
       expect(result).toEqual(mockUser);
-
-
     });
   });
 });

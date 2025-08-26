@@ -1,5 +1,5 @@
 ```typescript
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
 import { Point } from 'geojson';
 
@@ -32,6 +32,12 @@ export class User {
 
   @Column({ nullable: true })
   region: string;
+
+  @CreateDateColumn({ nullable: true })
+  lastLogin: Date;
+
+  @Column({ type: 'jsonb', array: true, default: [] })
+  activityHistory: { timestamp: Date; action: string; data?: any }[];
 }
 
 ```
