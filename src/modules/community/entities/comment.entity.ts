@@ -5,6 +5,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Post } from './post.entity';
@@ -14,17 +15,20 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text' })
-  content: string;
-
   @ManyToOne(() => User, (user) => user.comments)
-  author: User;
+  user: User;
+
+  @ManyToOne(() => Post, (post) => post.comments)
+  post: Post;
+
+  @Column({ type: 'text' })
+  text: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => Post, (post) => post.comments)
-  post: Post;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 
 ```
