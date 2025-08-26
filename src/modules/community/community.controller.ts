@@ -1,36 +1,52 @@
 ```typescript
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
 import { CommunityService } from './community.service';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { FindPostQueryDto } from './dto/find-post-query.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Request } from 'express';
+import { User } from '../user/entities/user.entity';
 
-@Controller('comments') // Changed from 'community/posts/:postId/comments'
+
+@Controller('community')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
-  // ... other endpoints
+  // ... other methods
 
-  @Post()
-  createComment(@Body() createCommentDto: CreateCommentDto) {
-    return this.communityService.createComment(createCommentDto); // No postId here
+  @UseGuards(JwtAuthGuard)
+  @Post(':postId/comments')
+  createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto, @Req() req: Request) {
+    const user = req.user as User;
+    return this.communityService.createComment(postId, createCommentDto, user);
   }
 
-  @Get(':postId') // Changed from 'posts/:postId/comments'
+  @UseGuards(JwtAuthGuard)
+  @Put(':postId/comments/:id')
+  updateComment(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: Request
+  ) {
+    const user = req.user as User;
+    return this.communityService.updateComment(postId, id, updateCommentDto, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':postId/comments/:id')
+  removeComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const user = req.user as User;
+    return this.communityService.removeComment(postId, id, user);
+  }
+
+  @Get(':postId/comments')
   findAllComments(@Param('postId', ParseIntPipe) postId: number) {
     return this.communityService.findAllComments(postId);
   }
-
-  @Put(':commentId') // Changed from 'posts/:postId/comments/:id'
-  updateComment(
-    @Param('commentId', ParseIntPipe) commentId: number, // Changed param name
-    @Body() updateCommentDto: UpdateCommentDto,
-  ) {
-    return this.communityService.updateComment(commentId, updateCommentDto); // No postId here
-  }
-
-  @Delete(':commentId') // Changed from 'posts/:postId/comments/:id'
-  removeComment(@Param('commentId', ParseIntPipe) commentId: number) { // Changed param name
-    return this.communityService.removeComment(commentId); // No postId here
-  }
 }
+
 ```
