@@ -1,20 +1,38 @@
 ```typescript
-async adminLogin(adminLoginDto: AdminLoginDto) {
-    const { email, password } = adminLoginDto;
-    const admin = await this.usersRepository.findOneBy({ email });
+import { Injectable } from '@nestjs/common';
+import { RegisterDto } from './dto/register.dto';
+import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
 
-    if (!admin || !admin.isAdmin) {
-      throw new UnauthorizedException('Invalid admin credentials.');
+@Injectable()
+export class AuthService {
+  constructor(private usersService: UsersService) {}
+
+  async register(registerDto: RegisterDto) {
+    const { password, email } = registerDto;
+
+    const existingUser = await this.usersService.findOneByEmail(email);
+    if (existingUser) {
+      return {
+        status: 'error',
+        message: 'Email already exists',
+      };
     }
 
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid admin credentials.');
-    }
 
-    const payload = { email: admin.email, sub: admin.id, isAdmin: admin.isAdmin };
-    const accessToken = this.jwtService.sign(payload);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    return { accessToken };
+    const user = await this.usersService.create({
+      ...registerDto,
+      password: hashedPassword,
+    });
+
+    return {
+      status: 'success',
+      message: 'User registered successfully',
+      userId: user.id,
+    };
   }
+}
+
 ```
