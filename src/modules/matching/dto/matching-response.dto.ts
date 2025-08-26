@@ -1,12 +1,12 @@
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNumber } from 'class-validator';
-import { MatchingInfoDto } from './matching-info.dto';
+import { MatchingResultsDto } from './matching-results.dto';
 
 export class MatchingResponseDto {
-  @ApiProperty({ type: [MatchingInfoDto] })
+  @ApiProperty({ type: [MatchingResultsDto] })
   @IsArray()
-  groups: MatchingInfoDto[];
+  groups: MatchingResultsDto[];
 
   @ApiProperty()
   @IsNumber()
