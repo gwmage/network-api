@@ -9,14 +9,11 @@ import { Group } from '../src/modules/group/entities/group.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
 import { HttpException } from '@nestjs/common';
-import { CreateUserDto } from '../src/modules/auth/dto/create-user.dto';
-import { MatchingResultsDto } from '../src/modules/matching/dto/matching-results.dto';
-
+import { MatchingStatusDto } from '../src/modules/matching/dto/matching-status.dto';
 
 describe('MatchingController', () => {
   let controller: MatchingController;
   let service: MatchingService;
-  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,74 +37,38 @@ describe('MatchingController', () => {
 
     controller = module.get<MatchingController>(MatchingController);
     service = module.get<MatchingService>(MatchingService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('createUser', () => {
-    it('should create a new user', async () => {
-      const createUserDto: CreateUserDto = {
-        username: 'testuser',
-        password: 'testpassword',
-        email: 'test@example.com',
-      };
-      const createdUser: User = { id: 1, ...createUserDto } as User;
-      jest.spyOn(service, 'createUser').mockResolvedValue(createdUser);
+  describe('findMatch', () => {
+    it('should return a list of matched users', async () => {
+      const filter: MatchFilterDto = { /* ...filter criteria */ };
+      const matchedUsers: User[] = [/* ...mock users */];
+      jest.spyOn(service, 'findMatch').mockResolvedValue(matchedUsers);
 
-      expect(await controller.createUser(createUserDto)).toEqual(createdUser);
-    });
-  });
-
-
-  describe('getMatches', () => {
-    it('should return matches for a user', async () => {
-      const userId = 1;
-      const matches: MatchingResultsDto[] = [
-        { groupId: 1, participants: [], matchingScore: 90, explanation: 'Good match' } as MatchingResultsDto,
-      ];
-      jest.spyOn(service, 'getMatchesForUser').mockResolvedValue(matches);
-
-      expect(await controller.getMatches(userId)).toBe(matches);
-      expect(service.getMatchesForUser).toHaveBeenCalledWith(userId);
+      expect(await controller.findMatch(filter)).toBe(matchedUsers);
+      expect(service.findMatch).toHaveBeenCalledWith(filter);
     });
 
     it('should handle errors', async () => {
-      const userId = 1;
-      const error = new HttpException('User not found', 404);
-      jest.spyOn(service, 'getMatchesForUser').mockRejectedValue(error);
+      const filter: MatchFilterDto = { /* ...filter criteria */ };
+      const mockError = new HttpException('Some error occurred', 500);
+      jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
 
-      await expect(controller.getMatches(userId)).rejects.toThrow(error);
+      await expect(controller.findMatch(filter)).rejects.toThrowError(mockError);
     });
   });
 
-
-  describe('getExplanation', () => {
-    it('should return explanation for group', async () => {
-      const groupId = 1;
-      const explanation = 'Explanation for group 1';
-      jest.spyOn(service, 'getGroupExplanation').mockResolvedValue(explanation);
-      expect(await controller.getExplanation(groupId)).toEqual({ explanation });
-    })
-    it('should handle not found error', async () => {
-        const groupId = 999
-        const error = new HttpException('Group not found', 404)
-        jest.spyOn(service, 'getGroupExplanation').mockRejectedValue(error)
-        await expect(controller.getExplanation(groupId)).rejects.toThrowError(error)
-    })
-  })
-
   describe('initiateMatching', () => {
-    it('should initiate matching and send notifications successfully', async () => {
-      const mockResult = { message: 'Matching initiated' };
-      jest.spyOn(service, 'initiateMatching').mockResolvedValue(mockResult);
+    it('should initiate the matching process', async () => {
+      jest.spyOn(service, 'initiateMatching').mockResolvedValue(undefined);
 
-      expect(await controller.initiateMatching()).toBe(mockResult);
+      expect(await controller.initiateMatching()).toBeUndefined();
       expect(service.initiateMatching).toHaveBeenCalled();
     });
-
 
     it('should handle errors', async () => {
       const mockError = new HttpException('Some error occurred', 500);
@@ -116,6 +77,22 @@ describe('MatchingController', () => {
       await expect(controller.initiateMatching()).rejects.toThrowError(mockError);
     });
   });
-});
 
+  describe('getMatchingStatus', () => {
+    it('should return the matching status', async () => {
+      const mockStatus: MatchingStatusDto = { status: 'idle', lastMatchTime: new Date() };
+      jest.spyOn(service, 'getMatchingStatus').mockResolvedValue(mockStatus);
+
+      expect(await controller.getMatchingStatus()).toBe(mockStatus);
+      expect(service.getMatchingStatus).toHaveBeenCalled();
+    });
+
+    it('should handle errors', async () => {
+      const mockError = new HttpException('Some error occurred', 500);
+      jest.spyOn(service, 'getMatchingStatus').mockRejectedValue(mockError);
+
+      await expect(controller.getMatchingStatus()).rejects.toThrowError(mockError);
+    });
+  });
+});
 ```

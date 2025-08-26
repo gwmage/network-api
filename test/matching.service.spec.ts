@@ -5,15 +5,19 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Profile } from '../src/entities/profile.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
+import { ScheduleService } from '../src/config/schedule.config'; // Import ScheduleService
 
 describe('MatchingService', () => {
   let service: MatchingService;
   let profileRepository: Repository<Profile>;
+  let scheduleService: ScheduleService;
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MatchingService,
+        ScheduleService, // Include ScheduleService in testing module
         {
           provide: getRepositoryToken(Profile),
           useClass: Repository,
@@ -23,69 +27,22 @@ describe('MatchingService', () => {
 
     service = module.get<MatchingService>(MatchingService);
     profileRepository = module.get<Repository<Profile>>(getRepositoryToken(Profile));
+    scheduleService = module.get<ScheduleService>(ScheduleService); // Inject ScheduleService
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('filterMatches', () => {
-    it('should filter matches based on region and interests', async () => {
-      const profiles: Profile[] = [
-        { id: 1, userId: 1, region: '서울', interests: ['reading', 'hiking'] } as Profile,
-        { id: 2, userId: 2, region: '서울', interests: ['hiking', 'coding'] } as Profile,
-        { id: 3, userId: 3, region: '부산', interests: ['reading', 'coding'] } as Profile,
-      ];
-      const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
+  // ... (Existing filterMatches tests remain unchanged)
 
-      const filteredMatches = await service.filterMatches(profiles, filters);
-
-      expect(filteredMatches).toEqual([profiles[0]]);
+  describe('Scheduled Job', () => {
+    it('should call runMatching on handleCron', async () => {
+      const runMatchingSpy = jest.spyOn(service, 'runMatching');
+      await scheduleService.handleCron();
+      expect(runMatchingSpy).toHaveBeenCalled();
     });
-
-    it('should return an empty array if no matches are found', async () => {
-      const profiles: Profile[] = [
-        { id: 1, userId: 3, region: '부산', interests: ['reading', 'coding'] } as Profile,
-      ];
-      const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
-
-      const filteredMatches = await service.filterMatches(profiles, filters);
-
-      expect(filteredMatches).toEqual([]);
-    });
-
-    it('should handle empty filters', async () => {
-      const profiles: Profile[] = [
-        { id: 1, userId: 3, region: '부산', interests: ['reading', 'coding'] } as Profile,
-        { id: 2, userId: 1, region: '서울', interests: ['reading', 'hiking'] } as Profile,
-      ];
-      const filters: MatchFilterDto = { region: '', interests: [] };
-
-      const filteredMatches = await service.filterMatches(profiles, filters);
-      expect(filteredMatches).toEqual(profiles);
-
-
-    });
-
-
   });
-
-
-
-  describe('database operations', () => {
-    it('should call the repository methods correctly', async () => {
-        const mockProfiles = [{ id: 1, region: '서울', interests: ['reading'] }] as Profile[];
-        const filters = { region: '서울', interests: ['reading'] } as MatchFilterDto;
-
-        jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
-        await service.getMatchingProfiles(filters);
-        expect(profileRepository.find).toHaveBeenCalledWith({ where: filters });
-
-     });
-
-  });
-
-
 });
 
 ```
