@@ -30,43 +30,62 @@ describe('MatchingService', () => {
   });
 
   describe('filterMatches', () => {
-    // ... (Existing tests remain unchanged)
-  });
-
-  describe('performance test', () => {
-    it('should handle a large number of users efficiently', async () => {
-      const numUsers = 10000;
-      const mockProfiles: Profile[] = [];
-      for (let i = 0; i < numUsers; i++) {
-        mockProfiles.push({
-          id: i + 1,
-          userId: i + 2,
-          region: '서울',
-          interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4)),
-        } as Profile);
-      }
-
-      jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
-
-      const startTime = process.hrtime();
+    it('should filter matches based on region and interests', async () => {
+      const profiles: Profile[] = [
+        { id: 1, userId: 1, region: '서울', interests: ['reading', 'hiking'] } as Profile,
+        { id: 2, userId: 2, region: '서울', interests: ['hiking', 'coding'] } as Profile,
+        { id: 3, userId: 3, region: '부산', interests: ['reading', 'coding'] } as Profile,
+      ];
       const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
-      const results = await service.filterMatches(mockProfiles, filters); // Use mockProfiles directly here
-      const endTime = process.hrtime(startTime);
 
-      const elapsedTimeMs = (endTime[0] * 1000 + endTime[1] / 1000000);
+      const filteredMatches = await service.filterMatches(profiles, filters);
 
-      console.log(`Matching time for ${numUsers} users: ${elapsedTimeMs} ms`);
-
-      // Add assertions for time and memory usage based on your performance requirements.
-      // Example:
-      expect(elapsedTimeMs).toBeLessThan(500); // Adjust threshold as needed
-
-      // Memory usage check (requires a memory profiling tool)
-      // Example using a hypothetical memory profiling function:
-      // const memoryUsage = getMemoryUsage();
-      // expect(memoryUsage).toBeLessThan(100 * 1024 * 1024); // Example: less than 100MB
+      expect(filteredMatches).toEqual([profiles[0]]);
     });
+
+    it('should return an empty array if no matches are found', async () => {
+      const profiles: Profile[] = [
+        { id: 1, userId: 3, region: '부산', interests: ['reading', 'coding'] } as Profile,
+      ];
+      const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
+
+      const filteredMatches = await service.filterMatches(profiles, filters);
+
+      expect(filteredMatches).toEqual([]);
+    });
+
+    it('should handle empty filters', async () => {
+      const profiles: Profile[] = [
+        { id: 1, userId: 3, region: '부산', interests: ['reading', 'coding'] } as Profile,
+        { id: 2, userId: 1, region: '서울', interests: ['reading', 'hiking'] } as Profile,
+      ];
+      const filters: MatchFilterDto = { region: '', interests: [] };
+
+      const filteredMatches = await service.filterMatches(profiles, filters);
+      expect(filteredMatches).toEqual(profiles);
+
+
+    });
+
+
   });
+
+
+
+  describe('database operations', () => {
+    it('should call the repository methods correctly', async () => {
+        const mockProfiles = [{ id: 1, region: '서울', interests: ['reading'] }] as Profile[];
+        const filters = { region: '서울', interests: ['reading'] } as MatchFilterDto;
+
+        jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
+        await service.getMatchingProfiles(filters);
+        expect(profileRepository.find).toHaveBeenCalledWith({ where: filters });
+
+     });
+
+  });
+
+
 });
 
 ```

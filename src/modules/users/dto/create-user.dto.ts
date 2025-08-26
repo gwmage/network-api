@@ -1,5 +1,5 @@
 ```typescript
-import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -13,5 +13,31 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  location: string;
+
+  @IsOptional()
+  @IsString()
+  preferences?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  interests?: string[];
+
+  @IsOptional()
+  @IsNumber()
+  locationWeight?: number;
+
+  @IsOptional()
+  @IsNumber()
+  preferencesWeight?: number;
+
+  @IsOptional()
+  @IsNumber()
+  interestsWeight?: number;
 }
+
 ```
