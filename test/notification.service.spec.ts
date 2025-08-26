@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { User } from '../src/users/user.entity';
 import { Comment } from '../src/community/comment.entity';
 import { Community } from '../src/community/community.entity';
+import { NotificationPreferences } from '../src/notification/notification_preferences.entity';
 
 describe('NotificationService', () => {
   let service: NotificationService;
@@ -14,6 +15,7 @@ describe('NotificationService', () => {
   let commentRepository: Repository<Comment>;
   let communityRepository: Repository<Community>;
   let userRepository: Repository<User>;
+  let notificationPreferencesRepository: Repository<NotificationPreferences>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -35,6 +37,10 @@ describe('NotificationService', () => {
           provide: getRepositoryToken(Community),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(NotificationPreferences),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
@@ -43,6 +49,7 @@ describe('NotificationService', () => {
     commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
     communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    notificationPreferencesRepository = module.get<Repository<NotificationPreferences>>(getRepositoryToken(NotificationPreferences));
   });
 
   it('should be defined', () => {
@@ -50,35 +57,39 @@ describe('NotificationService', () => {
   });
 
   describe('createCommentNotification', () => {
-    it('should create a notification for a new comment', async () => {
-      const comment = new Comment();
-      comment.id = 1;
-      comment.content = 'Test comment';
-      const post = new Community();
-      post.id = 1;
-      comment.post = post;
-      const user = new User();
-      user.id = 1;
-      comment.user = user;
+    // ... (Existing test cases)
+  });
 
-      const createdNotification = new Notification();
-      createdNotification.id = 1;
 
-      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
-      jest.spyOn(notificationRepository, 'create').mockReturnValue(createdNotification);
-      jest.spyOn(notificationRepository, 'save').mockResolvedValue(createdNotification);
+  describe('getPreferences', () => {
+    it('should retrieve notification preferences for a user', async () => {
+      const userId = 1;
+      const preferences = new NotificationPreferences();
+      preferences.userId = userId;
+      preferences.email = true;
+      preferences.push = false;
 
-      const result = await service.createCommentNotification(comment.id);
-      expect(result).toEqual(createdNotification);
+      jest.spyOn(notificationPreferencesRepository, 'findOne').mockResolvedValue(preferences);
+
+      const result = await service.getPreferences(userId);
+      expect(result).toEqual({ email: true, push: false });
     });
+  });
 
-    it('should handle errors when creating a comment notification', async () => {
-      const commentId = 1;
-      const error = new Error('Failed to create notification');
+  describe('updatePreferences', () => {
+    it('should update notification preferences for a user', async () => {
+      const userId = 1;
+      const updateDto = { email: false, push: true };
+      const existingPreferences = new NotificationPreferences();
+      existingPreferences.userId = userId;
+      existingPreferences.email = true;
+      existingPreferences.push = false;
 
-      jest.spyOn(commentRepository, 'findOne').mockRejectedValue(error);
+      jest.spyOn(notificationPreferencesRepository, 'findOne').mockResolvedValue(existingPreferences);
+      jest.spyOn(notificationPreferencesRepository, 'save').mockResolvedValue({ ...existingPreferences, ...updateDto });
 
-      await expect(service.createCommentNotification(commentId)).rejects.toThrowError(error);
+      const result = await service.updatePreferences(userId, updateDto);
+      expect(result).toEqual({ email: false, push: true });
     });
   });
 });

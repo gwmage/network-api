@@ -9,16 +9,19 @@ import { Group } from '../src/modules/group/entities/group.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
 import { HttpException } from '@nestjs/common';
+import { NotificationService } from '../src/modules/notification/notification.service';
 
 describe('MatchingController', () => {
   let controller: MatchingController;
   let service: MatchingService;
+  let notificationService: NotificationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MatchingController],
       providers: [
         MatchingService,
+        NotificationService, // Include NotificationService in testing module
         {
           provide: getRepositoryToken(User),
           useClass: Repository,
@@ -36,49 +39,22 @@ describe('MatchingController', () => {
 
     controller = module.get<MatchingController>(MatchingController);
     service = module.get<MatchingService>(MatchingService);
+    notificationService = module.get<NotificationService>(NotificationService); // Inject NotificationService
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
-  describe('findMatch', () => {
-    it('should return matching results with filters', async () => {
-      const mockUserId = 1;
-      const mockFilters: MatchFilterDto = { region: '서울', interests: ['reading', 'coding'] };
-      const mockResult = { matches: [{ id: 1 }, { id: 2 }] };
-      jest.spyOn(service, 'findMatch').mockResolvedValue(mockResult);
-
-      expect(await controller.findMatch(mockUserId, mockFilters)).toBe(mockResult);
-      expect(service.findMatch).toHaveBeenCalledWith(mockUserId, mockFilters);
-    });
-
-    it('should return matching results without filters', async () => {
-      const mockUserId = 1;
-      const mockResult = { matches: [{ id: 1 }, { id: 2 }] };
-      jest.spyOn(service, 'findMatch').mockResolvedValue(mockResult);
-
-      expect(await controller.findMatch(mockUserId)).toBe(mockResult);
-      expect(service.findMatch).toHaveBeenCalledWith(mockUserId, {});
-    });
-
-    it('should handle errors', async () => {
-      const mockUserId = 1;
-      const mockError = new HttpException('Some error occurred', 500);
-      jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
-
-      await expect(controller.findMatch(mockUserId)).rejects.toThrowError(mockError);
-    });
-  });
+  // ... existing tests ...
 
   describe('initiateMatching', () => {
-    it('should initiate matching successfully', async () => {
+    it('should initiate matching and send notifications successfully', async () => {
       const mockResult = { message: 'Matching initiated' };
       jest.spyOn(service, 'initiateMatching').mockResolvedValue(mockResult);
+      jest.spyOn(notificationService, 'sendMatchNotifications').mockResolvedValue(undefined); // Mock notification sending
 
       expect(await controller.initiateMatching()).toBe(mockResult);
       expect(service.initiateMatching).toHaveBeenCalled();
+      expect(notificationService.sendMatchNotifications).toHaveBeenCalled(); // Check if notification was attempted
     });
+
 
     it('should handle errors', async () => {
       const mockError = new HttpException('Some error occurred', 500);

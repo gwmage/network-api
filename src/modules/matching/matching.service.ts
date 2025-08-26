@@ -19,56 +19,47 @@ export class MatchingService {
     private notificationService: NotificationService,
   ) {}
 
-  async triggerMatching(): Promise<{ status: string }> {
-    try {
-      // Instead of directly running the matching, we set a flag or
-      // use a message queue (e.g., Redis, RabbitMQ) to signal the matching process
-      // This allows for asynchronous processing and prevents blocking the request.
+  // ... (other methods)
 
-      this.runMatching(); // Schedule an immediate run
+  async sendMatchNotifications(matches: Match[]): Promise<void> {
+    for (const match of matches) {
+      const userIds = match.users.map((user) => user.id);
+      const matchDetails = {
+        groupId: match.id, // Assuming match.id represents the group ID
+        // Add other relevant match details like members, criteria, etc.
+        members: match.users.map(user => ({id: user.id, name: user.name})), // Example
+      };
 
-
-      return { status: 'Matching process initiated.' };
-    } catch (error) {
-      this.logger.error(`Failed to trigger matching: ${error.message}`, error.stack);
-      throw error; // Re-throw the error to be handled by a global exception filter
+      for (const userId of userIds) {
+        try {
+          await this.notificationService.sendNotification(userId, {
+            title: 'Match Found!',
+            message: `You have been matched with a new group!`, // Customize message
+            data: matchDetails, // Include match details in notification payload
+          });
+        } catch (error) {
+          this.logger.error(`Failed to send notification to user ${userId}: ${error.message}`, error.stack);
+          // Handle notification failure, e.g., retry, log, or store for later delivery
+        }
+      }
     }
   }
 
 
-  async getMatchingStatus(): Promise<{ status: string }> {
-    // Check the flag or query the message queue for the current status
-    // For demonstration, we return a placeholder
-    return { status: 'Matching process is scheduled.' };
-  }
-
-
-
-  @Cron(CronExpression.EVERY_WEEK)
-  async runMatching() {
-    this.logger.log('Starting AI matching process...');
-
-    try {
-      const users = await this.userRepository.find({
-        where: {
-          // Add any necessary filtering criteria here
-        },
-      });
-
-      const matchedGroups = this.matchUsers(users);
-
-      const savedMatches = await this.saveMatches(matchedGroups);
-
-      // Send notifications after successful match and save
-      await this.sendMatchNotifications(savedMatches);
-
-      this.logger.log('Matching process completed successfully.');
-    } catch (error) {
-      this.logger.error(`Matching process failed: ${error.message}`, error.stack);
+  async saveMatches(matchedGroups: User[][]): Promise<Match[]> {
+    const savedMatches: Match[] = [];
+    for (const group of matchedGroups) {
+      const match = this.matchRepository.create();
+      match.users = group;
+      const savedMatch = await this.matchRepository.save(match);
+      savedMatches.push(savedMatch);
     }
+    return savedMatches;
   }
 
-  // ... other methods (saveMatches, sendMatchNotifications, matchUsers remain unchanged)
+
+
+  // ... (other methods)
 }
 
 ```

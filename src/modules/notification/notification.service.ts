@@ -1,63 +1,106 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { NotificationPreferences } from './entities/notification.entity'; // Import the entity
+import { NotificationPreferences } from './entities/notification.entity';
+import * as admin from 'firebase-admin'; // Import Firebase Admin SDK
+import * as nodemailer from 'nodemailer'; // Import Nodemailer
+
+// Initialize Firebase Admin SDK (ensure you have set up the service account credentials)
+const serviceAccount = require('../../path/to/your/serviceAccountKey.json'); // Replace with your service account key file path
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 @Injectable()
 export class NotificationService {
-  // ... (Existing code remains unchanged)
-
-  async getNotificationPreferences(userId: number): Promise<NotificationPreferences> {
-    // Implement logic to retrieve notification preferences from a database or other storage
-    // based on the userId.
-    // For now, we'll return a default object.  Replace this with your actual implementation.
-
-    console.log(`Fetching notification preferences for user ${userId}`); // Logging for debugging
-    return {
-      comment: true,
-      push: true,
-      email: false,
-    };
-  }
-
-
-  async createNotification(userId: number, message: string, type: string, relatedData?: any): Promise<void> {
-      // Implement your notification creation logic here (e.g., saving to a database)
-      console.log(`Creating notification for user ${userId}: message=${message}, type=${type}`);
-
-      const preferences = await this.getNotificationPreferences(userId);
-
-      if (type === 'comment' && preferences.comment) {
-          this.sendCommentNotification(userId, message, relatedData); 
-      }
-
-      if (type === 'push' && preferences.push) {
-        this.sendPushNotification(userId, message);
-      }
-
-      if (type === 'email' && preferences.email) {
-          this.sendEmailNotification(userId, message);
-      }
-
-  }
+  // ... (Existing code)
 
   private async sendPushNotification(userId: number, message: string): Promise<void> {
-    console.log(`Sending push notification to user ${userId}: ${message}`);
-    // Implement your actual push notification logic here.
+    // Fetch the user's FCM token from your database based on userId
+    const userFCMToken = await this.getUserFCMToken(userId); // Implement this function
+
+    if (userFCMToken) {
+      const payload: admin.messaging.MessagingPayload = {
+        notification: {
+          title: 'New Notification', // Customize the title
+          body: message,
+        },
+        data: {
+            // You can add custom data here if needed.
+        }
+      };
+
+      try {
+        await admin.messaging().sendToDevice(userFCMToken, payload);
+        console.log('Push notification sent successfully!');
+      } catch (error) {
+        console.error('Error sending push notification:', error);
+      }
+    } else {
+      console.log(`User ${userId} does not have an FCM token.`);
+    }
+
+
   }
 
   private async sendEmailNotification(userId: number, message: string): Promise<void> {
-    console.log(`Sending email notification to user ${userId}: ${message}`);
-    // Implement your actual email notification logic here.
+    // Create a Nodemailer transporter
+    const transporter = nodemailer.createTransport({
+        // Configure your email provider (e.g., Gmail, SendGrid, etc.)
+      service: 'gmail', // Example: using Gmail
+      auth: {
+        user: 'your_email@gmail.com', // Replace with your email
+        pass: 'your_email_password', // Replace with your email password or app password
+      },
+    });
+
+
+    const userEmail = await this.getUserEmail(userId); // Implement this function
+
+    if (userEmail) {
+
+      const mailOptions: nodemailer.SendMailOptions = {
+        from: 'your_email@gmail.com', // Replace with your email
+        to: userEmail,
+        subject: 'New Notification', // Customize the subject
+        text: message,
+      };
+
+        try {
+          await transporter.sendMail(mailOptions);
+          console.log('Email notification sent successfully!');
+
+        }
+        catch (error) {
+          console.error('Error sending email notification:', error);
+
+        }
+    } else {
+
+      console.log(`User ${userId} does not have a registered email.`);
+
+    }
+
+
   }
 
-  private async sendCommentNotification(userId: number, message: string, relatedData?: any): Promise<void> {
-    console.log(`Sending comment notification to user ${userId}: ${message}`, relatedData);
-    // Implement your specific notification logic here based on the platform and relatedData,
-    // e.g., send email, push notification, or in-app notification.
+
+
+  // Dummy implementations for retrieving user's FCM token and email. Replace these with your actual database queries.
+  private async getUserFCMToken(userId: number): Promise<string | undefined> {
+    // Replace this with your database logic to fetch the FCM token for the given userId
+    // Example:
+    // return this.userRepository.findOne({ where: { id: userId } }).then(user => user?.fcmToken);
+    return 'your_fcm_token'; // Replace with a real token for testing
   }
 
-  // ... (Rest of the existing code remains unchanged)
+  private async getUserEmail(userId: number): Promise<string | undefined> {
 
+    return "test@test.com"; // Replace with user's actual email
+
+  }
+
+  // ... (Rest of the existing code)
 }
 
 ```
