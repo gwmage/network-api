@@ -23,40 +23,44 @@ export class MatchingService {
   async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
     const startTime = performance.now();
 
-    // 1. Fetch user profiles with eager loading for related entities
-    const users = await this.userRepository.find({
-      relations: ['profile'],
-      where: {
-        // Add any filtering criteria based on input if needed
-      },
-    });
+    const queryBuilder = this.buildMatchingQuery(input);
+    const users = await queryBuilder.getMany();
 
-    //  2. Prepare data for faster processing
+
+    // Prepare data for faster processing
     const userProfiles = users.map((user) => user.profile);
 
-    // ... (Existing matching logic using userProfiles instead of fetching data inside the loop)
+    // ... (Existing matching logic using userProfiles)
 
     const endTime = performance.now();
     const executionTime = endTime - startTime;
     this.logger.log(`Matching execution time: ${executionTime}ms`);
 
-    return matchingGroups;
+    return matchingGroups; // Make sure matchingGroups is properly defined in the existing logic
+  }
+
+  // ... (Other existing code)
+
+  private buildMatchingQuery(input: UserMatchingInputDTO): SelectQueryBuilder<User> {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    queryBuilder.leftJoinAndSelect('user.profile', 'profile');
+
+    // Apply filtering based on input
+    if (input.location) {
+      queryBuilder.andWhere('profile.location LIKE :location', { location: `%${input.location}%` });
+    }
+    if (input.interests) {
+      queryBuilder.andWhere('profile.interests && :interests', { interests: input.interests }); // Assuming interests is an array
+    }
+    // ... add other filters based on input fields and your data structure
+
+    return queryBuilder;
   }
 
 
   async generateExplanation(groupId: number): Promise<string> {
     // ... existing code
   }
-
-  // ... (Other existing code)
-
-  private async buildMatchingQuery(): Promise<SelectQueryBuilder<User>> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
-      return queryBuilder
-          .leftJoinAndSelect('user.profile', 'profile'); // Optimized join
-  }
-
-
 }
 
 ```

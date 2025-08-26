@@ -10,24 +10,17 @@ import { MatchingResultsDto } from './dto/matching-results.dto'; // Import the c
 import { Response } from 'express';
 
 
-@Controller('admin/matches') // Added /admin prefix for future permission management
+@Controller('api/matching') // Updated base path
 export class MatchingController {
   constructor(private readonly matchingService: MatchingService) {}
 
   // ... existing code ...
 
-  @Post('matching')
-  async initiateMatching(@Body(new ValidationPipe()) userInput: UserMatchingInputDTO): Promise<MatchingResultsDto> {
-    try {
-      const matchingResult = await this.matchingService.initiateMatching(userInput);
-      return matchingResult;
-    } catch (error) {
-      console.error('Error initiating matching:', error);
-      throw error; // Re-throw the error to be handled by the global exception filter
-    }
+  @Get('groups/:groupId/explanation')
+  async getExplanation(@Param('groupId', ParseIntPipe) groupId: number): Promise<string> {
+    return this.matchingService.getExplanation(groupId);
   }
 
   // ... existing code ...
-
 }
 ```

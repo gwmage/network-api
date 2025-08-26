@@ -39,7 +39,8 @@ export class MatchingRepository {
   }
 
   async saveMatchingResults(matchingGroup: MatchingGroup, userMatches: UserMatch[]): Promise<void> {
-    await this.matchingGroupRepository.save(matchingGroup);
+    const savedMatchingGroup = await this.matchingGroupRepository.save(matchingGroup);
+    userMatches.forEach(userMatch => userMatch.groupId = savedMatchingGroup.id)
     await this.userMatchRepository.save(userMatches);
   }
 
@@ -47,6 +48,16 @@ export class MatchingRepository {
     const matchingGroup = await this.matchingGroupRepository.findOne({ where: { id: groupId } });
     const userMatches = await this.userMatchRepository.find({ where: { groupId } });
     return { matchingGroup, userMatches };
+  }
+
+  async getLatestMatchingGroup(): Promise<MatchingGroup | null> {
+    return this.matchingGroupRepository.findOne({ order: { createdAt: 'DESC' } });
+  }
+
+
+  async getMatchingGroupExplanation(groupId: number): Promise<string | null> {
+    const matchingGroup = await this.matchingGroupRepository.findOne({ where: { id: groupId }, select: ['matchingRationale'] });
+    return matchingGroup?.matchingRationale || null;
   }
 }
 
