@@ -47,6 +47,16 @@ export class MatchingController {
     }
   }
 
+  @Post('notifications') // New endpoint for triggering notifications
+  async triggerNotifications() {
+    try {
+      return await this.matchingService.triggerNotifications();
+    } catch (error) {
+      throw new HttpException('Failed to trigger notifications', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
   @Get('matches')
   async getAllMatches() {
     try {
