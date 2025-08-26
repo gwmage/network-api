@@ -1,20 +1,27 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { ActivityLog } from './activity-log.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  name: string;
+
   @Column({ unique: true })
   email: string;
 
   @Column()
-  name: string;
+  region: string;
 
-  @OneToMany(() => ActivityLog, (activityLog) => activityLog.user)
-  activityLogs: ActivityLog[];
+  @Column('text', { array: true, default: [] })
+  interests: string[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
-
 ```
