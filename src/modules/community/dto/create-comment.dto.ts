@@ -1,17 +1,34 @@
 ```typescript
-import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateCommentDto {
   @IsNotEmpty()
   @IsString()
-  text: string;
+  content: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsUUID()
   postId: string;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsUUID()
+  parentId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  parentCommentId?: string;
+
+  @IsOptional()
   @IsString()
-  userId: string;
+  category?: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  tags?: string[];
 }
+
 ```
