@@ -37,5 +37,17 @@ export class MatchingRepository {
   async findUserMatches(where: FindOptionsWhere<UserMatch>): Promise<UserMatch[]> {
     return this.userMatchRepository.find({ where });
   }
+
+  async saveMatchingResults(matchingGroup: MatchingGroup, userMatches: UserMatch[]): Promise<void> {
+    await this.matchingGroupRepository.save(matchingGroup);
+    await this.userMatchRepository.save(userMatches);
+  }
+
+  async getMatchingResults(groupId: number): Promise<{ matchingGroup: MatchingGroup; userMatches: UserMatch[] }> {
+    const matchingGroup = await this.matchingGroupRepository.findOne({ where: { id: groupId } });
+    const userMatches = await this.userMatchRepository.find({ where: { groupId } });
+    return { matchingGroup, userMatches };
+  }
 }
+
 ```

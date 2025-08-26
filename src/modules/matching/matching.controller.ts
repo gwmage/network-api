@@ -1,101 +1,33 @@
 ```typescript
-import { Body, Controller, Get, Post, Put, Delete, Param, HttpException, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Delete, Param, ParseIntPipe, Query, Res, ValidationPipe } from '@nestjs/common';
 import { MatchingService } from './matching.service';
 import { UserData } from './dto/user-data.dto';
 import { MatchResultDto } from './dto/match-result.dto';
+import { MatchDto } from './dto/match.dto';
+import { MatchFilterDto } from './dto/match-filter.dto';
+import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
+import { MatchingResultsDto } from './dto/matching-results.dto'; // Import the correct DTO
+import { Response } from 'express';
 
-@Controller('matching')
+
+@Controller('admin/matches') // Added /admin prefix for future permission management
 export class MatchingController {
   constructor(private readonly matchingService: MatchingService) {}
 
-  @Post()
-  async initiateMatching() {
+  // ... existing code ...
+
+  @Post('matching')
+  async initiateMatching(@Body(new ValidationPipe()) userInput: UserMatchingInputDTO): Promise<MatchingResultsDto> {
     try {
-      return await this.matchingService.initiateMatching();
-    } catch (error) {
-      throw new HttpException('Failed to initiate matching', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Get('status')
-  async getMatchingStatus() {
-    try {
-      return await this.matchingService.getMatchingStatus();
-    } catch (error) {
-      throw new HttpException('Failed to get matching status', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-
-  @Post('users')
-  async createUser(@Body() userData: UserData) {
-    try {
-      return await this.matchingService.createUser(userData);
-    } catch (error) {
-      throw new HttpException('Failed to create user', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-  }
-
-  @Get('groups')
-  async getMatchingGroups(): Promise<MatchResultDto> {
-    try {
-      const matchingResult = await this.matchingService.findMatch();
+      const matchingResult = await this.matchingService.initiateMatching(userInput);
       return matchingResult;
     } catch (error) {
-        throw new HttpException('Failed to retrieve matching groups', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error('Error initiating matching:', error);
+      throw error; // Re-throw the error to be handled by the global exception filter
     }
   }
 
-  @Post('notifications') // New endpoint for triggering notifications
-  async triggerNotifications() {
-    try {
-      return await this.matchingService.triggerNotifications();
-    } catch (error) {
-      throw new HttpException('Failed to trigger notifications', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-
-  @Get('matches')
-  async getAllMatches() {
-    try {
-      return await this.matchingService.getAllMatches();
-    } catch (error) {
-      throw new HttpException('Failed to get all matches', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Get('matches/:id')
-  async getMatchById(@Param('id') id: string) {
-    try {
-      return await this.matchingService.getMatchById(id);
-    } catch (error) {
-      throw new HttpException('Failed to get match', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-
-  @Put('matches/:id')
-  async updateMatch(@Param('id') id: string, @Body() updateData: any) { // Define updateData DTO
-    try {
-      return await this.matchingService.updateMatch(id, updateData);
-    } catch (error) {
-      throw new HttpException('Failed to update match', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Delete('matches/:id')
-  async deleteMatch(@Param('id') id: string) {
-    try {
-      return await this.matchingService.deleteMatch(id);
-    } catch (error) {
-      throw new HttpException('Failed to delete match', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-
+  // ... existing code ...
 
 }
-
 ```

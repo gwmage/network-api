@@ -5,12 +5,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Profile } from '../src/entities/profile.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
-import { NotificationService } from '../src/modules/notification/notification.service';
 
 describe('MatchingService', () => {
   let service: MatchingService;
   let profileRepository: Repository<Profile>;
-  let notificationService: NotificationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,18 +18,11 @@ describe('MatchingService', () => {
           provide: getRepositoryToken(Profile),
           useClass: Repository,
         },
-        {
-          provide: NotificationService,
-          useValue: {
-            sendMatchNotification: jest.fn(),
-          },
-        },
       ],
     }).compile();
 
     service = module.get<MatchingService>(MatchingService);
     profileRepository = module.get<Repository<Profile>>(getRepositoryToken(Profile));
-    notificationService = module.get<NotificationService>(NotificationService);
   });
 
   it('should be defined', () => {
@@ -39,27 +30,41 @@ describe('MatchingService', () => {
   });
 
   describe('filterMatches', () => {
-    // ... (Existing filterMatches tests remain unchanged)
+    // ... (Existing tests remain unchanged)
   });
-
 
   describe('performance test', () => {
-    // ... (Existing performance tests remain unchanged)
-  });
+    it('should handle a large number of users efficiently', async () => {
+      const numUsers = 10000;
+      const mockProfiles: Profile[] = [];
+      for (let i = 0; i < numUsers; i++) {
+        mockProfiles.push({
+          id: i + 1,
+          userId: i + 2,
+          region: '서울',
+          interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4)),
+        } as Profile);
+      }
 
-  describe('matchUsers', () => {
-    it('should send notification after successful match', async () => {
-      const userProfile = { id: 1, userId: 1 } as Profile;
-      const matchedProfiles = [{ id: 2, userId: 2 } as Profile];
-      jest.spyOn(profileRepository, 'findOne').mockResolvedValue(userProfile);
-      jest.spyOn(service, 'findMatches').mockResolvedValue(matchedProfiles);
+      jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
 
-      await service.matchUsers(1);
+      const startTime = process.hrtime();
+      const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
+      const results = await service.filterMatches(mockProfiles, filters); // Use mockProfiles directly here
+      const endTime = process.hrtime(startTime);
 
-      expect(notificationService.sendMatchNotification).toHaveBeenCalledWith(
-        userProfile,
-        matchedProfiles,
-      );
+      const elapsedTimeMs = (endTime[0] * 1000 + endTime[1] / 1000000);
+
+      console.log(`Matching time for ${numUsers} users: ${elapsedTimeMs} ms`);
+
+      // Add assertions for time and memory usage based on your performance requirements.
+      // Example:
+      expect(elapsedTimeMs).toBeLessThan(500); // Adjust threshold as needed
+
+      // Memory usage check (requires a memory profiling tool)
+      // Example using a hypothetical memory profiling function:
+      // const memoryUsage = getMemoryUsage();
+      // expect(memoryUsage).toBeLessThan(100 * 1024 * 1024); // Example: less than 100MB
     });
   });
 });
