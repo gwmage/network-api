@@ -1,15 +1,21 @@
 ```typescript
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
+import { NotificationChannel, NotificationType } from './notification.dto';
 
-export class CreateNotificationPreferencesDto {
-  @IsBoolean()
-  email: boolean;
+export class NotificationPreferencesDto {
+  @IsArray()
+  @IsEnum(NotificationType, { each: true })
+  notificationTypes: NotificationType[];
 
-  @IsBoolean()
-  push: boolean;
-}
+  @IsArray()
+  @IsEnum(NotificationChannel, { each: true })
+  channels: NotificationChannel[];
 
-export class UpdateNotificationPreferencesDto {
+  @IsOptional()
+  @IsString()
+  notificationTime?: string;
+
+
   @IsOptional()
   @IsBoolean()
   email?: boolean;
@@ -17,14 +23,6 @@ export class UpdateNotificationPreferencesDto {
   @IsOptional()
   @IsBoolean()
   push?: boolean;
-}
-
-export class NotificationPreferencesDto {
-  @IsBoolean()
-  email: boolean;
-
-  @IsBoolean()
-  push: boolean;
 }
 
 ```
