@@ -1,6 +1,8 @@
 ```typescript
 import {ApiProperty} from "@nestjs/swagger";
-import { IsOptional, IsArray, IsString } from 'class-validator';
+import { IsOptional, IsArray, IsString, IsNumber, IsEnum } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { SortOrder } from '../enums/sort-order.enum';
 
 export class FindUsersQueryDto {
     @ApiProperty()
@@ -26,5 +28,30 @@ export class FindUsersQueryDto {
     @IsArray()
     @IsString({ each: true })
     interests?: string[];
+
+    @ApiProperty({ required: false, default: 1 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    page?: number = 1;
+
+    @ApiProperty({ required: false, default: 10 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    limit?: number = 10;
+
+    @ApiProperty({ required: false, enum: SortOrder, default: SortOrder.ASC })
+    @IsOptional()
+    @IsEnum(SortOrder)
+    @Transform(({ value }) => value.toUpperCase())
+    sort?: SortOrder = SortOrder.ASC;
+
+    @ApiProperty({ required: false, default: 'createdAt' })
+    @IsOptional()
+    @IsString()
+    sortBy?: string = 'createdAt';
+
+
 }
 ```

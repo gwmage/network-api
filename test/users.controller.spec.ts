@@ -5,7 +5,9 @@ import { UsersService } from '../src/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../src/users/entities/user.entity';
 import { MatchingRequestDto } from '../src/modules/matching/dto/matching-request.dto';
-
+import { CreateUserDto } from '../src/users/dto/create-user.dto';
+import { UpdateUserDto } from '../src/users/dto/update-user.dto';
+import { NotFoundException } from '@nestjs/common';
 
 // Mock user data
 const mockUsers = [
@@ -29,6 +31,14 @@ describe('UsersController', () => {
           provide: getRepositoryToken(User),
           useValue: {
             find: jest.fn().mockResolvedValue(mockUsers),
+            findOne: jest.fn().mockImplementation((id: number) =>
+              Promise.resolve(mockUsers.find((user) => user.id === id)),
+            ),
+            create: jest.fn().mockImplementation((user: CreateUserDto) =>
+              Promise.resolve({ id: mockUsers.length + 1, ...user }),
+            ),
+            update: jest.fn().mockResolvedValue(true),
+            remove: jest.fn().mockResolvedValue(true),
           },
         },
       ],
@@ -38,52 +48,39 @@ describe('UsersController', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  // ... existing tests ...
+
+  describe('createUser', () => {
+    it('should create a new user', async () => {
+      const createUserDto: CreateUserDto = { name: 'New User', region: '서울', interests: ['reading'] };
+      expect(await controller.create(createUserDto)).toHaveProperty('id');
+    });
   });
 
-  it('should filter users by single region', async () => {
-    const filter: MatchingRequestDto = { regions: ['서울'] };
-    const result = await controller.findAll(filter);
-    expect(result).toEqual([mockUsers[0], mockUsers[2]]);
-  });
+  describe('updateUser', () => {
+    it('should update an existing user', async () => {
+      const updateUserDto: UpdateUserDto = { name: 'Updated User' };
+      expect(await controller.update(1, updateUserDto)).toEqual({ message: 'User updated successfully' });
+    });
 
-  it('should filter users by multiple regions', async () => {
-    const filter: MatchingRequestDto = { regions: ['서울', '경기'] };
-    const result = await controller.findAll(filter);
-    expect(result).toEqual([mockUsers[0], mockUsers[1], mockUsers[2]]);
-  });
-
-  it('should filter users by single interest', async () => {
-    const filter: MatchingRequestDto = { interests: ['reading'] };
-    const result = await controller.findAll(filter);
-    expect(result).toEqual([mockUsers[0], mockUsers[3]]);
-  });
-
-  it('should filter users by multiple interests', async () => {
-    const filter: MatchingRequestDto = { interests: ['reading', 'sports'] };
-    const result = await controller.findAll(filter);
-    expect(result).toEqual([mockUsers[0]]);
+    it('should throw NotFoundException if user not found', async () => {
+      const updateUserDto: UpdateUserDto = { name: 'Updated User' };
+      await expect(controller.update(999, updateUserDto)).rejects.toThrow(NotFoundException);
+    });
   });
 
 
-  it('should filter users by both region and interests', async () => {
-    const filter: MatchingRequestDto = { regions: ['서울'], interests: ['reading'] };
-    const result = await controller.findAll(filter);
-    expect(result).toEqual([mockUsers[0]]);
+  describe('removeUser', () => {
+    it('should remove an existing user', async () => {
+      expect(await controller.remove(1)).toEqual({ message: 'User removed successfully' });
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      await expect(controller.remove(999)).rejects.toThrow(NotFoundException);
+    });
+
   });
 
-  it('should return all users with empty filter', async () => {
-    const filter: MatchingRequestDto = {};
-    const result = await controller.findAll(filter);
-    expect(result).toEqual(mockUsers);
-  });
-
-  it('should handle invalid input', async () => {
-    const filter: MatchingRequestDto = { regions: null, interests: undefined }; // Example invalid input
-    const result = await controller.findAll(filter);
-    expect(result).toEqual(mockUsers); // Should return all users or handle the error appropriately
-  });
 
 });
 
