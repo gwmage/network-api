@@ -1,5 +1,5 @@
 ```typescript
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Delete, Param, ParseIntPipe, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { IsString, IsOptional, IsArray, ArrayMaxSize } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
@@ -39,6 +39,16 @@ export class UsersController {
   @Get()
   findAll(@Query() query: UserQueryParams) {
     return this.usersService.findAll(query);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    try {
+      await this.usersService.remove(id);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      throw new NotFoundException('User not found');
+    }
   }
 }
 
