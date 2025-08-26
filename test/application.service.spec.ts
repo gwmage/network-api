@@ -6,6 +6,7 @@ import { Application } from '../src/modules/application/entities/application.ent
 import { Repository } from 'typeorm';
 import { User } from '../src/modules/auth/entities/user.entity';
 import { PaginatedApplicationsDto } from '../src/modules/application/dto/paginated-applications.dto';
+import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 describe('ApplicationService', () => {
   let service: ApplicationService;
@@ -60,9 +61,28 @@ describe('ApplicationService', () => {
       };
       expect(await service.findAll({ page, limit })).toEqual(result);
     });
-  });
 
-  // ... other tests ...
+    it('should filter applications by region', async () => {
+      const filter: FindOptionsWhere<Application> = { region: '서울' };
+      jest.spyOn(applicationRepository, 'findAndCount').mockImplementation(async (options) => {
+        expect(options.where).toEqual(filter);
+        return [[], 0];
+      });
+      await service.findAll({ page: 1, limit: 10, filter });
+    });
+
+
+    it('should sort applications by career', async () => {
+      const order = { career: 'ASC' };
+      jest.spyOn(applicationRepository, 'findAndCount').mockImplementation(async (options) => {
+        expect(options.order).toEqual(order);
+        return [[], 0];
+      });
+
+      await service.findAll({ page: 1, limit: 10, order });
+
+    });
+  });
 });
 
 ```

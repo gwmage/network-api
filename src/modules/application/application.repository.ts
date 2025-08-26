@@ -1,8 +1,9 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere, Like, Equal } from 'typeorm';
 import { Application } from './application.entity';
+import { GetApplicationDto } from './dto/get-application.dto';
 
 @Injectable()
 export class ApplicationRepository extends Repository<Application> {
@@ -17,6 +18,33 @@ export class ApplicationRepository extends Repository<Application> {
     return this.applicationRepository.find({ where: { userId } });
   }
 
-  // Add other methods for pagination, search, and download as needed.
+  async findApplications(
+    userId: number,
+    getApplicationDto: GetApplicationDto,
+  ): Promise<[Application[], number]> {
+    const { page, pageSize, sortField, sortOrder, filter } = getApplicationDto;
+
+    const whereClause: FindOptionsWhere<Application> = { userId };
+
+    if (filter) {
+      if (filter.name) {
+        whereClause.name = Like(`%${filter.name}%`);
+      }
+      if (filter.status) {
+        whereClause.status = Equal(filter.status);
+      }
+      // Add other filter conditions as needed
+    }
+
+    const order = sortField ? { [sortField]: sortOrder } : {};
+
+
+    return this.applicationRepository.findAndCount({
+      where: whereClause,
+      order,
+      take: pageSize,
+      skip: (page - 1) * pageSize,
+    });
+  }
 }
 ```
