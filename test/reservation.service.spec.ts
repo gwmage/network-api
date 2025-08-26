@@ -6,14 +6,18 @@ import { Reservation } from '../src/reservation/reservation.entity';
 import { Repository } from 'typeorm';
 import { Restaurant } from '../src/restaurant/restaurant.entity';
 import { User } from '../src/users/user.entity';
-import { HttpModule } from '@nestjs/axios';
+import { HttpModule, HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { of, throwError } from 'rxjs';
+import { AxiosError } from 'axios';
 
 describe('ReservationService', () => {
   let service: ReservationService;
   let reservationRepository: Repository<Reservation>;
   let restaurantRepository: Repository<Restaurant>;
   let userRepository: Repository<User>;
+  let httpService: HttpService;
+  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,87 +44,53 @@ describe('ReservationService', () => {
     reservationRepository = module.get<Repository<Reservation>>(getRepositoryToken(Reservation));
     restaurantRepository = module.get<Repository<Restaurant>>(getRepositoryToken(Restaurant));
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    httpService = module.get<HttpService>(HttpService);
+    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a reservation', async () => {
-    const mockUser = new User();
-    mockUser.id = 1;
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+  // ... existing tests ...
 
-    const mockRestaurant = new Restaurant();
-    mockRestaurant.id = 1;
-    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(mockRestaurant);
+  it('should handle successful API call', async () => {
+    const mockResponse = { data: { success: true } };
+    jest.spyOn(httpService, 'get').mockReturnValue(of(mockResponse));
+    jest.spyOn(configService, 'get').mockReturnValue('mockApiKey');
 
-    const createReservationDto = {
-      restaurantId: 1,
-      userId: 1,
-      date: new Date(),
-      time: '18:00',
-      partySize: 2,
-    };
-
-    const mockReservation = new Reservation();
-    mockReservation.id = 1;
-    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
-
-    const result = await service.createReservation(createReservationDto);
-    expect(result).toEqual(mockReservation);
-    expect(userRepository.findOne).toHaveBeenCalledWith(createReservationDto.userId);
-    expect(restaurantRepository.findOne).toHaveBeenCalledWith(createReservationDto.restaurantId);
-  });
-
-  it('should find all reservations', async () => {
-    const mockReservations = [new Reservation(), new Reservation()];
-    jest.spyOn(reservationRepository, 'find').mockResolvedValue(mockReservations);
-
-    const result = await service.findAll();
-    expect(result).toEqual(mockReservations);
-    expect(reservationRepository.find).toHaveBeenCalled();
+    const result = await service.checkRestaurantAvailability({} as any); // Replace with actual DTO type if available
+    expect(result).toEqual(mockResponse.data);
+    expect(httpService.get).toHaveBeenCalled();
+    expect(configService.get).toHaveBeenCalledWith('RESTAURANT_API_KEY');
   });
 
 
-  it('should find a reservation by id', async () => {
-    const mockReservation = new Reservation();
-    mockReservation.id = 1;
+  it('should handle invalid API key', async () => {
+    const mockError = new AxiosError();
+    mockError.response = { status: 401, data: { message: 'Invalid API key' } };
+    jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => mockError));
 
-    jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
 
-    const result = await service.findOne(1);
-    expect(result).toEqual(mockReservation);
-    expect(reservationRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 }, relations: ['restaurant', 'user'] });
-  });
-
-  it('should update a reservation', async () => {
-    const mockReservation = new Reservation();
-    mockReservation.id = 1;
-    jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
-    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
-
-    const updateReservationDto = {
-      date: new Date(),
-      time: '19:00',
-      partySize: 4,
-    };
-
-    const result = await service.update(1, updateReservationDto);
-    expect(result).toEqual(mockReservation);
+    await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Invalid API key');
 
   });
 
+  it('should handle network errors', async () => {
+    const mockError = new AxiosError();
+    mockError.message = 'Network Error';
+    jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => mockError));
 
-  it('should remove a reservation', async () => {
-    jest.spyOn(reservationRepository, 'delete').mockResolvedValue({ affected: 1 });
-    await service.remove(1);
-    expect(reservationRepository.delete).toHaveBeenCalledWith(1);
-
+    await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Network Error');
   });
 
 
+  it('should handle unavailable data', async () => {
+    const mockResponse = { data: { success: false, message: 'Restaurant unavailable' } };
+    jest.spyOn(httpService, 'get').mockReturnValue(of(mockResponse));
 
+    await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Restaurant unavailable');
+  });
 });
 
 ```

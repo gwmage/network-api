@@ -4,10 +4,15 @@ import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { Request } from 'express';
+import { RestaurantReservationService } from './restaurant-reservation.service';
+import { CreateRestaurantReservationDto } from './dto/create-restaurant-reservation.dto';
 
 @Controller('reservation')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) { }
+  constructor(
+    private readonly reservationService: ReservationService,
+    private readonly restaurantReservationService: RestaurantReservationService,
+  ) { }
 
   @Post()
   async create(@Body() createReservationDto: CreateReservationDto, @Req() req: Request) {
@@ -18,6 +23,16 @@ export class ReservationController {
     }
   }
 
+  @Post('restaurant')
+  async createRestaurantReservation(@Body() createRestaurantReservationDto: CreateRestaurantReservationDto, @Req() req: Request) {
+    try {
+      return await this.restaurantReservationService.create(createRestaurantReservationDto, req.user['id']);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
@@ -26,6 +41,27 @@ export class ReservationController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('restaurant/:id')
+  async findOneRestaurantReservation(@Param('id') id: string) {
+    try {
+      return await this.restaurantReservationService.findOne(+id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+
+  @Get('restaurant/search')
+    async searchRestaurantReservations(@Query('query') query: string) {
+      try {
+        return await this.restaurantReservationService.search(query);
+      } catch (error) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+    }
+
+
 }
 
 ```
