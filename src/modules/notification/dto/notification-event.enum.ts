@@ -1,0 +1,6 @@
+```typescript
+export enum NotificationEvent {
+  MATCHING_RESULTS = 'MATCHING_RESULTS',
+  RESERVATION_INFORMATION = 'RESERVATION_INFORMATION',
+}
+```

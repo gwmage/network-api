@@ -1,74 +1,72 @@
 ```typescript
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { UserQueryParams } from './dto/user-query-params.dto';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private usersRepository: Repository<User>,
   ) {}
 
-  async findAll(query: UserQueryParams): Promise<{ users: User[]; total: number }> {
-    const { page = 1, limit = 10, search, sort } = query;
-    const skip = (page - 1) * limit;
+  createUser(createUserDto: CreateUserDto): Promise<User> {
+    const newUser = this.usersRepository.create(createUserDto);
+    return this.usersRepository.save(newUser);
+  }
 
-    const qb = this.userRepository.createQueryBuilder('user');
-
-    if (search) {
-      qb.where('user.username LIKE :search', { search: `%${search}%` });
-    }
-
-    if (sort) {
-      const [field, order] = sort.split(':');
-      qb.orderBy(`user.${field}`, order.toUpperCase() as 'ASC' | 'DESC');
-    }
-
-    const [users, total] = await qb
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
-
-    return { users, total };
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
   findOne(id: number): Promise<User> {
-    return this.userRepository.findOneBy({ id });
-  }
-
-  create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(createUserDto);
-    return this.userRepository.save(user);
+    return this.usersRepository.findOneBy({ id });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.findOne(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
-    Object.assign(user, updateUserDto); // Update the user object
-    return this.userRepository.save(user);
 
+    // Update user properties, including notification settings
+    Object.assign(user, updateUserDto);
+
+    // Validate and handle notification settings update
+    if (updateUserDto.notificationPreferences) {
+      user.notificationPreferences = {
+        ...user.notificationPreferences,
+        ...updateUserDto.notificationPreferences,
+      };
+       // Perform validation if needed, e.g., check if push and email are booleans
+      if(typeof user.notificationPreferences.push !== 'boolean' || typeof user.notificationPreferences.email !== 'boolean'){
+          throw new Error("Invalid notification preferences. Push and email must be boolean values.")
+      }
+    }
+
+    return this.usersRepository.save(user);
   }
+
 
   async remove(id: number): Promise<void> {
-    const user = await this.userRepository.findOneBy({ id });
+    const user = await this.findOne(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
-    await this.userRepository.remove(user);
+     await this.usersRepository.remove(user);
   }
 
-  async getActivityHistory(id: number): Promise<any[]> {
-    // Placeholder for fetching activity history
-    // This should be replaced with actual logic to retrieve user activity data
-    // Example: Retrieve from a separate activity history table
-    return [];
+   async findUsers(findUsersQueryDto: FindUsersQueryDto) {
+    const queryBuilder = this.usersRepository.createQueryBuilder('user');
+    if(findUsersQueryDto.username) {
+        queryBuilder.andWhere('user.username LIKE :username', {username:`%${findUsersQueryDto.username}%`});
+    }
+    return queryBuilder.getMany();
   }
 }
 

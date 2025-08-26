@@ -1,3 +1,4 @@
+```typescript
 import { ApiProperty } from "@nestjs/swagger";
 
 export class UserDto {
@@ -9,4 +10,12 @@ export class UserDto {
 
   @ApiProperty()
   data: any;
+
+  @ApiProperty()
+  notificationSettings: {
+    push: boolean;
+    email: boolean;
+  };
 }
+
+```
