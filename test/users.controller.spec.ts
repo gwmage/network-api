@@ -4,10 +4,12 @@ import { UsersController } from '../src/users/users.controller';
 import { UsersService } from '../src/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../src/users/entities/user.entity';
-import { MatchingRequestDto } from '../src/modules/matching/dto/matching-request.dto';
 import { CreateUserDto } from '../src/users/dto/create-user.dto';
 import { UpdateUserDto } from '../src/users/dto/update-user.dto';
 import { NotFoundException } from '@nestjs/common';
+import { PageOptionsDto } from '../src/common/dtos/page-options.dto';
+import { PageDto } from '../src/common/dtos/page.dto';
+import { PageMetaDto } from '../src/common/dtos/page-meta.dto';
 
 // Mock user data
 const mockUsers = [
@@ -20,7 +22,6 @@ const mockUsers = [
 describe('UsersController', () => {
   let controller: UsersController;
   let service: UsersService;
-
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -39,6 +40,7 @@ describe('UsersController', () => {
             ),
             update: jest.fn().mockResolvedValue(true),
             remove: jest.fn().mockResolvedValue(true),
+            findAndCount: jest.fn().mockResolvedValue([mockUsers, mockUsers.length]),
           },
         },
       ],
@@ -48,7 +50,16 @@ describe('UsersController', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  // ... existing tests ...
+  describe('findAll', () => {
+    it('should return a paginated list of users', async () => {
+      const pageOptionsDto: PageOptionsDto = { page: 1, limit: 10 };
+      const expectedPageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount: mockUsers.length });
+      const expectedPageDto = new PageDto(mockUsers, expectedPageMetaDto);
+
+      expect(await controller.findAll(pageOptionsDto)).toEqual(expectedPageDto);
+    });
+  });
+
 
   describe('createUser', () => {
     it('should create a new user', async () => {
@@ -69,7 +80,6 @@ describe('UsersController', () => {
     });
   });
 
-
   describe('removeUser', () => {
     it('should remove an existing user', async () => {
       expect(await controller.remove(1)).toEqual({ message: 'User removed successfully' });
@@ -78,10 +88,7 @@ describe('UsersController', () => {
     it('should throw NotFoundException if user not found', async () => {
       await expect(controller.remove(999)).rejects.toThrow(NotFoundException);
     });
-
   });
-
-
 });
 
 ```
