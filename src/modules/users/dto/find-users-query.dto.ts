@@ -1,29 +1,30 @@
 ```typescript
-import { PartialType } from '@nestjs/mapped-types';
-import { IsOptional, IsString, IsNumber } from 'class-validator';
-import { Transform } from 'class-transformer';
+import {ApiProperty} from "@nestjs/swagger";
+import { IsOptional, IsArray, IsString } from 'class-validator';
 
 export class FindUsersQueryDto {
-  @IsOptional()
-  @IsString()
-  username?: string;
+    @ApiProperty()
+    @IsOptional()
+    keyword?: string;
 
-  @IsOptional()
-  @IsString()
-  email?: string;
+    @ApiProperty({
+      description: 'Optional list of regions to filter by',
+      example: ['서울', '경기'],
+      required: false,
+    })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    regions?: string[];
 
-  @IsOptional()
-  @IsNumber()
-  @Transform(({ value }) => parseInt(value))
-  page?: number = 1;
-
-  @IsOptional()
-  @IsNumber()
-  @Transform(({ value }) => parseInt(value))
-  limit?: number = 10;
-
-  @IsOptional()
-  @IsString()
-  sort?: string; // e.g., 'username:asc' or 'created_at:desc'
+    @ApiProperty({
+      description: 'Optional list of interest areas to filter by',
+      example: ['sports', 'movies'],
+      required: false,
+    })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    interests?: string[];
 }
 ```
