@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Reservation } from './reservation.entity';
 import { Restaurant } from '../restaurant/restaurant.entity';
 import { User } from '../users/user.entity';
+import { RestaurantReservationService } from './restaurant-reservation.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { User } from '../users/user.entity';
     TypeOrmModule.forFeature([Reservation, Restaurant, User]),
   ],
   controllers: [ReservationController],
-  providers: [ReservationService],
+  providers: [ReservationService, RestaurantReservationService],
 })
 export class ReservationModule {}
 ```
