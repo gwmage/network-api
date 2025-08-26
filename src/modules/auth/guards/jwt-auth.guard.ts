@@ -1,13 +1,11 @@
 ```typescript
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { passportJwtSecret } from 'jwks-rsa';
-import { JwtService } from '@nestjs/jwt'; // Import JwtService
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private jwtService: JwtService) { // Inject JwtService
+  constructor(private jwtService: JwtService) {
     super();
   }
 
@@ -20,18 +18,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET || 'your-secret-key', // Use the same secret as in login
+        secret: process.env.JWT_SECRET || 'your-secret-key',
       });
-
-
-      // 💡 Store the decoded payload in the request object for later use
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException();
     }
     return true;
-
-
   }
 
   private extractTokenFromHeader(request: any): string | undefined {
@@ -39,5 +32,4 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return type === 'Bearer' ? token : undefined;
   }
 }
-
 ```

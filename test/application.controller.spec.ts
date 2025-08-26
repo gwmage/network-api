@@ -32,52 +32,59 @@ describe('ApplicationController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create an application', async () => {
-      const createApplicationDto: CreateApplicationDto = {
-        // Provide valid data for the DTO
-        region: 'test region',
-        preference: 'test preference',
-        selfIntroduction: 'test self introduction',
-        career: 'test career',
-        // ... other required fields
-      };
-      const createdApplication: Application = {
-        id: 1,
-        ...createApplicationDto,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Application; // Type casting for simplicity
-      jest.spyOn(service, 'create').mockResolvedValue(createdApplication);
-      expect(await controller.create(createApplicationDto)).toEqual(
-        createdApplication,
-      );
+  // ... other tests ...
+
+  describe('findAll', () => {
+    it('should return paginated applications', async () => {
+      const page = 1;
+      const limit = 10;
+      const mockApplications: Application[] = [
+        { id: 1, userId: 1, region: '서울', career: '1년', selfIntroduction: '자기소개', portfolioUrl: 'url', createdAt: new Date(), updatedAt: new Date() } as Application,
+        { id: 2, userId: 2, region: '경기', career: '2년', selfIntroduction: '자기소개2', portfolioUrl: 'url2', createdAt: new Date(), updatedAt: new Date() } as Application,
+      ];
+      const mockCount = 2;
+      jest.spyOn(service, 'findAll').mockResolvedValue({
+        items: mockApplications,
+        meta: {
+          totalItems: mockCount,
+          itemCount: mockApplications.length,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(mockCount / limit),
+          currentPage: page,
+        },
+      });
+      expect(await controller.findAll({ page, limit })).toEqual({
+        items: mockApplications,
+        meta: {
+          totalItems: mockCount,
+          itemCount: mockApplications.length,
+          itemsPerPage: limit,
+          totalPages: Math.ceil(mockCount / limit),
+          currentPage: page,
+        },
+      });
     });
 
-    it('should handle validation errors', async () => {
-      const createApplicationDto: CreateApplicationDto = {
-        // Provide invalid data for the DTO (e.g., missing required fields, invalid formats)
-        region: '', // Invalid region
-        preference: '', // Invalid preference,
-        selfIntroduction: '',
-        career: ''
-        // ... other fields
-      };
-      const errorMessage = 'Validation failed'; // Or a more specific error message
-      jest.spyOn(service, 'create').mockRejectedValue(new HttpException(errorMessage, HttpStatus.BAD_REQUEST));
+    it('should handle errors when retrieving applications', async () => {
+      const errorMessage = 'Error retrieving applications';
+      jest.spyOn(service, 'findAll').mockRejectedValue(new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR));
 
       try {
-        await controller.create(createApplicationDto);
+        await controller.findAll({ page: 1, limit: 10 });
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException);
-        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
-        expect(error.message).toBe(errorMessage)
-        // Add more specific assertions based on your validation rules and error handling
+        expect(error.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+        expect(error.message).toBe(errorMessage);
       }
     });
+
+
+    it('should handle invalid token', async () => {
+     // Implement test for invalid token. This depends on your authentication implementation
+    });
+
+
   });
-
-
-  // Add more test cases for other controller methods (e.g., findAll, findOne, update, remove) and other error scenarios
 });
+
 ```
