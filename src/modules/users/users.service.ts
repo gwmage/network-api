@@ -1,61 +1,20 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { UserDto, Activity } from '../auth/dto/user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
+  private users: UserDto[] = []; // Placeholder for user data
 
-  createUser(createUserDto: CreateUserDto): Promise<User> {
-    const newUser = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(newUser);
+  async getUserById(userId: string): Promise<UserDto | undefined> {
+    return this.users.find((user) => user.email === userId); // Using email as userId for now
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async getUserActivity(userId: string): Promise<Activity[] | undefined> {
+    const user = await this.getUserById(userId);
+    return user ? user.activities : undefined;
   }
 
-  findOne(id: number): Promise<User> {
-    return this.usersRepository.findOneBy({ id });
-  }
-
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
-    if (!user) {
-      // Handle user not found error, e.g., throw NotFoundException
-      return null; 
-    }
-    Object.assign(user, updateUserDto); // Update user properties
-    return this.usersRepository.save(user);
-  }
-
-
-  async remove(id: number): Promise<void> {
-    const user = await this.findOne(id);
-    if (!user) {
-      // Handle user not found error, e.g., throw NotFoundException
-      return;
-    }
-     await this.usersRepository.remove(user);
-  }
-
-   async findUsers(findUsersQueryDto: FindUsersQueryDto) {
-     // Implement your query logic here using findUsersQueryDto
-     // Example:
-    const queryBuilder = this.usersRepository.createQueryBuilder('user');
-    if(findUsersQueryDto.username) {
-        queryBuilder.andWhere('user.username LIKE :username', {username:`%${findUsersQueryDto.username}%`});
-    }
-    // ... add other filter conditions
-    return queryBuilder.getMany();
-  }
+  // Other methods for user management (create, update, delete, etc.) can be added here
 }
 ```
