@@ -1,7 +1,7 @@
 ```typescript
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
-import { Point } from 'geojson';
+import { UserNotificationSettings } from './user-notification-settings.entity';
 
 @Entity()
 export class User {
@@ -12,32 +12,22 @@ export class User {
   email: string;
 
   @Column()
-  password?: string;
+  name: string;
 
   @Column({ nullable: true })
-  refreshToken?: string;
+  phone_number: string;
 
-  @OneToOne(() => Profile, { cascade: true, eager: true })
+
+  @OneToOne(() => Profile, (profile) => profile.user)
   @JoinColumn()
   profile: Profile;
 
-  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
-  location: Point;
-
   @Column({ type: 'jsonb', nullable: true })
-  preferences: any;
+  notificationPreferences: { push: boolean; email: boolean };
 
-  @Column({ type: 'jsonb', nullable: true })
-  interests: any;
-
-  @Column({ nullable: true })
-  region: string;
-
-  @CreateDateColumn({ nullable: true })
-  lastLogin: Date;
-
-  @Column({ type: 'jsonb', array: true, default: [] })
-  activityHistory: { timestamp: Date; action: string; data?: any }[];
+  @OneToOne(() => UserNotificationSettings, (settings) => settings.user)
+  @JoinColumn()
+  notificationSettings: UserNotificationSettings;
 }
 
 ```
