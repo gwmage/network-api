@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Match } from './entities/match.entity';
 import { NotificationService } from '../notifications/notification.service';
 import { PerformanceObserver, performance } from 'perf_hooks';
@@ -20,84 +20,117 @@ export class MatchingService {
     private notificationService: NotificationService,
   ) {}
 
-  // ... (other methods)
+  async triggerMatching(): Promise<{ status: string }> {
+    try {
+      // Initiate matching process (e.g., set a flag, add a message to a queue)
+      this.runMatching();
+      return { status: 'Matching process initiated.' };
+    } catch (error) {
+      this.logger.error(`Failed to trigger matching: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
 
-  async executeMatchingAlgorithm(userInput: any): Promise<Match[]> { // Define the input type
+  async getMatchingStatus(): Promise<{ status: string }> {
+    // Check the status of the matching process
+    return { status: 'Matching process is scheduled or running.' }; // Placeholder
+  }
+
+  @Cron(CronExpression.EVERY_WEEK)
+  async runMatching() {
     const obs = new PerformanceObserver((items) => {
       items.getEntries().forEach((entry) => {
-        this.logger.log(`Performance measurement: ${entry.name} ${entry.duration}ms`);
+        this.logger.log(`${entry.name} took ${entry.duration}ms`);
       });
     });
     obs.observe({ entryTypes: ['measure'] });
 
-
+    this.logger.log('Starting AI matching process...');
     try {
       performance.mark('matchingStart');
+      const users = await this.userRepository.find({
+        where: {
+          // Add any necessary filtering criteria here
+        },
+        relations: ['preferences', 'interests'] // Include eager loading for relations
+      });
+      performance.mark('usersFetched');
+      performance.measure('Fetch Users', 'matchingStart', 'usersFetched');
 
-      // 1. Fetch users based on criteria (replace with your actual logic)
-      const users = await this.userRepository.find(); // Example: fetch all users
 
-      performance.mark('fetchUsersEnd');
-      performance.measure('Fetch Users', 'matchingStart', 'fetchUsersEnd');
+      const matchedGroups = this.matchUsers(users);
+      performance.mark('matchingComplete');
+      performance.measure('Matching Algorithm', 'usersFetched', 'matchingComplete');
 
-
-      // 2. Implement your matching algorithm (replace with your actual algorithm)
-      const matchedGroups = this.dummyMatchingAlgorithm(users);
-
-      performance.mark('matchingAlgorithmEnd');
-      performance.measure('Matching Algorithm', 'fetchUsersEnd', 'matchingAlgorithmEnd');
-
-      // 3. Save matches
       const savedMatches = await this.saveMatches(matchedGroups);
+      performance.mark('matchesSaved');
+      performance.measure('Save Matches', 'matchingComplete', 'matchesSaved');
 
-      performance.mark('saveMatchesEnd');
-      performance.measure('Save Matches', 'matchingAlgorithmEnd', 'saveMatchesEnd');
-
-
-      // 4. Send notifications
       await this.sendMatchNotifications(savedMatches);
+      performance.mark('notificationsSent');
+      performance.measure('Send Notifications', 'matchesSaved', 'notificationsSent');
 
-      performance.mark('sendNotificationsEnd');
-      performance.measure('Send Notifications', 'saveMatchesEnd', 'sendNotificationsEnd');
+      performance.measure('Total Matching Time', 'matchingStart', 'notificationsSent');
 
-      performance.measure('Total Matching Time', 'matchingStart', 'sendNotificationsEnd');
-
-      obs.disconnect(); // Stop observing
-
-      return savedMatches;
-
-
+      this.logger.log('Matching process completed successfully.');
     } catch (error) {
-      this.logger.error(`Matching failed: ${error.message}`, error.stack);
-      obs.disconnect(); // Stop observing in case of errors
-      throw error; // Re-throw the error to be handled by the controller
+      this.logger.error(`Matching process failed: ${error.message}`, error.stack);
+    } finally{
+      obs.disconnect(); // Stop observing
     }
   }
 
 
-  // Dummy matching algorithm (replace with your actual algorithm)
-  private dummyMatchingAlgorithm(users: User[]): User[][] {
-    // Example: group users into pairs
-    const groups: User[][] = [];
-    for (let i = 0; i < users.length; i += 2) {
-      groups.push(users.slice(i, i + 2));
+  private async saveMatches(matchedGroups: User[][]): Promise<Match[]> {
+    const savedMatches: Match[] = [];
+    for (const group of matchedGroups) {
+      const match = new Match();
+      match.users = group;
+      const savedMatch = await this.matchRepository.save(match);
+      savedMatches.push(savedMatch);
     }
-    return groups;
+    return savedMatches;
   }
 
 
-  async sendMatchNotifications(matches: Match[]): Promise<void> {
-    // ... (Implementation remains the same)
+  private async sendMatchNotifications(matches: Match[]): Promise<void> {
+    for (const match of matches) {
+      for (const user of match.users) {
+        await this.notificationService.sendNotification(user, 'You have been matched with a new group!');
+      }
+    }
   }
 
+  private matchUsers(users: User[]): User[][] {
+    // Placeholder for the actual matching algorithm
+    // This should be replaced with your AI-powered matching logic
+    const matchedGroups: User[][] = [];
+    const groupSize = 5; // Desired group size
 
-  async saveMatches(matchedGroups: User[][]): Promise<Match[]> {
-    // ... (Implementation remains the same)
+    // Simple example: divide users into groups of 5
+    for (let i = 0; i < users.length; i += groupSize) {
+      matchedGroups.push(users.slice(i, i + groupSize));
+    }
+
+    return matchedGroups;
   }
 
+  async filterUsers(regions: string[], interests: string[]): Promise<User[]> {
+    const whereClause: any = {};
 
+    if (regions && regions.length > 0) {
+      whereClause.region = In(regions);
+    }
 
-  // ... (other methods)
+    if (interests && interests.length > 0) {
+      whereClause.interests = { id: In(interests) }; // Assuming interests are entities with IDs
+    }
+
+    return this.userRepository.find({
+      where: whereClause,
+      relations: ['preferences', 'interests']
+    });
+  }
 }
 
 ```

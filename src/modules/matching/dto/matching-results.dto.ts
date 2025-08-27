@@ -33,5 +33,9 @@ export class MatchingResultsDto {
   @ApiProperty()
   @IsString()
   explanation: string;
+
+  @ApiProperty()
+  @IsNumber()
+  totalCount: number;
 }
 ```

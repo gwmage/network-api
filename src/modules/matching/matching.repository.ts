@@ -1,7 +1,7 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { MatchingGroup } from './entities/matching-group.entity';
 import { UserMatch } from './entities/user-match.entity';
 import { User } from '../users/entities/user.entity';
@@ -17,53 +17,28 @@ export class MatchingRepository {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createMatchingGroup(matchingGroup: MatchingGroup): Promise<MatchingGroup> {
-    return this.matchingGroupRepository.save(matchingGroup);
+  // ... other methods
+
+  async findUserMatchesByRegionsAndInterests(regions: string[], interests: string[]): Promise<UserMatch[]> {
+    return this.userMatchRepository.find({
+      where: {
+        user: {
+          region: In(regions),
+          interests: In(interests),
+        },
+      },
+      relations: ['user'],
+    });
   }
 
-  async createUserMatch(userMatch: UserMatch): Promise<UserMatch> {
-    return this.userMatchRepository.save(userMatch);
-  }
-
-  async findMatchingGroup(where: FindOptionsWhere<MatchingGroup>): Promise<MatchingGroup | null> {
-    return this.matchingGroupRepository.findOne({ where });
-  }
-
-  async findUserMatch(where: FindOptionsWhere<UserMatch>): Promise<UserMatch | null> {
-    return this.userMatchRepository.findOne({ where });
-  }
-
-  async findMatchingGroups(where: FindOptionsWhere<MatchingGroup>): Promise<MatchingGroup[]> {
-    return this.matchingGroupRepository.find({ where });
-  }
-
-  async findUserMatches(where: FindOptionsWhere<UserMatch>): Promise<UserMatch[]> {
-    return this.userMatchRepository.find({ where });
-  }
-
-  async saveMatchingResults(matchingGroup: MatchingGroup, userMatches: UserMatch[]): Promise<void> {
-    const savedMatchingGroup = await this.matchingGroupRepository.save(matchingGroup);
-    userMatches.forEach(userMatch => userMatch.groupId = savedMatchingGroup.id)
-    await this.userMatchRepository.save(userMatches);
-  }
-
-  async getMatchingResults(groupId: number): Promise<{ matchingGroup: MatchingGroup; userMatches: UserMatch[] }> {
-    const matchingGroup = await this.matchingGroupRepository.findOne({ where: { id: groupId } });
-    const userMatches = await this.userMatchRepository.find({ where: { groupId } });
-    return { matchingGroup, userMatches };
-  }
-
-  async getLatestMatchingGroup(): Promise<MatchingGroup | null> {
-    return this.matchingGroupRepository.findOne({ order: { createdAt: 'DESC' } });
-  }
-
-  async getMatchingGroupExplanation(groupId: number): Promise<string | null> {
-    const matchingGroup = await this.matchingGroupRepository.findOne({ where: { id: groupId }, select: ['matchingRationale'] });
-    return matchingGroup?.matchingRationale || null;
-  }
-
-  async findUsersByIds(userIds: number[]): Promise<User[]> {
-    return this.userRepository.findByIds(userIds);
+  async findMatchingGroupsByRegionsAndInterests(regions: string[], interests: string[]): Promise<MatchingGroup[]> {
+    const userMatches = await this.findUserMatchesByRegionsAndInterests(regions, interests);
+    const groupIds = userMatches.map((match) => match.groupId);
+    return this.matchingGroupRepository.find({
+      where: {
+        id: In(groupIds),
+      },
+    });
   }
 }
 
