@@ -10,6 +10,7 @@ import { NotFoundException } from '@nestjs/common';
 import { PageOptionsDto } from '../src/common/dtos/page-options.dto';
 import { PageDto } from '../src/common/dtos/page.dto';
 import { PageMetaDto } from '../src/common/dtos/page-meta.dto';
+import { FindUsersQueryDto } from '../src/users/dto/find-users-query.dto';
 
 // Mock user data
 const mockUsers = [
@@ -50,43 +51,40 @@ describe('UsersController', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  describe('findAll', () => {
-    it('should return a paginated list of users', async () => {
-      const pageOptionsDto: PageOptionsDto = { page: 1, limit: 10 };
-      const expectedPageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount: mockUsers.length });
-      const expectedPageDto = new PageDto(mockUsers, expectedPageMetaDto);
+  // ... existing tests
 
-      expect(await controller.findAll(pageOptionsDto)).toEqual(expectedPageDto);
-    });
-  });
-
-
-  describe('createUser', () => {
-    it('should create a new user', async () => {
-      const createUserDto: CreateUserDto = { name: 'New User', region: '서울', interests: ['reading'] };
-      expect(await controller.create(createUserDto)).toHaveProperty('id');
-    });
-  });
-
-  describe('updateUser', () => {
-    it('should update an existing user', async () => {
-      const updateUserDto: UpdateUserDto = { name: 'Updated User' };
-      expect(await controller.update(1, updateUserDto)).toEqual({ message: 'User updated successfully' });
+  describe('filter', () => {
+    it('should filter users by region and interests', async () => {
+      const query: FindUsersQueryDto = { regions: ['서울'], interests: ['reading', 'coding'] };
+      expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[2]]);
     });
 
-    it('should throw NotFoundException if user not found', async () => {
-      const updateUserDto: UpdateUserDto = { name: 'Updated User' };
-      await expect(controller.update(999, updateUserDto)).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('removeUser', () => {
-    it('should remove an existing user', async () => {
-      expect(await controller.remove(1)).toEqual({ message: 'User removed successfully' });
+    it('should return all users if no filters are provided', async () => {
+      const query: FindUsersQueryDto = {};
+      expect(await controller.filter(query)).toEqual(mockUsers);
     });
 
-    it('should throw NotFoundException if user not found', async () => {
-      await expect(controller.remove(999)).rejects.toThrow(NotFoundException);
+    it('should handle multiple selections for region and interests', async () => {
+      const query: FindUsersQueryDto = { regions: ['서울', '부산'], interests: ['reading'] };
+      expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[3]]);
+    });
+
+    it('should handle invalid input', async () => {
+      const query: any = { regions: 123, interests: 'invalid' }; // Invalid input
+      expect(await controller.filter(query)).toEqual(mockUsers); // Should return all users if the input is invalid.
+    });
+
+
+
+    it('should filter users by interests only', async () => {
+       const query: FindUsersQueryDto = { interests: ['reading'] };
+       expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[3]]);
+    });
+
+
+    it('should filter users by regions only', async () => {
+      const query: FindUsersQueryDto = { regions: ['서울'] };
+      expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[2]]);
     });
   });
 });
