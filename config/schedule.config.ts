@@ -1,5 +1,5 @@
 ```typescript
-import { Cron, Timeout } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { Injectable, Logger } from '@nestjs/common';
 import { MatchingService } from '../matching/matching.service'; // Adjust path as needed
 
