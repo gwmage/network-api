@@ -22,6 +22,12 @@ export class CreateReservationDto {
 
   @ApiProperty()
   customerPhone: string;
+
+  @ApiProperty()
+  groupId?: number;
+
+  @ApiProperty({ required: false })
+  platformSpecificInformation?: Record<string, any>;
 }
 
 ```

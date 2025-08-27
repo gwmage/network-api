@@ -12,12 +12,30 @@ export class ReservationController {
   constructor(
     private readonly reservationService: ReservationService,
     private readonly restaurantReservationService: RestaurantReservationService,
-  ) { }
+  ) {}
 
   @Post()
   async create(@Body() createReservationDto: CreateReservationDto, @Req() req: Request) {
     try {
       return await this.reservationService.create(createReservationDto, req.user['id']);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateReservationDto: UpdateReservationDto, @Req() req: Request) {
+    try {
+      return await this.reservationService.update(+id, updateReservationDto, req.user['id']);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Req() req: Request) {
+    try {
+      return await this.reservationService.remove(+id, req.user['id']);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
@@ -31,7 +49,6 @@ export class ReservationController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
-
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -51,17 +68,14 @@ export class ReservationController {
     }
   }
 
-
   @Get('restaurant/search')
-    async searchRestaurantReservations(@Query('query') query: string) {
-      try {
-        return await this.restaurantReservationService.search(query);
-      } catch (error) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
+  async searchRestaurantReservations(@Query('query') query: string) {
+    try {
+      return await this.restaurantReservationService.search(query);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-
-
+  }
 }
 
 ```

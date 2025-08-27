@@ -34,6 +34,9 @@ export class ReservationResponseDto {
 
     @ApiProperty()
     partySize: number;
+
+    @ApiProperty({ required: false })
+    platformSpecificId?: string;
 }
 
 ```

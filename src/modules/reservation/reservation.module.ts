@@ -8,6 +8,7 @@ import { Reservation } from './reservation.entity';
 import { Restaurant } from '../restaurant/restaurant.entity';
 import { User } from '../users/user.entity';
 import { RestaurantReservationService } from './restaurant-reservation.service';
+import { MatchingService } from '../matching/matching.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { RestaurantReservationService } from './restaurant-reservation.service';
     TypeOrmModule.forFeature([Reservation, Restaurant, User]),
   ],
   controllers: [ReservationController],
-  providers: [ReservationService, RestaurantReservationService],
+  providers: [ReservationService, RestaurantReservationService, MatchingService],
 })
 export class ReservationModule {}
 ```
