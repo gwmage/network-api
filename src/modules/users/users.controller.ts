@@ -30,23 +30,20 @@ export class UserController {
 
   // ... (Existing code remains unchanged)
 
-  @Get('filter')
-  async findUsers(@Query() query: FindUsersQueryDto) {
-    return this.userService.findUsers(query);
-  }
-
-  @Get(':id/notifications')
-  getNotificationPreferences(@Param('id', ParseIntPipe) id: number): Promise<NotificationPreferencesDto> {
-    return this.userService.getNotificationPreferences(id);
-  }
-
-  @Put(':id/notifications')
-  updateNotificationPreferences(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() notificationPreferencesDto: NotificationPreferencesDto,
+  @Post(':userId/notifications/subscribe/:topic')
+  async subscribeUserToTopic(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('topic') topic: string,
   ): Promise<void> {
-    return this.userService.updateNotificationPreferences(id, notificationPreferencesDto);
+    return this.userService.subscribeUserToTopic(userId, topic);
+  }
+
+  @Delete(':userId/notifications/subscribe/:topic')
+  async unsubscribeUserFromTopic(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Param('topic') topic: string,
+  ): Promise<void> {
+    return this.userService.unsubscribeUserFromTopic(userId, topic);
   }
 }
-
 ```

@@ -3,26 +3,13 @@ import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from 'class-validato
 import { NotificationChannel, NotificationType } from './notification.dto';
 
 export class NotificationPreferencesDto {
-  @IsArray()
-  @IsEnum(NotificationType, { each: true })
-  notificationTypes: NotificationType[];
+  @IsEnum(NotificationType)
+  notificationType: NotificationType;
 
-  @IsArray()
-  @IsEnum(NotificationChannel, { each: true })
-  channels: NotificationChannel[];
-
-  @IsOptional()
-  @IsString()
-  notificationTime?: string;
-
-
-  @IsOptional()
   @IsBoolean()
-  email?: boolean;
+  email: boolean;
 
-  @IsOptional()
   @IsBoolean()
-  push?: boolean;
+  push: boolean;
 }
-
 ```

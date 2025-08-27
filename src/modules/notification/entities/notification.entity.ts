@@ -14,11 +14,17 @@ export enum NotificationType {
   // Add other notification types as needed
 }
 
+export enum NotificationDeliveryStatus {
+  DELIVERED = 'delivered',
+  READ = 'read',
+  UNREAD = 'unread',
+}
+
 export enum NotificationStatus {
   SENT = 'sent',
-  DELIVERED = 'delivered',
   FAILED = 'failed',
 }
+
 
 @Entity()
 export class Notification {
@@ -52,6 +58,13 @@ export class Notification {
     default: NotificationStatus.SENT,
   })
   status: NotificationStatus;
+
+  @Column({
+    type: 'enum',
+    enum: NotificationDeliveryStatus,
+    default: NotificationDeliveryStatus.DELIVERED,
+  })
+  deliveryStatus: NotificationDeliveryStatus;
 }
 
 ```

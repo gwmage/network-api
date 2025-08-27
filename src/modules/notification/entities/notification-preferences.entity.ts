@@ -22,7 +22,7 @@ export class NotificationPreferences {
   @Column({ default: true })
   enabled: boolean;
 
-  @OneToOne(() => User, (user) => user.notificationPreferences)
+  @OneToOne(() => User, (user) => user.notificationPreferences, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
 }
