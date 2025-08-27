@@ -1,5 +1,5 @@
 ```typescript
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, ParseIntPipe, UseGuards, Req, NotFoundException } from '@nestjs/common';
 import { CommunityService } from './community.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -19,33 +19,61 @@ export class CommunityController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':postId/comments')
-  createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto, @Req() req: Request) {
+  async createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto, @Req() req: Request) {
     const user = req.user as User;
-    return this.communityService.createComment(postId, createCommentDto, user);
+    try {
+      return await this.communityService.createComment(postId, createCommentDto, user);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Failed to create comment');
+    }
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':postId/comments/:id')
-  updateComment(
+  async updateComment(
     @Param('postId', ParseIntPipe) postId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCommentDto: UpdateCommentDto,
     @Req() req: Request
   ) {
     const user = req.user as User;
-    return this.communityService.updateComment(postId, id, updateCommentDto, user);
+    try {
+      return await this.communityService.updateComment(postId, id, updateCommentDto, user);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Failed to update comment');
+    }
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':postId/comments/:id')
-  removeComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+  async removeComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     const user = req.user as User;
-    return this.communityService.removeComment(postId, id, user);
+    try {
+      return await this.communityService.removeComment(postId, id, user);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Failed to delete comment');
+    }
   }
 
   @Get(':postId/comments')
-  findAllComments(@Param('postId', ParseIntPipe) postId: number) {
-    return this.communityService.findAllComments(postId);
+  async findAllComments(@Param('postId', ParseIntPipe) postId: number) {
+    try {
+      return await this.communityService.findAllComments(postId);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error('Failed to retrieve comments');
+    }
   }
 }
 
