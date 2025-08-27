@@ -8,7 +8,7 @@ export enum PreferredMethod {
 }
 
 @Entity()
-export class NotificationPreferencesEntity {
+export class NotificationPreferences {
   @PrimaryGeneratedColumn()
   id: number;
 

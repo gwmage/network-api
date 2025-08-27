@@ -14,31 +14,44 @@ export enum NotificationType {
   // Add other notification types as needed
 }
 
+export enum NotificationStatus {
+  SENT = 'sent',
+  DELIVERED = 'delivered',
+  FAILED = 'failed',
+}
+
 @Entity()
 export class Notification {
   @PrimaryGeneratedColumn()
   id: number;
 
   @ManyToOne(() => User, (user) => user.notifications)
-  recipient: User; // Renamed for clarity
+  recipient: User;
 
   @ManyToOne(() => Comment, (comment) => comment.notifications, {
-    nullable: true, // Not all notifications are related to comments
+    nullable: true,
   })
   comment: Comment;
 
   @Column({
     type: 'enum',
     enum: NotificationType,
-    nullable: true, // Allow for other notification types without a specific type
+    nullable: true,
   })
   type: NotificationType;
 
-  @Column({ nullable: true }) // Allow for generic notifications without specific content
+  @Column({ nullable: true })
   content: string;
 
   @CreateDateColumn()
   timestamp: Date;
+
+  @Column({
+    type: 'enum',
+    enum: NotificationStatus,
+    default: NotificationStatus.SENT,
+  })
+  status: NotificationStatus;
 }
 
 ```

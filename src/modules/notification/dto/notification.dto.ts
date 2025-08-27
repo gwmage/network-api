@@ -37,6 +37,29 @@ export class CreateNotificationDto {
   data?: any; // Can be any relevant data related to notification
 }
 
+export class GetNotificationDto {
+  @IsNotEmpty()
+  @IsUUID()
+  id: string;
+}
+
+export class UpdateNotificationDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  message?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  read?: boolean;
+
+  @IsOptional()
+  data?: any;
+}
+
 export class CommentNotificationDataDto {
   @IsNotEmpty()
   @IsUUID()
