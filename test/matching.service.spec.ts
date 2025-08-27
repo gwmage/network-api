@@ -56,11 +56,22 @@ describe('MatchingService', () => {
         { id: 3, userId: 3, interests: ['reading', 'coding'] },
         { id: 2, userId: 2, interests: ['hiking'] },
       ]);
+    });
 
+    it('should return empty array if no matches found', () => {
+      const userProfile = { id: 1, userId: 1, interests: ['hiking', 'reading'] } as Profile;
+      const profiles = [
+        { id: 2, userId: 2, interests: ['coding'] },
+        { id: 3, userId: 3, interests: ['gaming'] },
+      ] as Profile[];
+      const filter: MatchFilterDto = { interests: ['hiking', 'reading'], groupSize: 2 };
+      const filteredMatches = service.filterMatches(userProfile, profiles, filter);
+      expect(filteredMatches).toEqual([]);
 
     });
-  });
 
+
+  });
 
   describe('generateMatchingResult', () => {
     it('should generate matching results with groups', () => {
@@ -83,8 +94,6 @@ describe('MatchingService', () => {
       expect(result.remainingUsers.length).toBe(0);
 
     });
-
-
   });
 
   describe('matchUsers', () => {

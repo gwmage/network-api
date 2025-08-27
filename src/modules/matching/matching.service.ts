@@ -6,6 +6,7 @@ import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Match } from './entities/match.entity';
 import { NotificationService } from '../notifications/notification.service';
+import { PerformanceObserver, performance } from 'perf_hooks';
 
 @Injectable()
 export class MatchingService {
@@ -22,25 +23,53 @@ export class MatchingService {
   // ... (other methods)
 
   async executeMatchingAlgorithm(userInput: any): Promise<Match[]> { // Define the input type
+    const obs = new PerformanceObserver((items) => {
+      items.getEntries().forEach((entry) => {
+        this.logger.log(`Performance measurement: ${entry.name} ${entry.duration}ms`);
+      });
+    });
+    obs.observe({ entryTypes: ['measure'] });
+
+
     try {
+      performance.mark('matchingStart');
+
       // 1. Fetch users based on criteria (replace with your actual logic)
       const users = await this.userRepository.find(); // Example: fetch all users
+
+      performance.mark('fetchUsersEnd');
+      performance.measure('Fetch Users', 'matchingStart', 'fetchUsersEnd');
+
 
       // 2. Implement your matching algorithm (replace with your actual algorithm)
       const matchedGroups = this.dummyMatchingAlgorithm(users);
 
+      performance.mark('matchingAlgorithmEnd');
+      performance.measure('Matching Algorithm', 'fetchUsersEnd', 'matchingAlgorithmEnd');
+
       // 3. Save matches
       const savedMatches = await this.saveMatches(matchedGroups);
+
+      performance.mark('saveMatchesEnd');
+      performance.measure('Save Matches', 'matchingAlgorithmEnd', 'saveMatchesEnd');
+
 
       // 4. Send notifications
       await this.sendMatchNotifications(savedMatches);
 
+      performance.mark('sendNotificationsEnd');
+      performance.measure('Send Notifications', 'saveMatchesEnd', 'sendNotificationsEnd');
+
+      performance.measure('Total Matching Time', 'matchingStart', 'sendNotificationsEnd');
+
+      obs.disconnect(); // Stop observing
 
       return savedMatches;
 
 
     } catch (error) {
       this.logger.error(`Matching failed: ${error.message}`, error.stack);
+      obs.disconnect(); // Stop observing in case of errors
       throw error; // Re-throw the error to be handled by the controller
     }
   }
