@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, Like, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { NotFoundException } from '@nestjs/common';
@@ -34,16 +34,13 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // Update user properties, including notification settings
     Object.assign(user, updateUserDto);
 
-    // Validate and handle notification settings update
     if (updateUserDto.notificationPreferences) {
       user.notificationPreferences = {
         ...user.notificationPreferences,
         ...updateUserDto.notificationPreferences,
       };
-       // Perform validation if needed, e.g., check if push and email are booleans
       if(typeof user.notificationPreferences.push !== 'boolean' || typeof user.notificationPreferences.email !== 'boolean'){
           throw new Error("Invalid notification preferences. Push and email must be boolean values.")
       }
@@ -62,11 +59,32 @@ export class UsersService {
   }
 
    async findUsers(findUsersQueryDto: FindUsersQueryDto) {
+    const { regions, interests, page = 1, limit = 10 } = findUsersQueryDto;
     const queryBuilder = this.usersRepository.createQueryBuilder('user');
-    if(findUsersQueryDto.username) {
-        queryBuilder.andWhere('user.username LIKE :username', {username:`%${findUsersQueryDto.username}%`});
+
+    if (regions) {
+      queryBuilder.andWhere('user.region IN (:...regions)', { regions });
     }
-    return queryBuilder.getMany();
+
+    if (interests) {
+      queryBuilder.andWhere('user.interests && ARRAY[:...interests]', { interests });
+    }
+
+    const [users, total] = await queryBuilder
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      data: users,
+      meta: {
+        totalItems: total,
+        itemCount: users.length,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
+    };
   }
 }
 

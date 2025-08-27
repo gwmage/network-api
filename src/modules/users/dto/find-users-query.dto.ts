@@ -1,7 +1,7 @@
 ```typescript
 import {ApiProperty} from "@nestjs/swagger";
 import { IsOptional, IsArray, IsString, IsNumber, IsEnum } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { SortOrder } from '../enums/sort-order.enum';
 
 export class FindUsersQueryDto {
