@@ -61,10 +61,23 @@ export class ReservationService {
           throw new HttpException('Invalid method', HttpStatus.BAD_REQUEST);
       }
 
+      if (!response || !response.data) { // Check for successful response
+        throw new HttpException('Failed to process reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      if (response.status >= 400) { // Check for any client or server errors from the API
+        throw new HttpException(response.data.message || 'Failed to process reservation', response.status);
+      }
+
+
       return response.data;
     } catch (error) {
       console.error('Error communicating with restaurant API:', error);
-      throw new HttpException('Failed to process reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof HttpException) {
+        throw error; // Re-throw HttpExceptions to preserve status codes
+      } else {
+        throw new HttpException('Failed to process reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 }

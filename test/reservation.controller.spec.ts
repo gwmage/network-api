@@ -50,8 +50,6 @@ describe('ReservationController', () => {
     expect(controller).toBeDefined();
   });
 
-  // ... existing tests
-
   describe('createRestaurantReservation', () => {
     it('should create a restaurant reservation', async () => {
       const createReservationDto: CreateReservationDto = { restaurantId: '1', userId: '1', dateTime: new Date() };
@@ -70,6 +68,53 @@ describe('ReservationController', () => {
 
       await expect(controller.createRestaurantReservation(createReservationDto)).rejects.toThrowError(errorMessage);
 
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a reservation by id', async () => {
+      const reservation = { id: '1', restaurantId: '1', userId: '1', dateTime: new Date() };
+      jest.spyOn(service, 'findOne').mockResolvedValue(reservation);
+
+      expect(await controller.findOne('1')).toEqual(reservation);
+    });
+
+
+    it('should throw NotFoundException if reservation does not exist', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValue(undefined);
+
+      await expect(controller.findOne('1')).rejects.toThrow(NotFoundException);
+    });
+
+  });
+
+
+  describe('update', () => {
+    it('should update a reservation', async () => {
+      const reservationId = '1';
+      const updateReservationDto: UpdateReservationDto = { dateTime: new Date() };
+      const updatedReservation = { id: reservationId, ...updateReservationDto };
+      jest.spyOn(service, 'update').mockResolvedValue(updatedReservation);
+
+      expect(await controller.update(reservationId, updateReservationDto)).toEqual(updatedReservation);
+
+    });
+
+    it('should throw NotFoundException if reservation does not exist', async () => {
+      const reservationId = '1';
+      const updateReservationDto: UpdateReservationDto = { dateTime: new Date() };
+      jest.spyOn(service, 'update').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.update(reservationId, updateReservationDto)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a reservation', async () => {
+      const reservationId = '1';
+      jest.spyOn(service, 'remove').mockResolvedValue(undefined);
+
+      expect(await controller.remove(reservationId)).toBeUndefined();
     });
   });
 });

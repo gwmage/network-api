@@ -10,6 +10,7 @@ import { HttpModule, HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { of, throwError } from 'rxjs';
 import { AxiosError } from 'axios';
+import { CreateReservationDto } from '../src/reservation/dto/create-reservation.dto';
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -52,28 +53,42 @@ describe('ReservationService', () => {
     expect(service).toBeDefined();
   });
 
-  // ... existing tests ...
+  it('should create a reservation', async () => {
+    const createReservationDto: CreateReservationDto = { restaurantId: 1, userId: 1, dateTime: new Date() };
+    const mockReservation = { id: 1, ...createReservationDto };
+    const mockUser = { id: 1 };
+    const mockRestaurant = { id: 1 };
+
+    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(mockRestaurant);
+    jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
+
+    const result = await service.create(createReservationDto);
+
+    expect(result).toEqual(mockReservation);
+    expect(restaurantRepository.findOne).toHaveBeenCalledWith({ where: { id: createReservationDto.restaurantId } });
+    expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: createReservationDto.userId } });
+    expect(reservationRepository.save).toHaveBeenCalledWith({ ...createReservationDto, restaurant: mockRestaurant, user: mockUser });
+  });
+
 
   it('should handle successful API call', async () => {
     const mockResponse = { data: { success: true } };
     jest.spyOn(httpService, 'get').mockReturnValue(of(mockResponse));
     jest.spyOn(configService, 'get').mockReturnValue('mockApiKey');
 
-    const result = await service.checkRestaurantAvailability({} as any); // Replace with actual DTO type if available
+    const result = await service.checkRestaurantAvailability({} as any);
     expect(result).toEqual(mockResponse.data);
     expect(httpService.get).toHaveBeenCalled();
     expect(configService.get).toHaveBeenCalledWith('RESTAURANT_API_KEY');
   });
-
 
   it('should handle invalid API key', async () => {
     const mockError = new AxiosError();
     mockError.response = { status: 401, data: { message: 'Invalid API key' } };
     jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => mockError));
 
-
     await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Invalid API key');
-
   });
 
   it('should handle network errors', async () => {
@@ -83,7 +98,6 @@ describe('ReservationService', () => {
 
     await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Network Error');
   });
-
 
   it('should handle unavailable data', async () => {
     const mockResponse = { data: { success: false, message: 'Restaurant unavailable' } };
