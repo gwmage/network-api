@@ -16,6 +16,13 @@ export enum NotificationChannel {
   SMS = 'sms',
 }
 
+export enum NotificationStatus {
+  SENT = 'sent',
+  DELIVERED = 'delivered',
+  FAILED = 'failed',
+}
+
+
 export class CreateNotificationDto {
   @IsNotEmpty()
   @IsEnum(NotificationType)
@@ -131,6 +138,10 @@ export class NotificationDto {
 
   @IsNotEmpty()
   updatedAt: Date;
+
+  @IsNotEmpty()
+  @IsEnum(NotificationStatus)
+  status: NotificationStatus;
 }
 
 ```

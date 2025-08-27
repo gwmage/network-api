@@ -18,10 +18,6 @@ export class ParticipantDto {
 }
 
 export class MatchingResultsDto {
-  @ApiProperty()
-  @IsNumber()
-  groupId: number;
-
   @ApiProperty({ type: [ParticipantDto] })
   @IsArray()
   participants: ParticipantDto[];
@@ -33,6 +29,11 @@ export class MatchingResultsDto {
   @ApiProperty()
   @IsString()
   explanation: string;
+
+
+  @ApiProperty()
+  @IsNumber()
+  groupId: number;
 
   @ApiProperty()
   @IsNumber()

@@ -49,6 +49,14 @@ export class NotificationController {
     const userId = req.user['id']; // Assuming auth middleware adds user object to request
     return this.notificationService.updatePreferences(userId, preferences);
   }
+
+  @Patch(':notificationId/status')
+  async updateNotificationStatus(
+    @Param('notificationId') notificationId: string,
+    @Body() updateNotificationDto: UpdateNotificationDto
+  ) {
+    return this.notificationService.updateNotificationStatus(notificationId, updateNotificationDto);
+  }
 }
 
 ```

@@ -13,6 +13,16 @@ export class MatchingController {
 
   // ... other methods
 
+  @Post('matching-results')
+  async getMatchingResults(): Promise<MatchResultDto> {
+    // Placeholder for actual matching logic
+    const mockMatchResult: MatchResultDto = {
+      groups: [], // Replace with actual matching results when implemented
+      // ... other properties as needed
+    };
+    return mockMatchResult;
+  }
+
   @Get('filtered-matches')
   async getFilteredMatches(@Query() filter: MatchFilterDto): Promise<MatchResultDto> {
     try {
