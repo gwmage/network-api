@@ -13,14 +13,25 @@ export class MatchingController {
 
   // ... other methods
 
-  @Post('matching-results')
+  @Post() // Matches the /matching route for triggering the matching process
+  async triggerMatching(): Promise<{ status: string }> {
+    try {
+      await this.matchingService.triggerMatching(); // Call the service to execute matching
+      return { status: 'Matching process initiated' };
+    } catch (error) {
+      throw new HttpException('Failed to trigger matching', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+  @Get('results') // Matches /matching/results
   async getMatchingResults(): Promise<MatchResultDto> {
-    // Placeholder for actual matching logic
-    const mockMatchResult: MatchResultDto = {
-      groups: [], // Replace with actual matching results when implemented
-      // ... other properties as needed
-    };
-    return mockMatchResult;
+    try {
+      const matchingResults = await this.matchingService.getMatchingResults();
+      return matchingResults;
+    } catch (error) {
+      throw new HttpException('Failed to retrieve matching results', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get('filtered-matches')

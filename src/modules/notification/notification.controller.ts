@@ -37,7 +37,7 @@ export class NotificationController {
 
   @Get('preferences')
   async getPreferences(@Req() req: Request): Promise<NotificationPreferencesDto> {
-    const userId = req.user['id']; // Assuming auth middleware adds user object to request
+    const userId = req.user['id']; 
     return this.notificationService.getPreferences(userId);
   }
 
@@ -46,7 +46,7 @@ export class NotificationController {
     @Req() req: Request,
     @Body() preferences: NotificationPreferencesDto
   ): Promise<void> {
-    const userId = req.user['id']; // Assuming auth middleware adds user object to request
+    const userId = req.user['id']; 
     return this.notificationService.updatePreferences(userId, preferences);
   }
 
