@@ -1,11 +1,11 @@
 ```typescript
-    @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req: Request) {
-    try {
-      return await this.reservationService.cancelReservation(id, req.user['id']);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
+import { Controller, Delete, Param, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { ReservationService } from './reservation.service';
+import { Request } from 'express';
 
+@Controller('reservations')
+export class ReservationController {
+  constructor(private readonly reservationService: ReservationService) {}
+
+  
 ```
