@@ -20,6 +20,12 @@ export class Reservation {
 
   @Column()
   partySize: number;
+
+  @Column({ nullable: true })
+  cancellationReason: string;
+
+  @Column({ default: 'confirmed' })
+  status: 'confirmed' | 'cancelled';
 }
 
 ```

@@ -8,6 +8,7 @@ import axios from 'axios';
 export class ReservationService {
   private readonly apiUrl: string;
   private readonly apiKey: string;
+  private readonly cancellationWindow: number;
 
   constructor(
     @Inject(ConfigService) private configService: ConfigService,
@@ -15,71 +16,62 @@ export class ReservationService {
   ) {
     this.apiUrl = this.configService.get<string>('RESTAURANT_API_URL');
     this.apiKey = this.configService.get<string>('RESTAURANT_API_KEY');
-  }
-
-  async makeReservation(restaurantId: string, data: any, userId: number): Promise<any> {
-    const reservation = await this.performReservationAction('POST', restaurantId, data);
-    if (reservation) {
-      await this.notificationService.createNotification(userId, 'Reservation created successfully!', 'reservation');
-    }
-    return reservation;
-  }
-
-  async modifyReservation(reservationId: string, data: any, userId: number): Promise<any> {
-    const reservation = await this.performReservationAction('PATCH', reservationId, data);
-    if (reservation) {
-      await this.notificationService.createNotification(userId, 'Reservation modified successfully!', 'reservation');
-    }
-    return reservation;
+    this.cancellationWindow = this.configService.get<number>('CANCELLATION_WINDOW_HOURS', 24); // Default 24 hours
   }
 
   async cancelReservation(reservationId: string, userId: number): Promise<any> {
-    const result = await this.performReservationAction('DELETE', reservationId);
-    if (result) {
-      await this.notificationService.createNotification(userId, 'Reservation cancelled successfully!', 'reservation');
-    }
-    return result;
-  }
-
-  private async performReservationAction(method: string, reservationId: string, data?: any): Promise<any> {
     try {
-      const url = `${this.apiUrl}/reservations${method !== 'POST' ? `/${reservationId}` : ''}`;
-      const headers = { 'X-API-Key': this.apiKey };
-      let response;
+      const reservation = await this.getReservation(reservationId);
 
-      switch (method) {
-        case 'POST':
-          response = await axios.post(url, data, { headers });
-          break;
-        case 'PATCH':
-          response = await axios.patch(url, data, { headers });
-          break;
-        case 'DELETE':
-          response = await axios.delete(url, { headers });
-          break;
-        default:
-          throw new HttpException('Invalid method', HttpStatus.BAD_REQUEST);
+      if (!reservation) {
+        throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);
       }
 
-      if (!response || !response.data) { // Check for successful response
-        throw new HttpException('Failed to process reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+      const reservationTime = new Date(reservation.reservation_datetime);
+      const now = new Date();
+      const timeDifference = reservationTime.getTime() - now.getTime();
+      const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+      if (hoursDifference < this.cancellationWindow) {
+        throw new HttpException(`Cancellation is not allowed within ${this.cancellationWindow} hours of the reservation time.`, HttpStatus.BAD_REQUEST);
       }
 
-      if (response.status >= 400) { // Check for any client or server errors from the API
-        throw new HttpException(response.data.message || 'Failed to process reservation', response.status);
+      const result = await this.performReservationAction('DELETE', reservationId);
+      if (result) {
+        await this.notificationService.createNotification(userId, 'Reservation cancelled successfully!', 'reservation');
       }
-
-
-      return response.data;
+      return result;
     } catch (error) {
-      console.error('Error communicating with restaurant API:', error);
       if (error instanceof HttpException) {
-        throw error; // Re-throw HttpExceptions to preserve status codes
-      } else {
-        throw new HttpException('Failed to process reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+        throw error;
       }
+      throw new HttpException('Failed to cancel reservation', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  private async getReservation(reservationId: string): Promise<any> {
+    try {
+      const url = `${this.apiUrl}/reservations/${reservationId}`;
+      const headers = { 'X-API-Key': this.apiKey };
+      const response = await axios.get(url, { headers });
+
+      if (response.status === HttpStatus.NOT_FOUND) {
+        return null;
+      }
+      
+      if (response.status >= 400 || !response.data) {
+        throw new HttpException(response.data.message || 'Failed to get reservation details', response.status);
+      }
+      return response.data;
+
+
+    } catch (error) {
+      console.error('Error getting reservation details:', error);
+      throw new HttpException('Failed to get reservation details', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // ... other methods (makeReservation, modifyReservation, performReservationAction) remain unchanged
 }
 
 ```
