@@ -7,6 +7,7 @@ import { User } from '../user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Reservation } from '../reservation/entities/reservation.entity';
+import { Notification, NotificationDeliveryStatus, NotificationStatus } from './entities/notification.entity';
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require('../../path/to/your/serviceAccountKey.json'); // Replace with your service account key file path
@@ -31,6 +32,8 @@ export class NotificationService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
   ) {}
 
   async sendCancellationCompletedNotification(reservation: Reservation, cancellationReason?: string): Promise<void> {
@@ -49,17 +52,29 @@ export class NotificationService {
     }
 
     const preferences = user.notificationPreferences;
+    const notification = new Notification();
+    notification.recipient = user;
+    notification.content = message;
 
-    if (preferences.push) {
-      await this.sendPushNotification(userId, message);
-    }
-    if (preferences.email) {
-      await this.sendEmailNotification(userId, message);
+
+    try {
+      if (preferences.push) {
+        await this.sendPushNotification(userId, message, notification);
+      }
+      if (preferences.email) {
+        await this.sendEmailNotification(userId, message, notification);
+      }
+
+      await this.notificationRepository.save(notification);
+    } catch (error) {
+      notification.status = NotificationStatus.FAILED;
+      await this.notificationRepository.save(notification);
+      console.error('Error sending notification:', error);
     }
   }
 
 
-  private async sendPushNotification(userId: number, message: string): Promise<void> {
+  private async sendPushNotification(userId: number, message: string, notification: Notification): Promise<void> {
     try {
       const fcmToken = await this.getFcmToken(userId); // Retrieve FCM token for the user
 
@@ -71,17 +86,20 @@ export class NotificationService {
             body: message,
           },
         });
+        notification.deliveryStatus = NotificationDeliveryStatus.DELIVERED;
       } else {
         console.log(`FCM token not found for user ${userId}`);
+        notification.deliveryStatus = NotificationDeliveryStatus.UNREAD; // Or another appropriate status
       }
     } catch (error) {
+      notification.deliveryStatus = NotificationDeliveryStatus.UNREAD; // Or another appropriate status
       console.error('Error sending push notification:', error);
+      throw error; // Re-throw the error to be caught by the outer try-catch
     }
   }
 
 
-  private async sendEmailNotification(userId: number, message: string): Promise<void> {
-
+  private async sendEmailNotification(userId: number, message: string, notification: Notification): Promise<void> {
     try {
       const userEmail = await this.getUserEmail(userId);
 
@@ -92,22 +110,19 @@ export class NotificationService {
               subject: 'Reservation Update',
               text: message,
           });
-
+          notification.deliveryStatus = NotificationDeliveryStatus.DELIVERED;
       } else {
           console.log(`Email not found for user ${userId}`);
+          notification.deliveryStatus = NotificationDeliveryStatus.UNREAD; // Or another appropriate status
       }
   } catch (error) {
+      notification.deliveryStatus = NotificationDeliveryStatus.UNREAD; // Or another appropriate status
       console.error('Error sending email notification:', error);
-      // Handle errors appropriately
+      throw error; // Re-throw to be caught by the outer try-catch
   }
-
-
-
   }
 
   private async getFcmToken(userId: number): Promise<string | undefined> {
-    // Implement logic to retrieve the user's FCM token from your database
-    // This might involve querying a user_devices table or similar
       const user = await this.userRepository.findOne({ where: { id: userId } });
       return user?.fcmToken; // Assuming 'fcmToken' property on User entity
   }
@@ -120,4 +135,5 @@ export class NotificationService {
 
   // ... other methods
 }
+
 ```
