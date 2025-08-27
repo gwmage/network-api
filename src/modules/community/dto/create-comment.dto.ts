@@ -8,11 +8,12 @@ export class CreateCommentDto {
 
   @IsNotEmpty()
   @IsUUID()
-  userId: string;
+  postId: string;
 
   @IsNotEmpty()
   @IsUUID()
-  postId: string;
+  userId: string;
+
 
   @IsOptional()
   @IsUUID()

@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 import { Post } from './post.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity()
 export class Comment {
@@ -40,8 +41,15 @@ export class Comment {
 
   @ManyToOne(() => Comment, (comment) => comment.children, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
   parentComment: Comment;
+
+  @Column({ nullable: true })
+  parentCommentId: number;
+
+  @OneToMany(() => Notification, (notification) => notification.comment)
+  notifications: Notification[];
 
   @UpdateDateColumn()
   updatedAt: Date;
