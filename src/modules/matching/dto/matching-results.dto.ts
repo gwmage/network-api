@@ -1,6 +1,6 @@
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString, IsOptional } from 'class-validator';
 
 export class ParticipantDto {
   @ApiProperty()
@@ -11,11 +11,10 @@ export class ParticipantDto {
   @IsString()
   name: string;
 
-  // Add other relevant participant properties like profile picture, etc. as needed.
-  // For example:
-  // @ApiProperty()
-  // @IsString()
-  // profilePictureUrl: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  profilePictureUrl?: string; 
 }
 
 export class MatchingResultsDto {

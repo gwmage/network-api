@@ -24,6 +24,10 @@ describe('NotificationController', () => {
           provide: getRepositoryToken(Notification),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(User),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
@@ -65,7 +69,6 @@ describe('NotificationController', () => {
       expect(await controller.getNotificationPreferences(userId)).toBe(result);
     });
   });
-
 
 });
 

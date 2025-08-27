@@ -10,15 +10,29 @@ import { Request } from 'express';
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  // ... (Existing code remains unchanged)
+  @Post('matching')
+  async createMatchingNotification(@Req() req: Request) {
+    const userId = req.user['id'];
+    return this.notificationService.createMatchingNotification(userId);
+  }
 
-  @Post('preferences')
-  async createPreferences(
-    @Req() req: Request,
-    @Body() preferences: NotificationPreferencesDto
-  ): Promise<void> {
-    const userId = req.user['id']; // Assuming auth middleware adds user object to request
-    return this.notificationService.createPreferences(userId, preferences);
+  @Get('matching/status')
+  async getMatchingNotificationStatus(@Req() req: Request) {
+    const userId = req.user['id'];
+    return this.notificationService.getMatchingNotificationStatus(userId);
+  }
+
+  @Post('send')
+  async sendNotification(@Req() req: Request): Promise<void> {
+    const userId = req.user['id'];
+    return this.notificationService.sendNotification(userId);
+  }
+
+
+  @Get('status')
+  async getNotificationStatus(@Req() req: Request) {
+    const userId = req.user['id'];
+    return this.notificationService.getNotificationStatus(userId);
   }
 
   @Get('preferences')

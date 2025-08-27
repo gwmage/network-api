@@ -43,5 +43,13 @@ export class NotificationRepository extends Repository<Notification> {
   async getNotificationPreferences(userId: number): Promise<NotificationPreferences | null> {
     return this.notificationPreferencesRepository.findOne({ where: { user: { id: userId } }, relations: ['user'] });
   }
+
+  async updateNotificationPreferences(userId: number, preferences: Partial<NotificationPreferences>): Promise<NotificationPreferences | null> {
+    const existingPreferences = await this.getNotificationPreferences(userId);
+    if (!existingPreferences) {
+      return null;
+    }
+    return this.notificationPreferencesRepository.save({ ...existingPreferences, ...preferences });
+  }
 }
 ```

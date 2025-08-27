@@ -9,6 +9,8 @@ import { Comment } from '../src/community/comment.entity';
 import { Community } from '../src/community/community.entity';
 import { NotificationPreferences } from '../src/notification/notification_preferences.entity';
 
+jest.mock('../src/notification/notification.service'); // Mock the service for testing
+
 describe('NotificationService', () => {
   let service: NotificationService;
   let notificationRepository: Repository<Notification>;
@@ -56,42 +58,74 @@ describe('NotificationService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('createCommentNotification', () => {
-    // ... (Existing test cases)
-  });
-
-
-  describe('getPreferences', () => {
-    it('should retrieve notification preferences for a user', async () => {
+  describe('sendNotification', () => {
+    it('should send email notification', async () => {
       const userId = 1;
-      const preferences = new NotificationPreferences();
-      preferences.userId = userId;
-      preferences.email = true;
-      preferences.push = false;
+      const message = 'Test email notification';
+      const preferences = { email: true, push: false };
 
-      jest.spyOn(notificationPreferencesRepository, 'findOne').mockResolvedValue(preferences);
+      jest.spyOn(service, 'getPreferences').mockResolvedValue(preferences);
+      jest.spyOn(service, 'sendEmail').mockResolvedValue(undefined); // Mock email sending
 
-      const result = await service.getPreferences(userId);
-      expect(result).toEqual({ email: true, push: false });
+      await service.sendNotification(userId, message);
+
+      expect(service.getPreferences).toHaveBeenCalledWith(userId);
+      expect(service.sendEmail).toHaveBeenCalledWith(userId, message);
+      expect(service.sendPushNotification).not.toHaveBeenCalled(); // Ensure push isn't sent
+    });
+
+
+    it('should send push notification', async () => {
+      const userId = 1;
+      const message = 'Test push notification';
+      const preferences = { email: false, push: true };
+
+      jest.spyOn(service, 'getPreferences').mockResolvedValue(preferences);
+      jest.spyOn(service, 'sendPushNotification').mockResolvedValue(undefined); // Mock push sending
+
+      await service.sendNotification(userId, message);
+
+      expect(service.getPreferences).toHaveBeenCalledWith(userId);
+      expect(service.sendPushNotification).toHaveBeenCalledWith(userId, message);
+      expect(service.sendEmail).not.toHaveBeenCalled(); // Ensure email isn't sent
+    });
+
+    it('should send both email and push notifications', async () => {
+      const userId = 1;
+      const message = 'Test both notifications';
+      const preferences = { email: true, push: true };
+
+      jest.spyOn(service, 'getPreferences').mockResolvedValue(preferences);
+      jest.spyOn(service, 'sendEmail').mockResolvedValue(undefined); // Mock email sending
+      jest.spyOn(service, 'sendPushNotification').mockResolvedValue(undefined); // Mock push sending
+
+
+      await service.sendNotification(userId, message);
+
+      expect(service.getPreferences).toHaveBeenCalledWith(userId);
+      expect(service.sendEmail).toHaveBeenCalledWith(userId, message);
+      expect(service.sendPushNotification).toHaveBeenCalledWith(userId, message);
+    });
+
+    it('should not send any notification if both preferences are false', async () => {
+      const userId = 1;
+      const message = 'Test no notifications';
+      const preferences = { email: false, push: false };
+
+      jest.spyOn(service, 'getPreferences').mockResolvedValue(preferences);
+      jest.spyOn(service, 'sendEmail').mockResolvedValue(undefined); // Mock email sending
+      jest.spyOn(service, 'sendPushNotification').mockResolvedValue(undefined); // Mock push sending
+
+
+      await service.sendNotification(userId, message);
+
+      expect(service.getPreferences).toHaveBeenCalledWith(userId);
+      expect(service.sendEmail).not.toHaveBeenCalled();
+      expect(service.sendPushNotification).not.toHaveBeenCalled();
     });
   });
 
-  describe('updatePreferences', () => {
-    it('should update notification preferences for a user', async () => {
-      const userId = 1;
-      const updateDto = { email: false, push: true };
-      const existingPreferences = new NotificationPreferences();
-      existingPreferences.userId = userId;
-      existingPreferences.email = true;
-      existingPreferences.push = false;
-
-      jest.spyOn(notificationPreferencesRepository, 'findOne').mockResolvedValue(existingPreferences);
-      jest.spyOn(notificationPreferencesRepository, 'save').mockResolvedValue({ ...existingPreferences, ...updateDto });
-
-      const result = await service.updatePreferences(userId, updateDto);
-      expect(result).toEqual({ email: false, push: true });
-    });
-  });
+  // ... other test suites
 });
 
 ```

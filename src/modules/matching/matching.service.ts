@@ -1,15 +1,11 @@
 ```typescript
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/user.entity';
-import { Profile } from '../profile/profile.entity';
-import { Group } from '../group/group.entity';
-import { Repository, In, Like } from 'typeorm';
-import { Match } from './match.entity';
-import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
-import { MatchingGroupDto } from './dto/matching-group.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PerformanceObserver, performance } from 'perf_hooks';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { Match } from './entities/match.entity';
+import { NotificationService } from '../notifications/notification.service';
 
 @Injectable()
 export class MatchingService {
@@ -18,56 +14,61 @@ export class MatchingService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Profile)
-    private profileRepository: Repository<Profile>,
-    @InjectRepository(Group)
-    private groupRepository: Repository<Group>,
     @InjectRepository(Match)
     private matchRepository: Repository<Match>,
+    private notificationService: NotificationService,
   ) {}
 
-  async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
-    const obs = new PerformanceObserver((items) => {
-      items.getEntries().forEach((entry) => {
-        this.logger.log(`${entry.name} took ${entry.duration}ms`);
-      });
-      performance.clearMarks();
-      performance.clearMeasures();
-    });
-    obs.observe({ entryTypes: ['measure'], buffered: true });
-    performance.mark('matchingStart');
+  // ... (other methods)
 
-    const users = await this.userRepository.find({
-      where: {
-        // Add any necessary filters here based on input
-      },
-      relations: ['profile'], // Ensure profile data is loaded
-    });
-    performance.mark('usersFetched');
-    performance.measure('Fetch Users', 'matchingStart', 'usersFetched');
+  async executeMatchingAlgorithm(userInput: any): Promise<Match[]> { // Define the input type
+    try {
+      // 1. Fetch users based on criteria (replace with your actual logic)
+      const users = await this.userRepository.find(); // Example: fetch all users
 
-    const matchedGroups = this.matchUsers(users);
-    performance.mark('matchingComplete');
-    performance.measure('Matching Algorithm', 'usersFetched', 'matchingComplete');
+      // 2. Implement your matching algorithm (replace with your actual algorithm)
+      const matchedGroups = this.dummyMatchingAlgorithm(users);
 
-    const matchingGroups: MatchingGroupDto[] = [];
-    // ... rest of the code to populate matchingGroups
+      // 3. Save matches
+      const savedMatches = await this.saveMatches(matchedGroups);
 
-    performance.measure('Total Matching Time', 'matchingStart', 'matchingComplete'); // Measure total time
-    obs.disconnect(); // Stop observing after measuring total time.
+      // 4. Send notifications
+      await this.sendMatchNotifications(savedMatches);
 
-    return matchingGroups;
+
+      return savedMatches;
+
+
+    } catch (error) {
+      this.logger.error(`Matching failed: ${error.message}`, error.stack);
+      throw error; // Re-throw the error to be handled by the controller
+    }
   }
 
 
-  private matchUsers(users: User[]): User[][] {
-    // ... (Matching logic)
-    // Implement performance optimizations based on profiling results here.
-    // For instance, if profile comparison is a bottleneck, consider indexing relevant fields
-    // or optimizing the comparison logic itself.  If the grouping algorithm is slow, consider using a more efficient algorithm.
+  // Dummy matching algorithm (replace with your actual algorithm)
+  private dummyMatchingAlgorithm(users: User[]): User[][] {
+    // Example: group users into pairs
+    const groups: User[][] = [];
+    for (let i = 0; i < users.length; i += 2) {
+      groups.push(users.slice(i, i + 2));
+    }
+    return groups;
   }
 
-  // ... rest of the code
+
+  async sendMatchNotifications(matches: Match[]): Promise<void> {
+    // ... (Implementation remains the same)
+  }
+
+
+  async saveMatches(matchedGroups: User[][]): Promise<Match[]> {
+    // ... (Implementation remains the same)
+  }
+
+
+
+  // ... (other methods)
 }
 
 ```

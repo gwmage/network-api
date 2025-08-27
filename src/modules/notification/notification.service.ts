@@ -8,13 +8,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 
-// Initialize Firebase Admin SDK (ensure you have set up the service account credentials)
-// ... (Firebase initialization from previous example)
+// Initialize Firebase Admin SDK
+const serviceAccount = require('../../path/to/your/serviceAccountKey.json'); // Replace with your service account key file path
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 @Injectable()
 export class NotificationService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>, // Inject User repository
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
 
@@ -41,28 +46,71 @@ export class NotificationService {
   }
 
   private async sendPushNotification(userId: number, message: string): Promise<void> {
-    // ... (Implementation from previous example)
+    const userFCMToken = await this.getUserFCMToken(userId);
+
+    if (userFCMToken) {
+      const payload: admin.messaging.MessagingPayload = {
+        notification: {
+          title: 'New Notification',
+          body: message,
+        },
+        data: {
+            // You can add custom data here if needed.
+        }
+      };
+
+      try {
+        await admin.messaging().sendToDevice(userFCMToken, payload);
+        console.log('Push notification sent successfully!');
+      } catch (error) {
+        console.error('Error sending push notification:', error);
+      }
+    } else {
+      console.log(`User ${userId} does not have an FCM token.`);
+    }
   }
 
   private async sendEmailNotification(userId: number, message: string): Promise<void> {
-    // ... (Implementation from previous example)
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // Example: using Gmail
+      auth: {
+        user: 'your_email@gmail.com', // Replace with your email
+        pass: 'your_email_password', // Replace with your email password or app password
+      },
+    });
+
+    const userEmail = await this.getUserEmail(userId);
+
+    if (userEmail) {
+      const mailOptions: nodemailer.SendMailOptions = {
+        from: 'your_email@gmail.com', // Replace with your email
+        to: userEmail,
+        subject: 'New Notification',
+        text: message,
+      };
+
+        try {
+          await transporter.sendMail(mailOptions);
+          console.log('Email notification sent successfully!');
+
+        }
+        catch (error) {
+          console.error('Error sending email notification:', error);
+
+        }
+    } else {
+      console.log(`User ${userId} does not have a registered email.`);
+    }
   }
 
-
   private async getUserFCMToken(userId: number): Promise<string | undefined> {
-    return this.userRepository.findOne({ where: { id: userId } }).then(user => user?.fcmToken);
-
+    return this.userRepository.findOne({ where: { id: userId }, relations: ['notificationPreferences'] }).then(user => user?.notificationPreferences?.fcmToken);
   }
 
   private async getUserEmail(userId: number): Promise<string | undefined> {
     return this.userRepository.findOne({ where: { id: userId } }).then(user => user?.email);
 
-
   }
-
-
-  // ... (Rest of the existing code)
-
 }
 
 ```
