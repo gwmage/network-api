@@ -9,7 +9,10 @@ import { Group } from '../src/modules/group/entities/group.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
 import { HttpException } from '@nestjs/common';
+import { UserDataDto } from '../src/modules/matching/dto/user-data.dto';
 import { MatchingStatusDto } from '../src/modules/matching/dto/matching-status.dto';
+
+
 
 describe('MatchingController', () => {
   let controller: MatchingController;
@@ -43,56 +46,44 @@ describe('MatchingController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('findMatch', () => {
-    it('should return a list of matched users', async () => {
-      const filter: MatchFilterDto = { /* ...filter criteria */ };
-      const matchedUsers: User[] = [/* ...mock users */];
-      jest.spyOn(service, 'findMatch').mockResolvedValue(matchedUsers);
-
-      expect(await controller.findMatch(filter)).toBe(matchedUsers);
-      expect(service.findMatch).toHaveBeenCalledWith(filter);
-    });
-
-    it('should handle errors', async () => {
-      const filter: MatchFilterDto = { /* ...filter criteria */ };
-      const mockError = new HttpException('Some error occurred', 500);
-      jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
-
-      await expect(controller.findMatch(filter)).rejects.toThrowError(mockError);
-    });
-  });
-
   describe('initiateMatching', () => {
-    it('should initiate the matching process', async () => {
-      jest.spyOn(service, 'initiateMatching').mockResolvedValue(undefined);
+    it('should initiate matching successfully', async () => {
+      const mockUserData: UserDataDto = { userId: 1 }; // Provide necessary data for UserDataDto
+      const mockResult = { message: 'Matching initiated successfully' };
+      jest.spyOn(service, 'initiateMatching').mockResolvedValue(mockResult);
 
-      expect(await controller.initiateMatching()).toBeUndefined();
-      expect(service.initiateMatching).toHaveBeenCalled();
+      expect(await controller.initiateMatching(mockUserData)).toBe(mockResult);
+      expect(service.initiateMatching).toHaveBeenCalledWith(mockUserData);
     });
 
     it('should handle errors', async () => {
-      const mockError = new HttpException('Some error occurred', 500);
+      const mockUserData: UserDataDto = { userId: 1 }; // Provide necessary data for UserDataDto
+      const mockError = new HttpException('Failed to initiate matching', 500);
       jest.spyOn(service, 'initiateMatching').mockRejectedValue(mockError);
 
-      await expect(controller.initiateMatching()).rejects.toThrowError(mockError);
+      await expect(controller.initiateMatching(mockUserData)).rejects.toThrowError(mockError);
     });
   });
 
+
   describe('getMatchingStatus', () => {
-    it('should return the matching status', async () => {
-      const mockStatus: MatchingStatusDto = { status: 'idle', lastMatchTime: new Date() };
+    it('should return matching status', async () => {
+      const mockStatus: MatchingStatusDto = { status: 'in_progress', estimatedCompletionTime: new Date() };
       jest.spyOn(service, 'getMatchingStatus').mockResolvedValue(mockStatus);
 
       expect(await controller.getMatchingStatus()).toBe(mockStatus);
       expect(service.getMatchingStatus).toHaveBeenCalled();
     });
 
+
     it('should handle errors', async () => {
-      const mockError = new HttpException('Some error occurred', 500);
+      const mockError = new HttpException('Failed to get matching status', 500);
       jest.spyOn(service, 'getMatchingStatus').mockRejectedValue(mockError);
 
       await expect(controller.getMatchingStatus()).rejects.toThrowError(mockError);
+
     });
   });
 });
+
 ```

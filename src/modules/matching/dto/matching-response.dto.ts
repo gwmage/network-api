@@ -27,7 +27,6 @@ export class MatchingInfoDto {
   @IsNumber()
   matchingScore: number;
 
-
   @ApiProperty()
   @IsString()
   explanation: string;
