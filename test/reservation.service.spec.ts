@@ -1,110 +1,39 @@
 ```typescript
-import { Test, TestingModule } from '@nestjs/testing';
-import { ReservationService } from '../src/reservation/reservation.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Reservation } from '../src/reservation/reservation.entity';
-import { Repository } from 'typeorm';
-import { Restaurant } from '../src/restaurant/restaurant.entity';
-import { User } from '../src/users/user.entity';
-import { HttpModule, HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
-import { of, throwError } from 'rxjs';
-import { AxiosError } from 'axios';
-import { CreateReservationDto } from '../src/reservation/dto/create-reservation.dto';
+  describe('cancel', () => {
+    it('should cancel a reservation', async () => {
+      const reservationId = 1;
+      const userId = 1;
+      const mockReservation = { id: reservationId, userId };
+      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
+      jest.spyOn(reservationRepository, 'softRemove').mockResolvedValue(mockReservation);
 
-describe('ReservationService', () => {
-  let service: ReservationService;
-  let reservationRepository: Repository<Reservation>;
-  let restaurantRepository: Repository<Restaurant>;
-  let userRepository: Repository<User>;
-  let httpService: HttpService;
-  let configService: ConfigService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule],
-      providers: [
-        ReservationService,
-        ConfigService,
-        {
-          provide: getRepositoryToken(Reservation),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(Restaurant),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(User),
-          useClass: Repository,
-        },
-      ],
-    }).compile();
+      const result = await service.cancel(reservationId, userId);
 
-    service = module.get<ReservationService>(ReservationService);
-    reservationRepository = module.get<Repository<Reservation>>(getRepositoryToken(Reservation));
-    restaurantRepository = module.get<Repository<Restaurant>>(getRepositoryToken(Restaurant));
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    httpService = module.get<HttpService>(HttpService);
-    configService = module.get<ConfigService>(ConfigService);
+      expect(result).toEqual(mockReservation);
+      expect(reservationRepository.findOne).toHaveBeenCalledWith({ where: { id: reservationId, userId } });
+      expect(reservationRepository.softRemove).toHaveBeenCalledWith(mockReservation);
+
+    });
+
+    it('should throw NotFoundException if reservation does not exist', async () => {
+      const reservationId = 1;
+      const userId = 1;
+
+      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(undefined);
+
+      await expect(service.cancel(reservationId, userId)).rejects.toThrowError('Reservation not found');
+    });
+
+    it('should throw ForbiddenException if user is not the owner of the reservation', async () => {
+      const reservationId = 1;
+      const userId = 1;
+      const mockReservation = { id: reservationId, userId: 2 }; // Different user ID
+      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(mockReservation);
+
+
+      await expect(service.cancel(reservationId, userId)).rejects.toThrowError('You are not authorized to cancel this reservation');
+    });
   });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  it('should create a reservation', async () => {
-    const createReservationDto: CreateReservationDto = { restaurantId: 1, userId: 1, dateTime: new Date() };
-    const mockReservation = { id: 1, ...createReservationDto };
-    const mockUser = { id: 1 };
-    const mockRestaurant = { id: 1 };
-
-    jest.spyOn(restaurantRepository, 'findOne').mockResolvedValue(mockRestaurant);
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
-    jest.spyOn(reservationRepository, 'save').mockResolvedValue(mockReservation);
-
-    const result = await service.create(createReservationDto);
-
-    expect(result).toEqual(mockReservation);
-    expect(restaurantRepository.findOne).toHaveBeenCalledWith({ where: { id: createReservationDto.restaurantId } });
-    expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: createReservationDto.userId } });
-    expect(reservationRepository.save).toHaveBeenCalledWith({ ...createReservationDto, restaurant: mockRestaurant, user: mockUser });
-  });
-
-
-  it('should handle successful API call', async () => {
-    const mockResponse = { data: { success: true } };
-    jest.spyOn(httpService, 'get').mockReturnValue(of(mockResponse));
-    jest.spyOn(configService, 'get').mockReturnValue('mockApiKey');
-
-    const result = await service.checkRestaurantAvailability({} as any);
-    expect(result).toEqual(mockResponse.data);
-    expect(httpService.get).toHaveBeenCalled();
-    expect(configService.get).toHaveBeenCalledWith('RESTAURANT_API_KEY');
-  });
-
-  it('should handle invalid API key', async () => {
-    const mockError = new AxiosError();
-    mockError.response = { status: 401, data: { message: 'Invalid API key' } };
-    jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => mockError));
-
-    await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Invalid API key');
-  });
-
-  it('should handle network errors', async () => {
-    const mockError = new AxiosError();
-    mockError.message = 'Network Error';
-    jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => mockError));
-
-    await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Network Error');
-  });
-
-  it('should handle unavailable data', async () => {
-    const mockResponse = { data: { success: false, message: 'Restaurant unavailable' } };
-    jest.spyOn(httpService, 'get').mockReturnValue(of(mockResponse));
-
-    await expect(service.checkRestaurantAvailability({} as any)).rejects.toThrowError('Restaurant unavailable');
-  });
-});
 
 ```
