@@ -1,5 +1,20 @@
 ```typescript
-import { IsNotEmpty, IsString, IsOptional, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsArray, IsNumber, IsObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class Weights {
+  @IsOptional()
+  @IsNumber()
+  location?: number;
+
+  @IsOptional()
+  @IsNumber()
+  preferences?: number;
+
+  @IsOptional()
+  @IsNumber()
+  interests?: number;
+}
 
 export class UserInputDto {
   @IsNotEmpty()
@@ -14,6 +29,12 @@ export class UserInputDto {
   @IsArray()
   @IsString({ each: true })
   interests?: string[];
+
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => Weights)
+  weights?: Weights;
 }
 
 ```

@@ -11,6 +11,7 @@ import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
 import { HttpException } from '@nestjs/common';
 import { UserDataDto } from '../src/modules/matching/dto/user-data.dto';
 import { MatchingStatusDto } from '../src/modules/matching/dto/matching-status.dto';
+import { Match } from '../src/modules/matching/entities/match.entity';
 
 
 
@@ -35,6 +36,10 @@ describe('MatchingController', () => {
           provide: getRepositoryToken(Group),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(Match),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
@@ -46,9 +51,9 @@ describe('MatchingController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('initiateMatching', () => {
+  describe('/user/input (POST)', () => {
     it('should initiate matching successfully', async () => {
-      const mockUserData: UserDataDto = { userId: 1 }; // Provide necessary data for UserDataDto
+      const mockUserData: UserDataDto = { userId: 1 };
       const mockResult = { message: 'Matching initiated successfully' };
       jest.spyOn(service, 'initiateMatching').mockResolvedValue(mockResult);
 
@@ -57,11 +62,30 @@ describe('MatchingController', () => {
     });
 
     it('should handle errors', async () => {
-      const mockUserData: UserDataDto = { userId: 1 }; // Provide necessary data for UserDataDto
+      const mockUserData: UserDataDto = { userId: 1 };
       const mockError = new HttpException('Failed to initiate matching', 500);
       jest.spyOn(service, 'initiateMatching').mockRejectedValue(mockError);
 
       await expect(controller.initiateMatching(mockUserData)).rejects.toThrowError(mockError);
+    });
+  });
+
+  describe('/user/matches/:userId (GET)', () => {
+    it('should return matches for a user', async () => {
+      const userId = 1;
+      const mockMatches: Match[] = [{ id: 1, users: [], groups: [] }] as Match[];
+      jest.spyOn(service, 'getMatchesForUser').mockResolvedValue(mockMatches);
+
+      expect(await controller.getMatchesForUser(userId)).toBe(mockMatches);
+      expect(service.getMatchesForUser).toHaveBeenCalledWith(userId);
+    });
+
+    it('should handle errors', async () => {
+      const userId = 1;
+      const mockError = new HttpException('Failed to get matches', 500);
+      jest.spyOn(service, 'getMatchesForUser').mockRejectedValue(mockError);
+
+      await expect(controller.getMatchesForUser(userId)).rejects.toThrowError(mockError);
     });
   });
 
