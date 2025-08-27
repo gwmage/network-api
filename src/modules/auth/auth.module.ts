@@ -1,3 +1,4 @@
+```typescript
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -8,10 +9,26 @@ import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoginMiddleware } from './middleware/login.middleware';
 import { UsersModule } from '../users/users.module';
+import { ConfigService } from '@nestjs/config';
+
 
 @Module({
   imports: [
-    UsersModule, 
+    UsersModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql', // Your database type
+        host: configService.get<string>('DATABASE_HOST'),
+        port: configService.get<number>('DATABASE_PORT'),
+        username: configService.get<string>('DATABASE_USERNAME'),
+        password: configService.get<string>('DATABASE_PASSWORD'),
+        database: configService.get<string>('DATABASE_NAME'),
+        entities: [User], // Make sure User entity is here
+        synchronize: true, // Be cautious with this in production
+      }),
+      inject: [ConfigService],
+    }),
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -32,3 +49,5 @@ export class AuthModule implements NestModule {
     consumer.apply(LoginMiddleware).forRoutes('*');
   }
 }
+
+```

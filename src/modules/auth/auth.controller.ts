@@ -1,5 +1,5 @@
 ```typescript
-import { Body, Controller, Post, HttpStatus, HttpException } from '@nestjs/common';
+import { Body, Controller, Post, HttpStatus, HttpException, ConflictException, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 
@@ -17,24 +17,17 @@ export class AuthController {
       };
     } catch (error) {
       if (error.code === '23505') {
-        throw new HttpException(
-          {
-            status: 'error',
-            message: 'Email already exists',
-            errors: { email: 'This email is already registered.' },
-          },
-          HttpStatus.CONFLICT,
-        );
+        throw new ConflictException({
+          status: 'error',
+          message: 'Email already exists',
+          errors: { email: 'This email is already registered.' },
+        });
       } else if (error.message.includes('Validation failed')) {
-        throw new HttpException(
-          {
-            status: 'error',
-            message: error.message,
-            errors: error.errors || {},
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-
+        throw new BadRequestException({
+          status: 'error',
+          message: error.message,
+          errors: error.errors || {},
+        });
       } else {
         throw new HttpException(
           {

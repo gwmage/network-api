@@ -14,10 +14,15 @@ export class RegisterDto {
 
   @IsNotEmpty()
   @IsString()
+  @Matches(/^[a-zA-Z\s]+$/, { message: 'Name must not contain special characters' })
   name: string;
 
   @IsNotEmpty()
   @IsString()
-  contactNumber: string;
+  @Matches(/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/, {
+    message: 'Invalid phone number format',
+  })
+  phoneNumber: string;
 }
+
 ```
