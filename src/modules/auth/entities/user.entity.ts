@@ -1,6 +1,7 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
+import { Point } from 'geojson';
 
 @Entity()
 export class User {
@@ -10,37 +11,27 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({ length: 255 })
-  password: string;
-
   @Column()
-  name: string;
+  password?: string;
 
   @Column({ nullable: true })
-  phone_number: string;
+  refreshToken?: string;
 
-  @OneToOne(() => Profile, (profile) => profile.user)
+  @OneToOne(() => Profile, { cascade: true, eager: true })
   @JoinColumn()
   profile: Profile;
 
-  @Column({ type: 'jsonb', nullable: true })
-  notificationPreferences: { push: boolean; email: boolean };
+  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
+  location: Point;
 
   @Column({ type: 'jsonb', nullable: true })
-  location: {
-    latitude: number;
-    longitude: number;
-    description: string; //e.g., city, state
-  };
+  preferences: any;
 
-  @Column({ type: 'jsonb', nullable: true })
-  preferences: { [key: string]: any };
-
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'text', { array: true, nullable: true, default: [] } }) // Modified
   interests: string[];
 
-  @Column({ type: 'jsonb', nullable: true })
-  weights: { [key: string]: number };
+  @Column({ nullable: true })
+  region: string;
 }
 
 ```

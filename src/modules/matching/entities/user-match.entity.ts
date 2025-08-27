@@ -1,5 +1,5 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Index } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Match } from '../../matches/entities/match.entity';
 
@@ -25,6 +25,14 @@ export class UserMatch {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column('text', { array: true, nullable: true })
+  @Index() // Indexing for faster filtering
+  regions: string[];
+
+  @Column('text', { array: true, nullable: true })
+  @Index() // Indexing for faster filtering
+  interests: string[];
 }
 
 ```
