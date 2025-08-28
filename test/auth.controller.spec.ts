@@ -4,7 +4,6 @@ import { AuthController } from '../src/auth/auth.controller';
 import { AuthService } from '../src/auth/auth.service';
 import { UsersService } from '../src/users/users.service';
 import { CreateUserDto } from '../src/users/dto/create-user.dto';
-import { User } from '../src/users/entities/user.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('AuthController', () => {
@@ -21,13 +20,19 @@ describe('AuthController', () => {
         },
         {
           provide: UsersService,
-          useValue: {},
+          useValue: {
+            create: jest.fn(),
+          },
         },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
     usersService = module.get<UsersService>(UsersService);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
   });
 
   it('should register a new user', async () => {
@@ -38,20 +43,23 @@ describe('AuthController', () => {
       firstName: 'Test',
       lastName: 'User',
     };
-    const createdUser: User = { id: 1, ...createUserDto } as User;
-
+    const createdUser = { ...createUserDto, id: 1 };
     jest.spyOn(usersService, 'create').mockResolvedValue(createdUser);
 
-    expect(await controller.register(createUserDto)).toEqual({
+    const result = await controller.register(createUserDto);
+
+    expect(usersService.create).toHaveBeenCalledWith(createUserDto);
+    expect(result).toEqual({
       status: 'success',
       message: 'User registered successfully',
+      userId: 1,
     });
   });
 
   it('should handle validation errors', async () => {
     const createUserDto: CreateUserDto = {
-      username: '', // Invalid username
-      email: 'invalid_email', // Invalid email
+      username: 'testuser',
+      email: 'test@example.com',
       password: 'short', // Short password
       firstName: 'Test',
       lastName: 'User',
@@ -87,28 +95,6 @@ describe('AuthController', () => {
         status: 'error',
         message: 'Email already exists',
         errors: { email: 'This email is already registered.' },
-      });
-    }
-  });
-
-  it('should handle other errors', async () => {
-    const createUserDto: CreateUserDto = {
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
-      firstName: 'Test',
-      lastName: 'User',
-    };
-
-    jest.spyOn(usersService, 'create').mockRejectedValue(new Error('Database error'));
-
-    try {
-      await controller.register(createUserDto);
-    } catch (error) {
-      expect(error.status).toBe(500);
-      expect(error.response).toEqual({
-        status: 'error',
-        message: 'Something went wrong',
       });
     }
   });

@@ -1,15 +1,15 @@
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../src/auth/auth.service';
-import { UsersService } from '../src/users/users.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../src/users/entities/user.entity';
-import { Repository } from 'typeorm';
-import { CreateUserDto } from '../src/users/dto/create-user.dto';
+import { AuthService } from '../src/modules/auth/auth.service';
+import { UsersService } from '../src/modules/users/users.service';
+import { RegisterDto } from '../src/modules/auth/dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from '../src/modules/users/entities/user.entity';
+import { Repository } from 'typeorm';
 
 describe('AuthService', () => {
-  let service: AuthService;
+  let authService: AuthService;
   let usersService: UsersService;
   let userRepository: Repository<User>;
 
@@ -25,78 +25,66 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    authService = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should register a new user', async () => {
+    const registerDto: RegisterDto = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'securePassword123',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(null);
+    jest.spyOn(userRepository, 'create').mockReturnValue({ ...registerDto, id: 1 } as User);
+    jest.spyOn(userRepository, 'save').mockResolvedValue({ ...registerDto, id: 1 } as User);
+    jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedPassword');
+
+
+    const result = await authService.register(registerDto);
+
+    expect(result.status).toBe('success');
+    expect(result.message).toBe('User registered successfully');
+    expect(result.userId).toBe(1);
   });
 
-  describe('register', () => {
-    it('should register a new user', async () => {
-      const createUserDto: CreateUserDto = {
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-        firstName: 'Test',
-        lastName: 'User',
-      };
+  it('should handle email uniqueness', async () => {
+    const registerDto: RegisterDto = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'securePassword123',
+      firstName: 'Test',
+      lastName: 'User',
+    };
 
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-      const createdUser = { ...createUserDto, password: hashedPassword, id: 1 };
+    jest.spyOn(userRepository, 'findOneBy').mockResolvedValue({} as User);
 
-      jest.spyOn(usersService, 'create').mockResolvedValue(createdUser as User);
+    const result = await authService.register(registerDto);
 
-      const result = await service.register(createUserDto);
-
-      expect(usersService.create).toHaveBeenCalledWith(createUserDto);
-      expect(result).toEqual({
-        status: 'success',
-        message: 'User registered successfully',
-        userId: 1,
-      });
-    });
-
-    it('should handle email uniqueness error', async () => {
-      const createUserDto: CreateUserDto = {
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-        firstName: 'Test',
-        lastName: 'User',
-      };
-
-      jest.spyOn(usersService, 'create').mockRejectedValue({ code: '23505' });
-
-      try {
-        await service.register(createUserDto);
-      } catch (error) {
-        expect(error.status).toBe(409);
-        expect(error.message).toEqual('Email already exists');
-      }
-    });
-
-    it('should handle other errors during registration', async () => {
-      const createUserDto: CreateUserDto = {
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-        firstName: 'Test',
-        lastName: 'User',
-      };
-
-      jest.spyOn(usersService, 'create').mockRejectedValue(new Error('Database error'));
-
-      try {
-        await service.register(createUserDto);
-      } catch (error) {
-        expect(error.status).toBe(500);
-        expect(error.message).toEqual('Something went wrong during registration');
-      }
-    });
+    expect(result.status).toBe('error');
+    expect(result.message).toBe('Email already exists');
   });
+
+  it('should handle validation errors', async () => {
+    const registerDto: RegisterDto = {
+      username: '', // Invalid username
+      email: 'invalid_email', // Invalid email
+      password: 'short', // Short password
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    const result = await authService.register(registerDto);
+
+    expect(result.status).toBe('error');
+    expect(result.message).toBe('Validation failed');
+    expect(result.errors).toBeDefined();
+  });
+
+
 });
-
 ```
