@@ -8,7 +8,7 @@ export class MatchingGroup {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToMany(() => User, (user) => user.matchingGroups)
+  @ManyToMany(() => User)
   @JoinTable()
   participants: User[];
 

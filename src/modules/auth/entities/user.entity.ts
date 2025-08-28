@@ -1,29 +1,37 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Profile } from '../../profile/entities/profile.entity';
+import { Point } from 'geojson'; // Import necessary type
 
 @Entity()
-@Unique(['email']) // Ensure email is unique
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
-  @IsEmail()
-  @IsNotEmpty()
   email: string;
 
-
   @Column()
-  @IsString()
-  @IsNotEmpty()
-  name: string;
+  password?: string;
 
-  @Column({ nullable: true }) // Phone number is optional
-  @IsPhoneNumber('KR') // Validate phone number format for Korea
-  phoneNumber: string;
+  @Column({ nullable: true })
+  refreshToken?: string;
 
+  @OneToOne(() => Profile, { cascade: true, eager: true})
+  @JoinColumn()
+  profile: Profile;
 
+  @Column({ type: 'jsonb', nullable: true })
+  preferences: any;
+
+  @Column({ type: 'jsonb', nullable: true })
+  interests: any;
+
+  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
+  location: Point;
+
+  @Column({ nullable: true })
+  region: string;
 }
 
 ```

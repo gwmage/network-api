@@ -1,138 +1,62 @@
 ```typescript
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
-import { Repository, In } from 'typeorm';
-import { Match } from './entities/match.entity';
-import { NotificationService } from '../notifications/notification.service';
-import { PerformanceObserver, performance } from 'perf_hooks';
+import { User } from '../users/user.entity';
+import { Profile } from '../profile/profile.entity';
+import { Group } from '../group/group.entity';
+import { Repository, In, Like } from 'typeorm';
+import { Match } from './match.entity';
+import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
+import { MatchingGroupDto } from './dto/matching-group.dto';
 
 @Injectable()
 export class MatchingService {
   private readonly logger = new Logger(MatchingService.name);
 
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(Match)
-    private matchRepository: Repository<Match>,
-    private notificationService: NotificationService,
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
+    @InjectRepository(Group) private groupRepository: Repository<Group>,
+    @InjectRepository(Match) private matchRepository: Repository<Match>,
   ) {}
 
-  async triggerMatching(): Promise<{ status: string }> {
-    try {
-      // Initiate matching process (e.g., set a flag, add a message to a queue)
-      this.runMatching();
-      return { status: 'Matching process initiated.' };
-    } catch (error) {
-      this.logger.error(`Failed to trigger matching: ${error.message}`, error.stack);
-      throw error;
-    }
-  }
+  async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
+    const startTime = performance.now();
 
-  async getMatchingStatus(): Promise<{ status: string }> {
-    // Check the status of the matching process
-    return { status: 'Matching process is scheduled or running.' }; // Placeholder
-  }
-
-  @Cron(CronExpression.EVERY_WEEK)
-  async runMatching() {
-    const obs = new PerformanceObserver((items) => {
-      items.getEntries().forEach((entry) => {
-        this.logger.log(`${entry.name} took ${entry.duration}ms`);
-      });
+    // 1. Fetch user profiles with eager loading for related entities
+    const users = await this.userRepository.find({
+      relations: ['profile', 'profile.preferences', 'profile.interests'], // Ensure all required relations are loaded
+      where: {
+        // Add any filtering criteria based on input if needed
+        ...(input.region ? { profile: { region: Like(`%${input.region}%`) } } : {}),
+      },
     });
-    obs.observe({ entryTypes: ['measure'] });
 
-    this.logger.log('Starting AI matching process...');
-    try {
-      performance.mark('matchingStart');
-      const users = await this.userRepository.find({
-        where: {
-          // Add any necessary filtering criteria here
-        },
-        relations: ['preferences', 'interests'] // Include eager loading for relations
-      });
-      if (!users || users.length === 0) {
-        this.logger.warn('No users found for matching.');
-        return;
+
+    // 2. Prepare data for faster processing and filtering
+    const filteredUsers = users.filter(user => user.profile && user.profile.preferences && user.profile.interests).map((user) => ({
+      ...user,
+      profile: {
+        ...user.profile,
+        preferences: user.profile.preferences.map(p => p.name), // Simplify preference access
+        interests: user.profile.interests.map(i => i.name), // Simplify interest access
       }
-      performance.mark('usersFetched');
-      performance.measure('Fetch Users', 'matchingStart', 'usersFetched');
+    }));
+
+    const matchingGroups: MatchingGroupDto[] = [];
+    // ... (Matching logic using filteredUsers and simplified preference/interest access)
 
 
-      const matchedGroups = this.matchUsers(users);
-      performance.mark('matchingComplete');
-      performance.measure('Matching Algorithm', 'usersFetched', 'matchingComplete');
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    this.logger.log(`Matching execution time: ${executionTime}ms`);
 
-      const savedMatches = await this.saveMatches(matchedGroups);
-      performance.mark('matchesSaved');
-      performance.measure('Save Matches', 'matchingComplete', 'matchesSaved');
-
-      await this.sendMatchNotifications(savedMatches);
-      performance.mark('notificationsSent');
-      performance.measure('Send Notifications', 'matchesSaved', 'notificationsSent');
-
-      performance.measure('Total Matching Time', 'matchingStart', 'notificationsSent');
-
-      this.logger.log('Matching process completed successfully.');
-    } catch (error) {
-      this.logger.error(`Matching process failed: ${error.message}`, error.stack);
-    } finally{
-      obs.disconnect(); // Stop observing
-    }
+    return matchingGroups;
   }
 
-
-  private async saveMatches(matchedGroups: User[][]): Promise<Match[]> {
-    try {
-      const savedMatches: Match[] = [];
-      for (const group of matchedGroups) {
-        const match = new Match();
-        match.users = group;
-        const savedMatch = await this.matchRepository.save(match);
-        savedMatches.push(savedMatch);
-      }
-      return savedMatches;
-    } catch (error) {
-      this.logger.error(`Failed to save matches: ${error.message}`, error.stack);
-      throw error; // Re-throw the error to be handled by the calling function
-    }
-  }
+  // ... (Other existing code)
 
 
-  private async sendMatchNotifications(matches: Match[]): Promise<void> {
-    try {
-      for (const match of matches) {
-        for (const user of match.users) {
-          await this.notificationService.sendNotification(user, 'You have been matched with a new group!');
-        }
-      }
-    } catch (error) {
-      this.logger.error(`Failed to send notifications: ${error.message}`, error.stack);
-      // Handle the error appropriately, e.g., retry sending notifications or log the failed notifications
-    }
-  }
-
-  private matchUsers(users: User[]): User[][] {
-    try {
-      // Placeholder for the actual matching algorithm
-      // This should be replaced with your AI-powered matching logic
-      const matchedGroups: User[][] = [];
-      const groupSize = 5; // Desired group size
-
-      // Simple example: divide users into groups of 5
-      for (let i = 0; i < users.length; i += groupSize) {
-        matchedGroups.push(users.slice(i, i + groupSize));
-      }
-
-      return matchedGroups;
-    } catch (error) {
-      this.logger.error(`Matching algorithm failed: ${error.message}`, error.stack);
-      throw error;
-    }
-  }
 }
 
 ```
