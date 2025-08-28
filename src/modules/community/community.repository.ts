@@ -14,35 +14,26 @@ export class CommunityRepository {
     private readonly commentRepository: Repository<Comment>,
   ) {}
 
-  // ... (Existing post methods)
+  async findAllPosts(
+    options?: {
+      page?: number;
+      limit?: number;
+      filter?: FindOptionsWhere<Post>;
+      order?: { [key: string]: 'ASC' | 'DESC' };
+    },
+  ): Promise<[Post[], number]> {
+    // Mock data for now. Replace with actual search logic later.
+    const mockPosts: Post[] = [
+      { id: 1, title: 'Mock Post 1', content: 'Content 1' } as Post,
+      { id: 2, title: 'Mock Post 2', content: 'Content 2' } as Post,
+    ];
+    const mockCount = mockPosts.length;
 
-  async createComment(comment: Comment): Promise<Comment> {
-    return this.commentRepository.save(comment);
+    return [mockPosts, mockCount];
   }
 
-  async findAllCommentsByPostId(postId: number): Promise<Comment[]> {
-    return this.commentRepository.find({
-      where: { postId },
-      order: { createdAt: 'ASC' }, // Order by creation time for proper display
-    });
-  }
 
-  async findCommentById(id: number): Promise<Comment | null> {
-    return this.commentRepository.findOne({
-      where: { id },
-      relations: ['replies'], // Load nested replies
-    });
-  }
-
-  async updateComment(id: number, updatedComment: Comment): Promise<Comment | null> {
-    await this.commentRepository.update(id, updatedComment);
-    return this.findCommentById(id);
-  }
-
-  async deleteComment(id: number): Promise<DeleteResult> {
-    const comment = await this.commentRepository.findOneBy({ id });
-    return this.commentRepository.remove(comment);
-
-  }
+  // ... (Existing post and comment methods)
 }
+
 ```

@@ -29,7 +29,7 @@ export class SearchPostDto {
   author?: string;
 
 
-  @ApiProperty({ required: false, description: 'Sort by recency or relevance', enum: SortOptions })
+  @ApiProperty({ required: false, description: 'Sort by recency or relevance', enum: SortOptions, default: SortOptions.RECENCY })
   @IsOptional()
   @IsEnum(SortOptions)
   sort?: SortOptions = SortOptions.RECENCY;
