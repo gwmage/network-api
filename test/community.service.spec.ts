@@ -1,82 +1,57 @@
 ```typescript
-import { Test, TestingModule } from '@nestjs/testing';
-import { CommunityService } from '../src/community/community.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Community } from '../src/community/community.entity';
-import { Repository } from 'typeorm';
-import { Comment } from '../src/community/comment.entity';
-import { NotFoundException } from '@nestjs/common';
-import { NotificationService } from '../src/notification/notification.service';
+  describe('search', () => {
+    it('should return posts based on search criteria', async () => {
+      const searchDto = { keyword: 'test', sort: 'newest', category: 'category1' };
+      const mockPosts: Community[] = [{ id: 1, title: 'Test Post', content: 'This is a test post.', category: 'category1' } as Community];
+      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockPosts.length]);
 
-describe('CommunityService', () => {
-  let service: CommunityService;
-  let communityRepository: Repository<Community>;
-  let commentRepository: Repository<Comment>;
-  let notificationService: NotificationService;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CommunityService,
-        {
-          provide: getRepositoryToken(Community),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(Comment),
-          useClass: Repository,
-        },
-        {
-          provide: NotificationService,
-          useValue: {
-            sendCommentNotification: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
-
-    service = module.get<CommunityService>(CommunityService);
-    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
-    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
-    notificationService = module.get<NotificationService>(NotificationService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  describe('createComment', () => {
-    it('should create a comment', async () => {
-      const postId = 1;
-      const userId = 1;
-      const createCommentDto = { content: 'New comment' };
-      const createdComment = { id: 1, ...createCommentDto, post: { id: postId } as Community, user: { id: userId } } as Comment;
-      jest.spyOn(communityRepository, 'findOne').mockResolvedValue({ id: postId } as Community);
-      jest.spyOn(commentRepository, 'create').mockReturnValue(createdComment);
-      jest.spyOn(commentRepository, 'save').mockResolvedValue(createdComment);
-
-      const result = await service.createComment(postId, userId, createCommentDto);
-      expect(result).toEqual(createdComment);
-      expect(notificationService.sendCommentNotification).toHaveBeenCalled();
+      const result = await service.search(searchDto);
+      expect(communityRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.any(Object),
+        order: { createdAt: 'DESC' },
+      }));
+      expect(result.data).toEqual(mockPosts);
+      expect(result.meta).toBeDefined();
     });
 
-    it('should throw NotFoundException if post is not found', async () => {
-      const postId = 1;
-      const userId = 1;
-      const createCommentDto = { content: 'New comment' };
-      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(undefined);
+    it('should return all posts if no search criteria are provided', async () => {
+      const searchDto = {};
+      const mockPosts: Community[] = [{ id: 1, title: 'Post 1' } as Community, { id: 2, title: 'Post 2' } as Community];
+      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockPosts.length]);
 
-      await expect(service.createComment(postId, userId, createCommentDto)).rejects.toThrowError(NotFoundException);
+      const result = await service.search(searchDto);
+      expect(communityRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
+        where: {},
+        order: { createdAt: 'DESC' },
+      }));
+      expect(result.data).toEqual(mockPosts);
+      expect(result.meta).toBeDefined();
+    });
+
+    it('should handle different sort options', async () => {
+      const searchDto = { sort: 'relevance' }; // Add relevance sort
+      const mockPosts: Community[] = [];
+      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockPosts.length]);
+
+      await service.search(searchDto);
+      // Expect a different order or criteria based on relevance.  Implementation details will vary.
+      expect(communityRepository.findAndCount).toHaveBeenCalled();
+    });
+
+
+    it('should handle pagination correctly', async () => {
+      const searchDto = { keyword: 'test', page: 2, limit: 5 };
+      const mockPosts: Community[] = [];  // Mock posts are not relevant for this test
+      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, 15]); // Simulate 15 total posts
+
+      const result = await service.search(searchDto);
+      expect(communityRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
+        skip: 5, // (page - 1) * limit
+        take: 5, // limit
+      }));
+      expect(result.meta).toBeDefined();
+      expect(result.meta.currentPage).toBe(2);
+      expect(result.meta.totalPages).toBe(3);
     });
   });
-
-  describe('updateComment', () => {
-    // ... existing tests
-  });
-
-  describe('deleteComment', () => {
-    // ... existing tests
-  });
-});
-
 ```

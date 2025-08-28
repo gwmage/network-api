@@ -22,6 +22,7 @@ describe('CommunityController', () => {
             createComment: jest.fn(),
             updateComment: jest.fn(),
             deleteComment: jest.fn(),
+            searchPosts: jest.fn(),
           },
         },
       ],
@@ -34,5 +35,37 @@ describe('CommunityController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  describe('search', () => {
+    it('should return posts matching the search criteria', async () => {
+      const query = { keyword: 'test', category: 'general', tags: ['tag1', 'tag2'] };
+      const expectedResult = [{ id: 1, title: 'Test Post' } as Community];
+      (service.searchPosts as jest.Mock).mockResolvedValue(expectedResult);
+
+      expect(await controller.search(query)).toEqual(expectedResult);
+      expect(service.searchPosts).toHaveBeenCalledWith(query);
+    });
+
+    it('should handle empty query', async () => {
+      const query = {};
+      const expectedResult = [] as Community[];
+      (service.searchPosts as jest.Mock).mockResolvedValue(expectedResult);
+
+      expect(await controller.search(query)).toEqual(expectedResult);
+      expect(service.searchPosts).toHaveBeenCalledWith(query);
+    });
+
+
+    it('should handle missing parameters', async () => {
+      const query = { keyword: 'test' };
+      const expectedResult = [{ id: 1, title: 'Test Post' } as Community];
+      (service.searchPosts as jest.Mock).mockResolvedValue(expectedResult);
+
+      expect(await controller.search(query)).toEqual(expectedResult);
+      expect(service.searchPosts).toHaveBeenCalledWith(query);
+
+    });
+  });
+});
 
 ```
