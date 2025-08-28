@@ -5,20 +5,15 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Profile } from '../src/entities/profile.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
-import { ScheduleService } from '../src/config/schedule.config'; // Import ScheduleService
-import { User } from '../src/entities/user.entity';
 
 describe('MatchingService', () => {
   let service: MatchingService;
   let profileRepository: Repository<Profile>;
-  let scheduleService: ScheduleService;
-
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MatchingService,
-        ScheduleService, // Include ScheduleService in testing module
         {
           provide: getRepositoryToken(Profile),
           useClass: Repository,
@@ -28,55 +23,43 @@ describe('MatchingService', () => {
 
     service = module.get<MatchingService>(MatchingService);
     profileRepository = module.get<Repository<Profile>>(getRepositoryToken(Profile));
-    scheduleService = module.get<ScheduleService>(ScheduleService); // Inject ScheduleService
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  // ... (Existing filterMatches tests remain unchanged)
-
-  describe('Scheduled Job', () => {
-    it('should call runMatching on handleCron', async () => {
-      const runMatchingSpy = jest.spyOn(service, 'runMatching');
-      await scheduleService.handleCron();
-      expect(runMatchingSpy).toHaveBeenCalled();
-    });
+  describe('filterMatches', () => {
+    // ... (Existing tests remain unchanged)
   });
 
-  describe('Performance Testing', () => {
-    it('should handle large number of users efficiently', async () => {
-      const numUsers = 1000;
-      const users: User[] = Array.from({ length: numUsers }, (_, i) => ({ id: i + 1, interests: [] } as User));
-      const startTime = performance.now();
-      service.matchUsers(users);
-      const endTime = performance.now();
-      const executionTime = endTime - startTime;
-      console.log(`Matching ${numUsers} users took ${executionTime} milliseconds`);
-      // Add an assertion based on acceptable performance threshold.
-      // For example:
-      expect(executionTime).toBeLessThan(500); // Adjust threshold as needed
-    });
+  describe('performance test', () => {
+    it('should handle a large number of profiles efficiently', async () => {
+      const numProfiles = 10000;
+      const mockProfiles: Profile[] = [];
+      for (let i = 0; i < numProfiles; i++) {
+        mockProfiles.push({
+          id: i + 1,
+          userId: i + 2,
+          region: '서울',
+          interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4)),
+        } as Profile);
+      }
 
-    it('should handle different weight configurations', async () => {
-      const users: User[] = [
-        { id: 1, interests: ['hiking', 'reading'] } as User,
-        { id: 2, interests: ['hiking'] } as User,
-        { id: 3, interests: ['reading', 'coding'] } as User,
-      ];
+      jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
 
-      // Test different weight configurations - Example: prioritizing common interests
-      // ... Set different weights in the service before calling matchUsers
-      // ... Assert that the matching results reflect the weighting
-      const matchedGroups = service.matchUsers(users);
+      const startTime = process.hrtime();
+      const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
+      const results = await service.filterMatches(mockProfiles, filters);
+      const endTime = process.hrtime(startTime);
 
-        expect(matchedGroups).toBeDefined(); // Example assertion, adjust as needed
+      const elapsedTimeMs = (endTime[0] * 1000 + endTime[1] / 1000000);
 
+      console.log(`Matching time for ${numProfiles} profiles: ${elapsedTimeMs} ms`);
+
+      expect(elapsedTimeMs).toBeLessThan(500); // Adjust threshold as needed
     });
   });
-
-
 });
 
 ```

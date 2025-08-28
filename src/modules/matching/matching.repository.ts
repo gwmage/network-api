@@ -53,7 +53,6 @@ export class MatchingRepository {
     return this.matchingGroupRepository.findOne({ order: { createdAt: 'DESC' } });
   }
 
-
   async getMatchingGroupExplanation(groupId: number): Promise<string | null> {
     const matchingGroup = await this.matchingGroupRepository.findOne({ where: { id: groupId }, select: ['matchingRationale'] });
     return matchingGroup?.matchingRationale || null;
