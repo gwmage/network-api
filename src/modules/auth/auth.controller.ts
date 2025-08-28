@@ -10,34 +10,41 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     try {
-      await this.authService.register(registerDto);
-      return {
-        status: 'success',
-        message: 'User registered successfully',
-      };
+      const result = await this.authService.register(registerDto);
+      if (result.status === 'success') {
+        return {
+          status: 'success',
+          message: 'User registered successfully',
+        };
+      } else {
+        if (result.message === 'Email already exists') {
+          throw new ConflictException({
+            status: 'error',
+            message: 'Email already exists',
+            errors: { email: 'This email is already registered.' },
+          });
+        } else {
+          throw new BadRequestException({
+            status: 'error',
+            message: result.message,
+            errors: result.errors,
+          });
+        }
+      }
     } catch (error) {
-      if (error.code === '23505') {
-        throw new ConflictException({
-          status: 'error',
-          message: 'Email already exists',
-          errors: { email: 'This email is already registered.' },
-        });
-      } else if (error.message.includes('Validation failed')) {
-        throw new BadRequestException({
-          status: 'error',
-          message: error.message,
-          errors: error.errors || {},
-        });
+      if (error instanceof HttpException) {
+        throw error; // Re-throw if it's already an HttpException
       } else {
         throw new HttpException(
           {
             status: 'error',
-            message: 'An error occurred during registration',
+            message: 'An unexpected error occurred during registration.', // Generic error message
           },
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       }
     }
   }
 }
+
 ```
