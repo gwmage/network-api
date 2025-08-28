@@ -1,7 +1,6 @@
 ```typescript
 import { EntityRepository, Repository } from 'typeorm';
 import { User } from './user.entity';
-import { ConflictException } from '@nestjs/common';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -9,11 +8,15 @@ export class UserRepository extends Repository<User> {
     return this.findOne({ where: { email } });
   }
 
-  async checkEmailUniqueness(email: string): Promise<void> {
-    const existingUser = await this.findByEmail(email);
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
-    }
+  async existsByEmail(email: string): Promise<boolean> {
+    const count = await this.count({ where: { email } });
+    return count > 0;
+  }
+
+  async findUsersForMatching(): Promise<User[]> {
+    // Implement your logic to retrieve users for matching here.
+    // For example, to get all active users:
+    return this.find({ where: { isActive: true } }); 
   }
 }
 ```
