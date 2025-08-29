@@ -14,32 +14,29 @@ import CommunityBoard from './components/CommunityBoard';
 import PostDetails from './components/PostDetails';
 import axios from 'axios';
 import Main from './components/Main';
-import SignUp from './components/SignUp';
-import Login from './components/Login';
-import MatchingProgress from './components/MatchingProgress';
-import reportWebVitals from './reportWebVitals'; // Import reportWebVitals
-
+import SignUp from './components/SignUp'; // Make sure this import is correct
+import LoginForm from './components/LoginForm'; // Import LoginForm
+import RegisterForm from './components/RegisterForm'; // Import RegisterForm
+import AdminLogin from './components/AdminLogin';
+import AdminPermissions from './components/AdminPermissions';
+import UserEdit from './components/UserEdit';
+// ... other imports
 
 const App = () => {
-  // ... existing code ...
-
-  useEffect(() => {
-    reportWebVitals(); // Call reportWebVitals
-  }, []);
+  // ... your existing code ...
 
   return (
     <Router>
-      <nav>
-        {/* Example navigation links */}
-        <Link to="/community">Community Board</Link>
-        <Link to="/matching">Matching</Link> {/* Example link to matching */}
-        {/* ... other navigation links */}
-      </nav>
-      <Routes>
-        {/* ... other routes ... */}
-        <Route path="/community" element={<CommunityBoard />} />
-        <Route path="/community/:postId" element={<PostDetails />} />
-        <Route path="/matching" element={<MatchingProgress />} /> {/* Add the route for MatchingProgress */}
+      <Routes>        
+        <Route path="/" element={<Main />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/register" element={<RegisterForm />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/permissions" element={<AdminPermissions />} />
+        <Route path="/user/edit/:id" element={<UserEdit />} />
+        {/* ... other routes */}
       </Routes>
     </Router>
   );
