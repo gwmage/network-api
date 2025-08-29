@@ -1,30 +1,33 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
-import { Profile } from '../../profile/entities/profile.entity';
+import { Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from 'typeorm';
+import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { UserPreference } from './user-preference.entity';
+
 
 @Entity()
+@Unique(['email']) // Ensure email is unique
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @Column({ length: 255 })
-  password: string;
 
   @Column()
+  @IsString()
+  @IsNotEmpty()
   name: string;
 
-  @Column({ nullable: true })
-  phone_number: string;
+  @Column({ nullable: true }) // Phone number is optional
+  @IsPhoneNumber('KR') // Validate phone number format for Korea
+  phoneNumber: string;
 
-  @OneToOne(() => Profile, (profile) => profile.user)
-  @JoinColumn()
-  profile: Profile;
+  @OneToMany(() => UserPreference, (preference) => preference.user)
+  preferences: UserPreference[];
 
-  @Column({ type: 'jsonb', nullable: true })
-  notificationPreferences: { push: boolean; email: boolean };
 }
 
 ```
