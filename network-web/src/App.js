@@ -16,7 +16,7 @@ import axios from 'axios';
 import Main from './components/Main';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
-import MatchingProgress from './components/MatchingProgress'; 
+import MatchingProgress from './components/MatchingProgress';
 
 
 const App = () => {
