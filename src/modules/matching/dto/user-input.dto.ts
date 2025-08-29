@@ -19,7 +19,7 @@ class Weights {
 export class UserInputDto {
   @IsNotEmpty()
   @IsString()
-  location: string;
+  region: string;
 
   @IsOptional()
   @IsString()
