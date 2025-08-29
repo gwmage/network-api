@@ -1,147 +1,18 @@
-```typescript
-import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-
-export enum NotificationType {
-  MATCH_RESULT = 'match_result',
-  RESERVATION_SUCCESS = 'reservation_success',
-  RESERVATION_MODIFIED = 'reservation_modified',
-  RESERVATION_CANCELLED = 'reservation_cancelled',
-  GENERAL = 'general',
-  COMMENT = 'comment',
-}
-
-export enum NotificationChannel {
-  PUSH = 'push',
-  EMAIL = 'email',
-  SMS = 'sms',
-}
-
-export enum NotificationStatus {
-  SENT = 'sent',
-  DELIVERED = 'delivered',
-  FAILED = 'failed',
-}
-
-
-export class CreateNotificationDto {
-  @IsNotEmpty()
-  @IsEnum(NotificationType)
-  type: NotificationType;
-
-  @IsNotEmpty()
-  @IsUUID()
-  userId: string;
-
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
-  @IsNotEmpty()
-  @IsString()
-  message: string;
-
-  @IsOptional()
-  data?: any; // Can be any relevant data related to notification
-}
-
-export class GetNotificationDto {
-  @IsNotEmpty()
-  @IsUUID()
-  id: string;
-}
-
-export class UpdateNotificationDto {
-  @IsOptional()
-  @IsString()
-  title?: string;
-
-  @IsOptional()
-  @IsString()
-  message?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  read?: boolean;
-
-  @IsOptional()
-  data?: any;
-}
-
-export class CommentNotificationDataDto {
-  @IsNotEmpty()
-  @IsUUID()
-  commentId: string;
-
-  @IsNotEmpty()
-  @IsUUID()
-  postId: string;
-
-  @IsNotEmpty()
-  @IsString()
-  commentContent: string;
-
-  @IsNotEmpty()
-  @IsUUID()
-  authorId: string;
-
-  @IsOptional()
-  @IsUUID()
-  parentCommentId?: string;
-}
-
-
-export class UpdateNotificationPreferencesDto {
-  @IsNotEmpty()
-  @IsEnum(NotificationChannel)
-  channel: NotificationChannel;
-
-  @IsNotEmpty()
-  @IsEnum(NotificationType)
-  type: NotificationType;
-
-  @IsNotEmpty()
-  @IsBoolean()
-  enabled: boolean;
-}
+// Import necessary decorators and types
+import { IsString, IsDate, IsOptional } from 'class-validator';
 
 export class NotificationDto {
-  @IsNotEmpty()
-  @IsUUID()
-  id: string;
-
-  @IsNotEmpty()
-  @IsEnum(NotificationType)
-  type: NotificationType;
-
-  @IsNotEmpty()
-  @IsUUID()
+  @IsString()
   userId: string;
 
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
-  @IsNotEmpty()
   @IsString()
   message: string;
 
-
+  @IsDate()
   @IsOptional()
-  data?: CommentNotificationDataDto | any; // Can be any relevant data related to notification or the specific CommentNotificationDataDto
+  createdAt?: Date;
 
-  @IsNotEmpty()
-  @IsBoolean()
-  read: boolean;
-
-  @IsNotEmpty()
-  createdAt: Date;
-
-  @IsNotEmpty()
-  updatedAt: Date;
-
-  @IsNotEmpty()
-  @IsEnum(NotificationStatus)
-  status: NotificationStatus;
+  @IsDate()
+  @IsOptional()
+  updatedAt?: Date;
 }
-
-```
