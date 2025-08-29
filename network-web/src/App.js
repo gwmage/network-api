@@ -17,10 +17,15 @@ import Main from './components/Main';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import MatchingProgress from './components/MatchingProgress';
+import reportWebVitals from './reportWebVitals'; // Import reportWebVitals
 
 
 const App = () => {
   // ... existing code ...
+
+  useEffect(() => {
+    reportWebVitals(); // Call reportWebVitals
+  }, []);
 
   return (
     <Router>
