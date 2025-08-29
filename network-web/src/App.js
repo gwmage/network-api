@@ -1,13 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, Link } from 'react-router-dom';
+import ForgotPassword from './components/ForgotPassword';
+import ProfileManagement from './components/ProfileManagement';
+import AppInformation from './components/AppInformation';
+import MatchingResults from './components/MatchingResults';
+import ReservationSearch from './components/ReservationSearch';
+import ReservationProcess from './components/ReservationProcess';
+import ReservationConfirmation from './components/ReservationConfirmation';
+import ReservationManagement from './components/ReservationManagement';
+import ErrorDisplay from './components/ErrorDisplay';
+import NotificationSettings from './components/NotificationSettings';
 import CommunityBoard from './components/CommunityBoard';
 import PostDetails from './components/PostDetails';
+import axios from 'axios';
+import Main from './components/Main';
+import SignUp from './components/SignUp';
+import Login from './components/Login';
 import MatchingProgress from './components/MatchingProgress';
 import './index.css'; // Import the CSS file
 
-// ... other imports
 
 const App = () => {
+  // ... existing code ...
+
   return (
     <Router>
       <nav>
