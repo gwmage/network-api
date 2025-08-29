@@ -1,5 +1,5 @@
 ```typescript
-import { IsNotEmpty, IsString, IsOptional, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -11,13 +11,19 @@ export class CreatePostDto {
   content: string;
 
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsNumber({}, { each: true })
+  categoryIds?: number[];
 
   @IsOptional()
-  @IsArray()
   @IsString({ each: true })
-  tags?: string[];
-}
+  categoryNames?: string[];
 
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  tagIds?: number[];
+
+  @IsOptional()
+  @IsString({ each: true })
+  tagNames?: string[];
+}
 ```

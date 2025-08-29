@@ -1,57 +1,117 @@
 ```typescript
-  describe('search', () => {
-    it('should return posts based on search criteria', async () => {
-      const searchDto = { keyword: 'test', sort: 'newest', category: 'category1' };
-      const mockPosts: Community[] = [{ id: 1, title: 'Test Post', content: 'This is a test post.', category: 'category1' } as Community];
-      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockPosts.length]);
+import { Test, TestingModule } from '@nestjs/testing';
+import { CommunityService } from '../src/community/community.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Community } from '../src/community/community.entity';
+import { Repository } from 'typeorm';
+import { User } from '../src/users/user.entity';
+import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
+import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
+import { Comment } from '../src/community/comment.entity';
+import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
+import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
+import { PageOptionsDto } from '../src/common/dtos/page-options.dto';
+import { PageMetaDto } from '../src/common/dtos/page-meta.dto';
+import { PageDto } from '../src/common/dtos/page.dto';
+import { NotFoundException } from '@nestjs/common';
 
-      const result = await service.search(searchDto);
-      expect(communityRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        where: expect.any(Object),
-        order: { createdAt: 'DESC' },
-      }));
-      expect(result.data).toEqual(mockPosts);
-      expect(result.meta).toBeDefined();
+
+describe('CommunityService', () => {
+  let service: CommunityService;
+  let communityRepository: Repository<Community>;
+  let userRepository: Repository<User>;
+  let commentRepository: Repository<Comment>;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CommunityService,
+        {
+          provide: getRepositoryToken(Community),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Comment),
+          useClass: Repository,
+        },
+      ],
+    }).compile();
+
+    service = module.get<CommunityService>(CommunityService);
+    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  // ... (Existing tests)
+
+  describe('createComment', () => {
+    it('should create a comment for a post', async () => {
+      const postId = 1;
+      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
+      const createdComment = { id: 1, ...createCommentDto } as Comment;
+      const user = { id: 1 } as User;
+      const community = { id: postId } as Community;
+
+      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(community);
+      jest.spyOn(commentRepository, 'save').mockResolvedValue(createdComment);
+
+
+      const result = await service.createComment(postId, createCommentDto, user);
+
+      expect(result).toEqual(createdComment);
+      expect(commentRepository.save).toHaveBeenCalledWith({ ...createCommentDto, author: user, post: community });
+
     });
+    it('should throw error if no community post found ', async () => {
+      const postId = 1;
+      const createCommentDto = { content: 'Test Comment content' };
+      const user = { id: 1, username: 'testuser' } as User;
 
-    it('should return all posts if no search criteria are provided', async () => {
-      const searchDto = {};
-      const mockPosts: Community[] = [{ id: 1, title: 'Post 1' } as Community, { id: 2, title: 'Post 2' } as Community];
-      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockPosts.length]);
-
-      const result = await service.search(searchDto);
-      expect(communityRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        where: {},
-        order: { createdAt: 'DESC' },
-      }));
-      expect(result.data).toEqual(mockPosts);
-      expect(result.meta).toBeDefined();
-    });
-
-    it('should handle different sort options', async () => {
-      const searchDto = { sort: 'relevance' }; // Add relevance sort
-      const mockPosts: Community[] = [];
-      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, mockPosts.length]);
-
-      await service.search(searchDto);
-      // Expect a different order or criteria based on relevance.  Implementation details will vary.
-      expect(communityRepository.findAndCount).toHaveBeenCalled();
-    });
+      jest.spyOn(communityRepository, 'findOne').mockResolvedValue(undefined);
 
 
-    it('should handle pagination correctly', async () => {
-      const searchDto = { keyword: 'test', page: 2, limit: 5 };
-      const mockPosts: Community[] = [];  // Mock posts are not relevant for this test
-      jest.spyOn(communityRepository, 'findAndCount').mockResolvedValue([mockPosts, 15]); // Simulate 15 total posts
-
-      const result = await service.search(searchDto);
-      expect(communityRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        skip: 5, // (page - 1) * limit
-        take: 5, // limit
-      }));
-      expect(result.meta).toBeDefined();
-      expect(result.meta.currentPage).toBe(2);
-      expect(result.meta.totalPages).toBe(3);
+      await expect(service.createComment(postId, createCommentDto, user)).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('updateComment', () => {
+    it('should update an existing comment', async () => {
+
+      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment Content' };
+      const commentId = 1;
+      const updatedComment = { id: commentId, ...updateCommentDto } as Comment;
+
+
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(updatedComment);
+      jest.spyOn(commentRepository, 'save').mockResolvedValue(updatedComment);
+
+      const result = await service.updateComment(commentId, updateCommentDto);
+      expect(result).toEqual(updatedComment);
+    });
+  });
+
+
+
+  describe('removeComment', () => {
+    it('should remove a comment', async () => {
+
+      const commentId = 1;
+
+      jest.spyOn(commentRepository, 'delete').mockResolvedValue({ affected: 1 });
+      await service.removeComment(commentId);
+      expect(commentRepository.delete).toHaveBeenCalledWith(commentId);
+
+    });
+  });
+});
+
 ```

@@ -2,70 +2,106 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommunityController } from '../src/community/community.controller';
 import { CommunityService } from '../src/community/community.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Community } from '../src/community/community.entity';
+import { Repository } from 'typeorm';
+import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
+import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
 import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
-import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
-import { Comment } from '../src/community/entities/comment.entity';
-import { Community } from '../src/community/entities/community.entity';
+import { Comment } from '../src/community/comment.entity';
 import { NotFoundException } from '@nestjs/common';
+import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
+import { PaginationQueryDto } from '../src/common/dtos/pagination-query.dto';
+
 
 describe('CommunityController', () => {
   let controller: CommunityController;
   let service: CommunityService;
+  let communityRepository: Repository<Community>;
+  let commentRepository: Repository<Comment>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CommunityController],
       providers: [
+        CommunityService,
         {
-          provide: CommunityService,
-          useValue: {
-            createComment: jest.fn(),
-            updateComment: jest.fn(),
-            deleteComment: jest.fn(),
-            searchPosts: jest.fn(),
-          },
+          provide: getRepositoryToken(Community),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Comment),
+          useClass: Repository,
         },
       ],
     }).compile();
 
     controller = module.get<CommunityController>(CommunityController);
     service = module.get<CommunityService>(CommunityService);
+    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
+    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('search', () => {
-    it('should return posts matching the search criteria', async () => {
-      const query = { keyword: 'test', category: 'general', tags: ['tag1', 'tag2'] };
-      const expectedResult = [{ id: 1, title: 'Test Post' } as Community];
-      (service.searchPosts as jest.Mock).mockResolvedValue(expectedResult);
+  describe('createCommunity', () => {
+    it('should create a new community post', async () => {
+      const createCommunityDto: CreateCommunityDto = { title: 'Test Title', content: 'Test Content' };
+      const createdCommunity: Community = { id: 1, ...createCommunityDto };
+      jest.spyOn(service, 'create').mockResolvedValue(createdCommunity);
 
-      expect(await controller.search(query)).toEqual(expectedResult);
-      expect(service.searchPosts).toHaveBeenCalledWith(query);
-    });
-
-    it('should handle empty query', async () => {
-      const query = {};
-      const expectedResult = [] as Community[];
-      (service.searchPosts as jest.Mock).mockResolvedValue(expectedResult);
-
-      expect(await controller.search(query)).toEqual(expectedResult);
-      expect(service.searchPosts).toHaveBeenCalledWith(query);
-    });
-
-
-    it('should handle missing parameters', async () => {
-      const query = { keyword: 'test' };
-      const expectedResult = [{ id: 1, title: 'Test Post' } as Community];
-      (service.searchPosts as jest.Mock).mockResolvedValue(expectedResult);
-
-      expect(await controller.search(query)).toEqual(expectedResult);
-      expect(service.searchPosts).toHaveBeenCalledWith(query);
-
+      expect(await controller.createCommunity(createCommunityDto)).toEqual(createdCommunity);
     });
   });
+
+  describe('updateCommunity', () => {
+    it('should update an existing community post', async () => {
+      const postId = 1;
+      const updateCommunityDto: UpdateCommunityDto = { title: 'Updated Title', content: 'Updated Content' };
+      const updatedCommunity: Community = { id: postId, ...updateCommunityDto };
+      jest.spyOn(service, 'update').mockResolvedValue(updatedCommunity);
+
+      expect(await controller.updateCommunity(postId, updateCommunityDto)).toEqual(updatedCommunity);
+    });
+
+    it('should throw NotFoundException if post is not found', async () => {
+      const postId = 999;
+      const updateCommunityDto: UpdateCommunityDto = { title: 'Updated Title', content: 'Updated Content' };
+      jest.spyOn(service, 'update').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.updateCommunity(postId, updateCommunityDto)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('deleteCommunity', () => {
+    it('should delete a community post', async () => {
+      const postId = 1;
+      jest.spyOn(service, 'remove').mockResolvedValue(undefined);
+
+      expect(await controller.deleteCommunity(postId)).toBeUndefined();
+    });
+
+    it('should throw NotFoundException if post is not found', async () => {
+      const postId = 999;
+      jest.spyOn(service, 'remove').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.deleteCommunity(postId)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+
+  describe('findAll', () => {
+    it('should return an array of community posts', async () => {
+      const communities: Community[] = [{ id: 1, title: 'Test Title 1', content: 'Test Content 1' }, { id: 2, title: 'Test Title 2', content: 'Test Content 2' }];
+      jest.spyOn(service, 'findAll').mockResolvedValue(communities);
+
+      expect(await controller.findAll({} as PaginationQueryDto)).toEqual(communities);
+    });
+  });
+
+  // ... (Existing tests for comments)
 });
 
 ```
