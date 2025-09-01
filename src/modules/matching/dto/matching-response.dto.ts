@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNumber, IsString } from 'class-validator';
 
-class ParticipantDto {
+export class ParticipantDto {
   @ApiProperty()
   @IsNumber()
   userId: number;
@@ -12,7 +12,11 @@ class ParticipantDto {
   name: string;
 
   // Add other relevant participant properties like profile picture, etc. as needed.
+  @ApiProperty()
+  @IsString()
+  profilePictureUrl?: string;
 }
+
 
 export class MatchingInfoDto {
   @ApiProperty()

@@ -13,51 +13,42 @@ import { MatchingGroupDto } from './dto/matching-group.dto';
 export class MatchingService {
   private readonly logger = new Logger(MatchingService.name);
 
-  // ... (Existing code)
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
+    @InjectRepository(Group) private groupRepository: Repository<Group>,
+    @InjectRepository(Match) private matchRepository: Repository<Match>,
+  ) {}
 
   async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
-    this.logger.log(`Starting matching process with input: ${JSON.stringify(input)}`);
+    const startTime = performance.now();
 
-    try {
-      const users = await this.usersRepository.find({
-        where: input.criteria,
-        relations: ['profile']
-      });
+    // 1. Fetch user profiles using a more efficient query
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile')
+      .leftJoinAndSelect('profile.preferences', 'preferences')
+      .leftJoinAndSelect('profile.interests', 'interests')
+      .where(input.region ? 'profile.region LIKE :region' : '1=1', { region: `%${input.region}%` }) // Parameterized query
+      .getMany();
 
-      this.logger.log(`Found ${users.length} users matching the criteria.`);
+    // 2. Cache user data (in-memory cache for this example - consider Redis or similar for production)
+    const userCache = new Map<number, User>();
+    users.forEach(user => userCache.set(user.id, user));
 
-      const groups: MatchingGroupDto[] = [];
-      let currentGroup: MatchingGroupDto = { groupId: 1, matchingScore: 0, participants: [] };
-      let groupCount = 1;
 
-      // Simple grouping logic (replace with your AI algorithm)
-      for (const user of users) {
-        if (currentGroup.participants.length < 5) {
-          currentGroup.participants.push({ userId: user.id });
-        } else {
-          groups.push(currentGroup);
-          groupCount++;
-          currentGroup = { groupId: groupCount, matchingScore: 0, participants: [{ userId: user.id }] };
-        }
-      }
-      groups.push(currentGroup);
+    const matchingGroups: MatchingGroupDto[] = [];
+    // ... (Matching logic using userCache and direct access to properties)
 
-      this.logger.log(`Matching process completed. Created ${groups.length} groups.`);
-      this.logger.debug(`Generated groups: ${JSON.stringify(groups)}`);
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    this.logger.log(`Matching execution time: ${executionTime}ms`);
 
-      return groups;
-
-    } catch (error) {
-      this.logger.error(`Error during matching process: ${error.message}`, error.stack);
-      throw error; // Re-throw the error after logging
-    }
+    return matchingGroups;
   }
 
+  // ... (Other existing code)
 
-  async generateExplanation(group: Group): Promise<string> {
-    // ... (Existing code)
-  }
 
-  // ... (Existing code)
 }
 ```

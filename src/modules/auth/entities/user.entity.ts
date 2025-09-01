@@ -1,7 +1,7 @@
 ```typescript
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
-import { IsString, IsArray, IsOptional } from 'class-validator';
+import { Point } from 'geojson'; // Import necessary type
 
 @Entity()
 export class User {
@@ -21,21 +21,17 @@ export class User {
   @JoinColumn()
   profile: Profile;
 
-  @Column()
-  @IsString()
-  location: string;
+  @Column({ type: 'jsonb', nullable: true })
+  preferences: any;
 
-  @Column({ type: 'text', array: true, nullable: true })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  preferences: string[];
+  @Column({ type: 'jsonb', nullable: true })
+  interests: any;
 
-  @Column({ type: 'text', array: true, nullable: true })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  interests: string[];
+  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
+  location: Point;
+
+  @Column({ nullable: true })
+  region: string;
 }
 
 ```
