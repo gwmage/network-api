@@ -1,49 +1,49 @@
+```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
-import { Matching } from './entities/matching.entity';
+import { User } from '../users/user.entity';
+import { Profile } from '../profile/profile.entity';
+import { Group } from '../group/group.entity';
+import { Repository, In, Like } from 'typeorm';
+import { Match } from './match.entity';
+import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
+import { MatchingGroupDto } from './dto/matching-group.dto';
 
 @Injectable()
 export class MatchingService {
-  private readonly logger = new Logger(MatchingService.name);
+  // ... (Existing code)
 
-  constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    @InjectRepository(Matching) // Inject the Matching repository
-    private matchingRepository: Repository<Matching>,
-  ) {}
-
-  async runMatching() {
-    try {
-      const users = await this.usersRepository.find();
-      const matchedGroups = []; // Initialize an empty array
-      // Log the users to check if they are fetched correctly.
-      this.logger.log("Users: ", JSON.stringify(users));
+  async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
+    const users = await this.usersRepository.find({
+      where: input.criteria, // Use criteria directly in query
+      relations: ['profile'] // Eager load profile for better performance
+    });
 
 
-      // ... (Your matching logic) ...
+    const groups: MatchingGroupDto[] = [];
+    let currentGroup: MatchingGroupDto = { groupId: 1, matchingScore: 0, participants: [] };
+    let groupCount = 1;
 
-      const metrics = this.calculateMetrics(users, matchedGroups);
-      this.logger.log("Matching Metrics: ", JSON.stringify(metrics));
-      // Save the matched groups into the database using matchingRepository.
-      // Iterate over matched groups.
-      for (const group of matchedGroups) {
-        const newMatching = this.matchingRepository.create({
-          users: group, // Assuming 'group' contains user entities or IDs.
-          // Add other relevant properties to the Matching entity.
-        });
-        await this.matchingRepository.save(newMatching);
+    // Simple grouping logic (replace with your AI algorithm)
+    for (const user of users) {
+      if (currentGroup.participants.length < 5) { //Limit to 5
+        currentGroup.participants.push({ userId: user.id });
+      } else {
+        groups.push(currentGroup);
+        groupCount++;
+        currentGroup = { groupId: groupCount, matchingScore: 0, participants: [{ userId: user.id }] };
       }
-
-    } catch (error) {
-      this.logger.error('Matching process failed:', error.stack);  // Log the entire error object
-      // Log more details for debugging
-      this.logger.error('Error details:', error.message, error.stack);
-    } finally {
     }
+    groups.push(currentGroup); // Add the last group
+
+    return groups;
   }
 
-  // ... (rest of the code)
+
+  async generateExplanation(group: Group): Promise<string> {
+    // ... (Existing code)
+  }
+
+  // ... (Existing code)
 }
+```

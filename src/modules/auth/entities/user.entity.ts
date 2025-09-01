@@ -1,6 +1,7 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity';
+import { IsString, IsArray, IsOptional } from 'class-validator';
 
 @Entity()
 export class User {
@@ -10,21 +11,31 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({ length: 255 })
-  password: string;
-
   @Column()
-  name: string;
+  password?: string;
 
   @Column({ nullable: true })
-  phone_number: string; // Added phone_number field
+  refreshToken?: string;
 
-  @OneToOne(() => Profile, (profile) => profile.user)
+  @OneToOne(() => Profile, { cascade: true, eager: true})
   @JoinColumn()
   profile: Profile;
 
-  @Column({ type: 'jsonb', nullable: true })
-  notificationPreferences: { push: boolean; email: boolean };
+  @Column()
+  @IsString()
+  location: string;
+
+  @Column({ type: 'text', array: true, nullable: true })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  preferences: string[];
+
+  @Column({ type: 'text', array: true, nullable: true })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  interests: string[];
 }
 
 ```

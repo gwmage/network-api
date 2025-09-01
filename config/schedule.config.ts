@@ -13,7 +13,7 @@ export class ScheduleService {
   async handleCron() {
     this.logger.debug('Running weekly matching algorithm...');
     try {
-      await this.matchingService.runMatching(); // Call the matching service
+      await this.matchingService.runMatching();
       this.logger.debug('Matching algorithm completed successfully.');
     } catch (error) {
       this.logger.error(`Error running matching algorithm: ${error}`);

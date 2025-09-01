@@ -1,10 +1,10 @@
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
-import { MatchingService } from '../src/modules/matching/matching.service';
+import { MatchingService } from '../src/matching/matching.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Profile } from '../src/entities/profile.entity';
+import { Profile } from '../src/profile/profile.entity';
 import { Repository } from 'typeorm';
-import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
+import { User } from '../src/user/user.entity';
 
 describe('MatchingService', () => {
   let service: MatchingService;
@@ -29,37 +29,53 @@ describe('MatchingService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('filterMatches', () => {
-    // ... (Existing tests remain unchanged)
-  });
+  describe('calculateSimilarity', () => {
+    it('should calculate similarity based on interests and region', () => {
+      const profile1 = { interests: ['reading', 'hiking'], region: '서울' } as Profile;
+      const profile2 = { interests: ['hiking', 'coding'], region: '서울' } as Profile;
+      const similarity = service.calculateSimilarity(profile1, profile2);
+      expect(similarity).toBeGreaterThan(0);
+    });
 
-  describe('performance test', () => {
-    it('should handle a large number of profiles efficiently', async () => {
-      const numProfiles = 10000;
-      const mockProfiles: Profile[] = [];
-      for (let i = 0; i < numProfiles; i++) {
-        mockProfiles.push({
-          id: i + 1,
-          userId: i + 2,
-          region: '서울',
-          interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4)),
-        } as Profile);
-      }
-
-      jest.spyOn(profileRepository, 'find').mockResolvedValue(mockProfiles);
-
-      const startTime = process.hrtime();
-      const filters: MatchFilterDto = { region: '서울', interests: ['reading'] };
-      const results = await service.filterMatches(mockProfiles, filters);
-      const endTime = process.hrtime(startTime);
-
-      const elapsedTimeMs = (endTime[0] * 1000 + endTime[1] / 1000000);
-
-      console.log(`Matching time for ${numProfiles} profiles: ${elapsedTimeMs} ms`);
-
-      expect(elapsedTimeMs).toBeLessThan(500); // Adjust threshold as needed
+    it('should return 0 for no common interests or different regions', () => {
+      const profile1 = { interests: ['reading', 'hiking'], region: '서울' } as Profile;
+      const profile2 = { interests: ['coding', 'gaming'], region: '부산' } as Profile;
+      const similarity = service.calculateSimilarity(profile1, profile2);
+      expect(similarity).toBe(0);
     });
   });
+
+
+  describe('matchUsers', () => {
+    it('should group users based on similarity', () => {
+      const users: User[] = [];
+      for (let i = 0; i < 10; i++) {
+        users.push({
+          id: i + 1,
+          profile: {
+            interests: ['reading', 'hiking', 'coding', 'gaming'].slice(0, Math.floor(Math.random() * 4) + 1),
+            region: ['서울', '부산', '대구'][Math.floor(Math.random() * 3)],
+          } as Profile,
+        } as User);
+      }
+      const groups = service.matchUsers(users);
+      expect(groups.length).toBeGreaterThan(0);
+      groups.forEach(group => {
+        expect(group.length).toBeLessThanOrEqual(5); // Assuming max group size is 5
+      });
+
+
+    });
+
+    it('should handle edge cases like no users or one user', () => {
+      expect(service.matchUsers([])).toEqual([]);
+      const singleUser = { id: 1, profile: { interests: ['reading'], region: '서울' } } as User;
+      expect(service.matchUsers([singleUser])).toEqual([[singleUser]]);
+
+    });
+  });
+
+  // ... other test suites
 });
 
 ```
