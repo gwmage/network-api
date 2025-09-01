@@ -2,6 +2,26 @@
 import { IsNotEmpty, IsString, IsOptional, IsArray, IsNumber, IsObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
+class Location {
+  @IsNotEmpty()
+  @IsString()
+  region: string;
+}
+
+class Preferences {
+  @IsOptional()
+  @IsString()
+  value?: string;
+}
+
+class Interests {
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  values?: string[];
+}
+
+
 class Weights {
   @IsOptional()
   @IsNumber()
@@ -18,17 +38,19 @@ class Weights {
 
 export class UserInputDto {
   @IsNotEmpty()
-  @IsString()
-  region: string;
+  @ValidateNested()
+  @Type(() => Location)
+  location: Location;
 
   @IsOptional()
-  @IsString()
-  preferences?: string;
+  @ValidateNested()
+  @Type(() => Preferences)
+  preferences?: Preferences;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  interests?: string[];
+  @ValidateNested()
+  @Type(() => Interests)
+  interests?: Interests;
 
   @IsOptional()
   @IsObject()

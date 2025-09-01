@@ -34,5 +34,4 @@ export class UserMatch {
   @Index() // Indexing for faster filtering
   interests: string[];
 }
-
 ```
