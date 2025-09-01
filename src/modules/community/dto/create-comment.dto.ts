@@ -4,23 +4,14 @@ import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 export class CreateCommentDto {
   @IsNotEmpty()
   @IsString()
-  content: string;
+  text: string;
+
+  @IsOptional()
+  @IsString()
+  parentCommentId?: string;
 
   @IsNotEmpty()
   @IsString()
-  postId: string;
-
-  @IsOptional()
-  @IsString()
-  parentId?: string;
-
-  @IsOptional()
-  @IsString()
-  category?: string;
-
-  @IsOptional()
-  @IsString({ each: true })
-  tags?: string[];
+  itemId: string;
 }
-
 ```

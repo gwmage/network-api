@@ -4,23 +4,18 @@ import { CommunityService } from '../src/community/community.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Community } from '../src/community/community.entity';
 import { Repository } from 'typeorm';
-import { User } from '../src/users/user.entity';
-import { CreateCommunityDto } from '../src/community/dto/create-community.dto';
-import { UpdateCommunityDto } from '../src/community/dto/update-community.dto';
 import { Comment } from '../src/community/comment.entity';
+import { NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from '../src/community/dto/create-comment.dto';
 import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
-import { PageOptionsDto } from '../src/common/dtos/page-options.dto';
-import { PageMetaDto } from '../src/common/dtos/page-meta.dto';
-import { PageDto } from '../src/common/dtos/page.dto';
-import { NotFoundException } from '@nestjs/common';
-
+import { User } from '../src/users/user.entity';
 
 describe('CommunityService', () => {
   let service: CommunityService;
   let communityRepository: Repository<Community>;
-  let userRepository: Repository<User>;
   let commentRepository: Repository<Comment>;
+  let userRepository: Repository<User>;
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,11 +26,11 @@ describe('CommunityService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(User),
+          provide: getRepositoryToken(Comment),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(Comment),
+          provide: getRepositoryToken(User),
           useClass: Repository,
         },
       ],
@@ -43,22 +38,22 @@ describe('CommunityService', () => {
 
     service = module.get<CommunityService>(CommunityService);
     communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  // ... (Existing tests)
+  // ... other tests ...
 
   describe('createComment', () => {
     it('should create a comment for a post', async () => {
       const postId = 1;
-      const createCommentDto: CreateCommentDto = { content: 'Test Comment' };
+      const createCommentDto: CreateCommentDto = { content: 'Test Comment content' };
       const createdComment = { id: 1, ...createCommentDto } as Comment;
-      const user = { id: 1 } as User;
+      const user = { id: 1, username: 'testuser' } as User;
       const community = { id: postId } as Community;
 
       jest.spyOn(communityRepository, 'findOne').mockResolvedValue(community);
@@ -85,17 +80,24 @@ describe('CommunityService', () => {
 
   describe('updateComment', () => {
     it('should update an existing comment', async () => {
-
-      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment Content' };
       const commentId = 1;
+      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment Content' };
       const updatedComment = { id: commentId, ...updateCommentDto } as Comment;
-
 
       jest.spyOn(commentRepository, 'findOne').mockResolvedValue(updatedComment);
       jest.spyOn(commentRepository, 'save').mockResolvedValue(updatedComment);
 
       const result = await service.updateComment(commentId, updateCommentDto);
       expect(result).toEqual(updatedComment);
+    });
+
+    it('should throw NotFoundException if comment is not found', async () => {
+      const commentId = 999;
+      const updateCommentDto: UpdateCommentDto = { content: 'Updated Comment Content' };
+
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(undefined);
+
+      await expect(service.updateComment(commentId, updateCommentDto)).rejects.toThrow(NotFoundException);
     });
   });
 
