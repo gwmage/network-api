@@ -24,8 +24,8 @@ export class Reservation {
   @Column({ nullable: true })
   cancellationReason: string;
 
-  @Column({ default: 'confirmed' })
-  status: 'confirmed' | 'cancelled';
+  @Column({ default: 'reserved' })
+  status: 'reserved' | 'cancelled';
 }
 
 ```
