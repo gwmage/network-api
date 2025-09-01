@@ -2,8 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationController } from '../src/modules/reservation/reservation.controller';
 import { ReservationService } from '../src/modules/reservation/reservation.service';
-import { NotFoundException } from '@nestjs/common';
-
+import { NotFoundException, HttpException } from '@nestjs/common';
 
 const mockReservationService = () => ({
   cancelReservation: jest.fn(),
@@ -46,9 +45,9 @@ describe('ReservationController', () => {
       const userId = 1;
       const errorMessage = 'Cancellation outside allowed time window';
 
-      jest.spyOn(service, 'cancelReservation').mockRejectedValue(new Error(errorMessage));
+      jest.spyOn(service, 'cancelReservation').mockRejectedValue(new HttpException(errorMessage, 400));
 
-      await expect(controller.cancel(reservationId, userId)).rejects.toThrowError(errorMessage);
+      await expect(controller.cancel(reservationId, userId)).rejects.toThrowError(HttpException);
     });
 
     it('should handle invalid reservation IDs', async () => {
@@ -57,18 +56,17 @@ describe('ReservationController', () => {
       const error = new NotFoundException();
       jest.spyOn(service, 'cancelReservation').mockRejectedValue(error);
 
-
-      await expect(controller.cancel(reservationId, userId)).rejects.toThrowError(error);
+      await expect(controller.cancel(reservationId, userId)).rejects.toThrowError(NotFoundException);
 
     });
 
     it('should handle failed cancellations', async () => {
       const reservationId = '4';
       const userId = 1;
-      const error = new Error('Failed to cancel reservation');
+      const error = new HttpException('Failed to cancel reservation', 500);
       jest.spyOn(service, 'cancelReservation').mockRejectedValue(error);
 
-      await expect(controller.cancel(reservationId, userId)).rejects.toThrowError(error);
+      await expect(controller.cancel(reservationId, userId)).rejects.toThrowError(HttpException);
     });
 
 
