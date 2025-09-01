@@ -11,32 +11,46 @@ import { MatchingGroupDto } from './dto/matching-group.dto';
 
 @Injectable()
 export class MatchingService {
+  private readonly logger = new Logger(MatchingService.name);
+
   // ... (Existing code)
 
   async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
-    const users = await this.usersRepository.find({
-      where: input.criteria, // Use criteria directly in query
-      relations: ['profile'] // Eager load profile for better performance
-    });
+    this.logger.log(`Starting matching process with input: ${JSON.stringify(input)}`);
 
+    try {
+      const users = await this.usersRepository.find({
+        where: input.criteria,
+        relations: ['profile']
+      });
 
-    const groups: MatchingGroupDto[] = [];
-    let currentGroup: MatchingGroupDto = { groupId: 1, matchingScore: 0, participants: [] };
-    let groupCount = 1;
+      this.logger.log(`Found ${users.length} users matching the criteria.`);
 
-    // Simple grouping logic (replace with your AI algorithm)
-    for (const user of users) {
-      if (currentGroup.participants.length < 5) { //Limit to 5
-        currentGroup.participants.push({ userId: user.id });
-      } else {
-        groups.push(currentGroup);
-        groupCount++;
-        currentGroup = { groupId: groupCount, matchingScore: 0, participants: [{ userId: user.id }] };
+      const groups: MatchingGroupDto[] = [];
+      let currentGroup: MatchingGroupDto = { groupId: 1, matchingScore: 0, participants: [] };
+      let groupCount = 1;
+
+      // Simple grouping logic (replace with your AI algorithm)
+      for (const user of users) {
+        if (currentGroup.participants.length < 5) {
+          currentGroup.participants.push({ userId: user.id });
+        } else {
+          groups.push(currentGroup);
+          groupCount++;
+          currentGroup = { groupId: groupCount, matchingScore: 0, participants: [{ userId: user.id }] };
+        }
       }
-    }
-    groups.push(currentGroup); // Add the last group
+      groups.push(currentGroup);
 
-    return groups;
+      this.logger.log(`Matching process completed. Created ${groups.length} groups.`);
+      this.logger.debug(`Generated groups: ${JSON.stringify(groups)}`);
+
+      return groups;
+
+    } catch (error) {
+      this.logger.error(`Error during matching process: ${error.message}`, error.stack);
+      throw error; // Re-throw the error after logging
+    }
   }
 
 
