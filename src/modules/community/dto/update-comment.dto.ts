@@ -7,5 +7,14 @@ export class UpdateCommentDto extends PartialType(CreateCommentDto) {
   @IsOptional()
   @IsString()
   content?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  tags?: string[];
 }
+
 ```
