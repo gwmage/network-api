@@ -30,6 +30,12 @@ export class UserController {
 
   // ... (Existing code remains unchanged)
 
+  @Delete(':userId')
+  async deleteUser(@Param('userId', ParseIntPipe) userId: number): Promise<void> {
+    return this.userService.deleteUser(userId);
+  }
+
+
   @Post(':userId/notifications/subscribe/:topic')
   async subscribeUserToTopic(
     @Param('userId', ParseIntPipe) userId: number,

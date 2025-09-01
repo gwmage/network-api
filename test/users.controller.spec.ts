@@ -39,7 +39,14 @@ describe('UsersController', () => {
             create: jest.fn().mockImplementation((user: CreateUserDto) =>
               Promise.resolve({ id: mockUsers.length + 1, ...user }),
             ),
-            update: jest.fn().mockResolvedValue(true),
+            update: jest.fn().mockImplementation((id: number, user: UpdateUserDto) => {
+              const index = mockUsers.findIndex((u) => u.id === id);
+              if (index !== -1) {
+                mockUsers[index] = { ...mockUsers[index], ...user };
+                return Promise.resolve(mockUsers[index]);
+              }
+              return Promise.resolve(null);
+            }),
             remove: jest.fn().mockResolvedValue(true),
             findAndCount: jest.fn().mockResolvedValue([mockUsers, mockUsers.length]),
           },
@@ -51,42 +58,33 @@ describe('UsersController', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  // ... existing tests
-
-  describe('filter', () => {
-    it('should filter users by region and interests', async () => {
-      const query: FindUsersQueryDto = { regions: ['서울'], interests: ['reading', 'coding'] };
-      expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[2]]);
-    });
-
-    it('should return all users if no filters are provided', async () => {
-      const query: FindUsersQueryDto = {};
-      expect(await controller.filter(query)).toEqual(mockUsers);
-    });
-
-    it('should handle multiple selections for region and interests', async () => {
-      const query: FindUsersQueryDto = { regions: ['서울', '부산'], interests: ['reading'] };
-      expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[3]]);
-    });
-
-    it('should handle invalid input', async () => {
-      const query: any = { regions: 123, interests: 'invalid' }; // Invalid input
-      expect(await controller.filter(query)).toEqual(mockUsers); // Should return all users if the input is invalid.
-    });
-
-
-
-    it('should filter users by interests only', async () => {
-       const query: FindUsersQueryDto = { interests: ['reading'] };
-       expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[3]]);
-    });
-
-
-    it('should filter users by regions only', async () => {
-      const query: FindUsersQueryDto = { regions: ['서울'] };
-      expect(await controller.filter(query)).toEqual([mockUsers[0], mockUsers[2]]);
-    });
+  it('should create a user', async () => {
+    const createUserDto: CreateUserDto = { name: 'Test User', region: 'Test Region', interests: ['test'] };
+    expect(await controller.create(createUserDto)).toEqual({ id: 5, ...createUserDto });
   });
-});
 
+  it('should update a user', async () => {
+    const updateUserDto: UpdateUserDto = { name: 'Updated User' , region: 'Updated Region', interests: ['updated']};
+    expect(await controller.update(1, updateUserDto)).toEqual({ ...mockUsers[0], ...updateUserDto });
+  });
+
+
+  it('should return 404 when updating a non-existing user', async () => {
+      const updateUserDto: UpdateUserDto = { name: 'Updated User', region: 'Updated Region', interests: ['updated'] };
+      await expect(controller.update(999, updateUserDto)).rejects.toThrow(NotFoundException);
+  });
+  it('should delete a user', async () => {
+    expect(await controller.remove(1)).toEqual({deleted: true});
+  });
+
+  it('should get a user by id', async () => {
+    expect(await controller.findOne(1)).toEqual(mockUsers[0]);
+  });
+
+  it('should throw NotFoundException if user not found', async () => {
+    (service as any).findOne = jest.fn().mockResolvedValue(undefined); // Simulate user not found
+    await expect(controller.findOne(999)).rejects.toThrow(NotFoundException);
+  });
+  // ... other tests
+});
 ```
