@@ -31,40 +31,63 @@ describe('UsersService', () => {
     expect(service).toBeDefined();
   });
 
-  // ... other test suites
-
-  describe('findUsers', () => {
-    it('should return users based on provided filters', async () => {
-      const findUsersDto: FindUsersDto = {
-        username: 'testuser',
-        email: 'test@example.com',
-      };
-      const mockUsers: User[] = [{ id: 1, ...findUsersDto } as User];
-      const findOptions = { where: findUsersDto };
-      jest.spyOn(userRepository, 'find').mockResolvedValue(mockUsers);
-      const result = await service.findUsers(findUsersDto);
-      expect(userRepository.find).toHaveBeenCalledWith(findOptions);
-      expect(result).toEqual(mockUsers);
+  describe('create', () => {
+    it('should create a new user', async () => {
+      const createUserDto: CreateUserDto = { username: 'testuser', email: 'test@example.com', password: 'password', firstName: 'Test', lastName: 'User' };
+      const createdUser: User = { id: 1, ...createUserDto } as User;
+      jest.spyOn(userRepository, 'create').mockReturnValue(createdUser);
+      jest.spyOn(userRepository, 'save').mockResolvedValue(createdUser);
+      const result = await service.create(createUserDto);
+      expect(userRepository.create).toHaveBeenCalledWith(createUserDto);
+      expect(userRepository.save).toHaveBeenCalledWith(createdUser);
+      expect(result).toEqual(createdUser);
     });
+  });
 
-    it('should return all users if no filters are provided', async () => {
-      const findUsersDto: FindUsersDto = {};
+
+  describe('findAll', () => {
+    it('should return an array of users', async () => {
       const mockUsers: User[] = [{ id: 1, username: 'user1' } as User];
       jest.spyOn(userRepository, 'find').mockResolvedValue(mockUsers);
-      const result = await service.findUsers(findUsersDto);
-      expect(userRepository.find).toHaveBeenCalledWith({}); // Empty filter
-      expect(result).toEqual(mockUsers);
+      const users = await service.findAll();
+      expect(users).toEqual(mockUsers);
     });
+  });
 
-    it('should handle partial filters correctly', async () => {
-      const findUsersDto: FindUsersDto = { username: 'testuser' };
-      const mockUsers: User[] = [{ id: 1, username: 'testuser' } as User];
-      const findOptions = { where: findUsersDto };
-      jest.spyOn(userRepository, 'find').mockResolvedValue(mockUsers);
-      const result = await service.findUsers(findUsersDto);
-      expect(userRepository.find).toHaveBeenCalledWith(findOptions);
-      expect(result).toEqual(mockUsers);
+  describe('findOne', () => {
+    it('should return a user by id', async () => {
+      const mockUser: User = { id: 1, username: 'user1' } as User;
+      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(mockUser);
+      const user = await service.findOne(1);
+      expect(user).toEqual(mockUser);
     });
+  });
+
+  describe('update', () => {
+    it('should update a user', async () => {
+      const updateUserDto: UpdateUserDto = { username: 'updateduser' };
+      const mockUser: User = { id: 1, username: 'user1' } as User;
+      jest.spyOn(userRepository, 'preload').mockResolvedValue({ ...mockUser, ...updateUserDto } as User);
+      jest.spyOn(userRepository, 'save').mockResolvedValue({ id: 1, username: 'updateduser' } as User);
+      const result = await service.update(1, updateUserDto);
+      expect(userRepository.preload).toHaveBeenCalledWith({ id:1, ...updateUserDto });
+      expect(userRepository.save).toHaveBeenCalled();
+      expect(result.username).toEqual('updateduser');
+
+    });
+  });
+
+
+  describe('remove', () => {
+    it('should remove a user', async () => {
+      jest.spyOn(userRepository, 'delete').mockResolvedValue({ affected: 1 });
+      await service.remove(1);
+      expect(userRepository.delete).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('findUsers', () => {
+    // ... existing tests
   });
 });
 

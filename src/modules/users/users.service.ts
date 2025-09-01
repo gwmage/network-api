@@ -1,12 +1,11 @@
 ```typescript
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository, Like, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
-import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -28,10 +27,15 @@ export class UsersService {
     return this.usersRepository.findOneBy({ id });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto, currentUser: User): Promise<User> {
     const user = await this.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // Authorization check: Only allow admins or the user themselves to update
+    if (currentUser.role !== 'admin' && currentUser.id !== user.id) {
+      throw new UnauthorizedException('You are not authorized to update this user.');
     }
 
     Object.assign(user, updateUserDto);
@@ -50,15 +54,21 @@ export class UsersService {
   }
 
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, currentUser: User): Promise<void> {
     const user = await this.findOne(id);
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-     await this.usersRepository.remove(user);
+
+    // Authorization check: Only allow admins to delete users
+    if (currentUser.role !== 'admin') {
+      throw new UnauthorizedException('You are not authorized to delete users.');
+    }
+
+    await this.usersRepository.remove(user);
   }
 
-   async findUsers(findUsersQueryDto: FindUsersQueryDto) {
+  async findUsers(findUsersQueryDto: FindUsersQueryDto) {
     const { regions, interests, page = 1, limit = 10 } = findUsersQueryDto;
     const queryBuilder = this.usersRepository.createQueryBuilder('user');
 
