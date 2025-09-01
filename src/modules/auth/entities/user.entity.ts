@@ -1,27 +1,30 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Profile } from '../../profile/entities/profile.entity';
 
 @Entity()
-@Unique(['email']) // Ensure email is unique
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
-  @IsEmail()
-  @IsNotEmpty()
   email: string;
 
+  @Column({ length: 255 })
+  password: string;
+
   @Column()
-  @IsString()
-  @IsNotEmpty()
   name: string;
 
   @Column({ nullable: true })
-  @IsPhoneNumber('KR')
-  phoneNumber: string;
+  phone_number: string; // Added phone_number field
 
+  @OneToOne(() => Profile, (profile) => profile.user)
+  @JoinColumn()
+  profile: Profile;
+
+  @Column({ type: 'jsonb', nullable: true })
+  notificationPreferences: { push: boolean; email: boolean };
 }
 
 ```
