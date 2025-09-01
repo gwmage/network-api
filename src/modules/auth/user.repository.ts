@@ -15,5 +15,19 @@ export class UserRepository extends Repository<User> {
       throw new ConflictException('Email already exists');
     }
   }
+
+  async savePasswordResetToken(user: User, token: string): Promise<void> {
+    user.passwordResetToken = token;
+    await this.save(user);
+  }
+
+  async findByPasswordResetToken(token: string): Promise<User | undefined> {
+    return this.findOne({ where: { passwordResetToken: token } });
+  }
+
+  async clearPasswordResetToken(user: User): Promise<void> {
+    user.passwordResetToken = null;
+    await this.save(user);
+  }
 }
 ```
