@@ -9,7 +9,6 @@ import { Group } from '../src/modules/group/entities/group.entity';
 import { Repository } from 'typeorm';
 import { MatchFilterDto } from '../src/modules/matching/dto/match-filter.dto';
 import { HttpException } from '@nestjs/common';
-import { MatchingStatusDto } from '../src/modules/matching/dto/matching-status.dto';
 
 describe('MatchingController', () => {
   let controller: MatchingController;
@@ -44,44 +43,55 @@ describe('MatchingController', () => {
   });
 
   describe('findMatch', () => {
-    it('should return a list of matched users', async () => {
-      const filter: MatchFilterDto = { regions: ['서울'], interests: ['reading'] };
-      const matchedUsers: User[] = [{ id: 1, username: 'user1' } as User];
-      jest.spyOn(service, 'findMatch').mockResolvedValue(matchedUsers);
+    it('should return matching results with filters', async () => {
+      const mockUserId = 1;
+      const mockFilters: MatchFilterDto = { region: '서울', interests: ['reading', 'coding'] };
+      const mockResult = { matches: [{ id: 1 }, { id: 2 }] };
+      jest.spyOn(service, 'findMatch').mockResolvedValue(mockResult);
 
-      expect(await controller.findMatch(filter)).toBe(matchedUsers);
-      expect(service.findMatch).toHaveBeenCalledWith(filter);
+      expect(await controller.findMatch(mockUserId, mockFilters)).toBe(mockResult);
+      expect(service.findMatch).toHaveBeenCalledWith(mockUserId, mockFilters);
     });
 
-    it('should handle empty filter', async () => {
-      const filter: MatchFilterDto = {};
-      const matchedUsers: User[] = [{ id: 1, username: 'user1' } as User, { id: 2, username: 'user2' } as User];
-      jest.spyOn(service, 'findMatch').mockResolvedValue(matchedUsers);
+    it('should return matching results without filters', async () => {
+      const mockUserId = 1;
+      const mockResult = { matches: [{ id: 1 }, { id: 2 }] };
+      jest.spyOn(service, 'findMatch').mockResolvedValue(mockResult);
 
-      expect(await controller.findMatch(filter)).toBe(matchedUsers);
-      expect(service.findMatch).toHaveBeenCalledWith(filter);
-
-    });
-
-
-    it('should handle empty arrays in filter', async () => {
-      const filter: MatchFilterDto = { regions: [], interests: [] };
-      const matchedUsers: User[] = [];
-      jest.spyOn(service, 'findMatch').mockResolvedValue(matchedUsers);
-
-      expect(await controller.findMatch(filter)).toBe(matchedUsers);
-      expect(service.findMatch).toHaveBeenCalledWith(filter);
+      expect(await controller.findMatch(mockUserId)).toBe(mockResult);
+      expect(service.findMatch).toHaveBeenCalledWith(mockUserId, {}); // Expect empty filter object
     });
 
     it('should handle errors', async () => {
-      const filter: MatchFilterDto = { regions: ['서울'], interests: ['reading'] };
-      const mockError = new HttpException('Some error occurred', 500);
+      const mockUserId = 1;
+      const mockError = new Error('Some error occurred');
       jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
 
-      await expect(controller.findMatch(filter)).rejects.toThrowError(mockError);
+      await expect(controller.findMatch(mockUserId)).rejects.toThrowError(mockError);
     });
-  });
 
-  // ... other test suites (initiateMatching, getMatchingStatus)
+    it('should handle service errors and throw HttpException', async () => {
+      const mockUserId = 1;
+      const mockError = new HttpException('Service error', 500);
+      jest.spyOn(service, 'findMatch').mockRejectedValue(mockError);
+
+      await expect(controller.findMatch(mockUserId)).rejects.toThrow(HttpException);
+    });
+
+    it('should return empty array if service returns null', async () => {
+        const mockUserId = 1;
+        jest.spyOn(service, 'findMatch').mockResolvedValue(null);
+
+        expect(await controller.findMatch(mockUserId)).toEqual({matches: []});
+      });
+
+      it('should return empty array if service returns empty array', async () => {
+        const mockUserId = 1;
+        jest.spyOn(service, 'findMatch').mockResolvedValue({matches: []});
+
+        expect(await controller.findMatch(mockUserId)).toEqual({matches: []});
+      });
+  });
 });
+
 ```
