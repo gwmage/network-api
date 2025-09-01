@@ -27,18 +27,18 @@ export class AuthController {
           throw new BadRequestException({
             status: 'error',
             message: result.message,
-            errors: result.errors || {},
+            errors: result.errors || {}, // Provide an empty object if errors are null or undefined
           });
         }
       }
     } catch (error) {
       if (error instanceof HttpException) {
-        throw error;
+        throw error; // Re-throw if it's already an HttpException
       } else {
         throw new HttpException(
           {
             status: 'error',
-            message: 'An error occurred during registration',
+            message: 'An unexpected error occurred during registration.', // Generic error message
           },
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
@@ -46,4 +46,5 @@ export class AuthController {
     }
   }
 }
+
 ```

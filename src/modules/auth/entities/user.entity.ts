@@ -1,8 +1,6 @@
 ```typescript
-import { Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
-import { UserPreference } from './user-preference.entity';
-
 
 @Entity()
 @Unique(['email']) // Ensure email is unique
@@ -15,18 +13,14 @@ export class User {
   @IsNotEmpty()
   email: string;
 
-
   @Column()
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @Column({ nullable: true }) // Phone number is optional
-  @IsPhoneNumber('KR') // Validate phone number format for Korea
+  @Column({ nullable: true })
+  @IsPhoneNumber('KR')
   phoneNumber: string;
-
-  @OneToMany(() => UserPreference, (preference) => preference.user)
-  preferences: UserPreference[];
 
 }
 
