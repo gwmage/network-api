@@ -6,6 +6,10 @@ import { Post } from './entities/post.entity';
 import { Comment } from './entities/comment.entity';
 import { Category } from './entities/category.entity';
 import { Tag } from './entities/tag.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Injectable()
 export class CommunityRepository {
@@ -20,46 +24,71 @@ export class CommunityRepository {
     private readonly tagRepository: Repository<Tag>,
   ) {}
 
-  // ... (Existing post and comment methods)
-
-  async addCategoryToPost(postId: number, categoryId: number): Promise<void> {
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['categories'] });
-    const category = await this.categoryRepository.findOne({ where: { id: categoryId } });
-
-    if (post && category) {
-      post.categories.push(category);
-      await this.postRepository.save(post);
-    }
+  async createPost(createPostDto: CreatePostDto): Promise<Post> {
+    const post = this.postRepository.create(createPostDto);
+    return this.postRepository.save(post);
   }
 
-  async addTagToPost(postId: number, tagId: number): Promise<void> {
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['tags'] });
-    const tag = await this.tagRepository.findOne({ where: { id: tagId } });
+  async findAllPosts(options: { page: number, limit: number, categories?: number[], tags?: number[] }): Promise<[Post[], number]> {
+    const { page, limit, categories, tags } = options;
+    const queryBuilder = this.postRepository.createQueryBuilder('post');
 
-    if (post && tag) {
-      post.tags.push(tag);
-      await this.postRepository.save(post);
+    if (categories) {
+      queryBuilder.leftJoinAndSelect('post.categories', 'category').where('category.id IN (:...categories)', { categories });
     }
-  }
 
-  async removeCategoryFromPost(postId: number, categoryId: number): Promise<void> {
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['categories'] });
-    if (post) {
-      post.categories = post.categories.filter((category) => category.id !== categoryId);
-      await this.postRepository.save(post);
+    if (tags) {
+      queryBuilder.leftJoinAndSelect('post.tags', 'tag').where('tag.id IN (:...tags)', { tags });
     }
+    
+    return queryBuilder
+      .leftJoinAndSelect('post.author', 'author')
+      .orderBy('post.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
   }
 
 
-  async removeTagFromPost(postId: number, tagId: number): Promise<void> {
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['tags'] });
-    if (post) {
-      post.tags = post.tags.filter((tag) => tag.id !== tagId);
-      await this.postRepository.save(post);
-    }
+  async findOnePost(id: number): Promise<Post> {
+    return this.postRepository.findOne({ where: { id }, relations: ['author', 'categories', 'tags', 'comments'] });
   }
 
-  // Existing methods...
+  async updatePost(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
+    const post = await this.postRepository.findOne({ where: { id } });
+    Object.assign(post, updatePostDto);
+    return this.postRepository.save(post);
+  }
+
+  async removePost(id: number): Promise<DeleteResult> {
+    return this.postRepository.delete(id);
+  }
+
+
+  async createComment(createCommentDto: CreateCommentDto): Promise<Comment> {
+    const comment = this.commentRepository.create(createCommentDto);
+    return this.commentRepository.save(comment);
+  }
+
+  async findAllComments(): Promise<Comment[]> {
+    return this.commentRepository.find();
+  }
+
+  async findOneComment(id: number): Promise<Comment> {
+    return this.commentRepository.findOne({ where: { id } });
+  }
+
+  async updateComment(id: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {
+    const comment = await this.commentRepository.findOne({ where: { id } });
+    Object.assign(comment, updateCommentDto);
+    return this.commentRepository.save(comment);
+  }
+
+  async removeComment(id: number): Promise<DeleteResult> {
+    return this.commentRepository.delete(id);
+  }
+
+  // ... existing methods for categories and tags
 }
 
 ```

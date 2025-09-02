@@ -1,7 +1,7 @@
 ```typescript
 import { PartialType } from '@nestjs/mapped-types';
 import { CreatePostDto } from './create-post.dto';
-import { IsOptional, IsString, IsArray } from 'class-validator';
+import { IsOptional, IsString, IsArray, IsNumber } from 'class-validator';
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {
   @IsOptional()
@@ -13,13 +13,20 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
   content?: string;
 
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsNumber({}, { each: true })
+  categoryIds?: number[];
 
   @IsOptional()
-  @IsArray()
   @IsString({ each: true })
-  tags?: string[];
+  categoryNames?: string[];
+
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  tagIds?: number[];
+
+  @IsOptional()
+  @IsString({ each: true })
+  tagNames?: string[];
 }
 
 ```

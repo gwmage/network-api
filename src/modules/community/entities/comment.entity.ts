@@ -17,13 +17,13 @@ export class Comment {
   id: number;
 
   @ManyToOne(() => User, (user) => user.comments)
-  user: User;
+  author: User;
 
   @ManyToOne(() => Post, (post) => post.comments)
   post: Post;
 
   @Column({ type: 'text' })
-  text: string;
+  content: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -39,9 +39,6 @@ export class Comment {
 
   @ManyToOne(() => Comment, (comment) => comment.replies)
   parentComment: Comment;
-
-  @Column({ nullable: true })
-  itemId: number;
 }
 
 ```
