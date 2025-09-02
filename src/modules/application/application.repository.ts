@@ -4,6 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Like, Equal } from 'typeorm';
 import { Application } from './application.entity';
 import { GetApplicationDto } from './dto/get-application.dto';
+import { CreateApplicationDto } from './dto/create-application.dto';
+import { User } from '../user/user.entity';
+
 
 @Injectable()
 export class ApplicationRepository extends Repository<Application> {
@@ -46,5 +49,16 @@ export class ApplicationRepository extends Repository<Application> {
       skip: (page - 1) * pageSize,
     });
   }
+
+  async createApplication(createApplicationDto: CreateApplicationDto, user: User): Promise<Application> {
+    const newApplication = this.applicationRepository.create({
+      ...createApplicationDto,
+      user,
+    });
+    return this.applicationRepository.save(newApplication);
+  }
+
+
+
 }
 ```
