@@ -1,7 +1,7 @@
-//import React, { useState, useEffect } from 'react';
+//import ForgotPassword from './components/ForgotPassword';
+import ForgotPassword from './components/ForgotPassword.jsx';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Link } from 'react-router-dom';
-import ForgotPassword from './components/ForgotPassword.jsx'; // Added .jsx extension
 import ProfileManagement from './components/ProfileManagement';
 import AppInformation from './components/AppInformation';
 import MatchingResults from './components/MatchingResults';
