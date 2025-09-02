@@ -1,9 +1,12 @@
+// File: network-web/src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, Link } from 'react-router-dom';
-import ForgotPassword from './components/ForgotPassword.jsx'; // Correct the import path 
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import ForgotPassword from './components/ForgotPassword'; // Correct import path
 import ProfileManagement from './components/ProfileManagement';
 import AppInformation from './components/AppInformation';
 import MatchingResults from './components/MatchingResults';
+import MatchingForm from './components/MatchingForm';
+import MatchingProgress from './components/MatchingProgress';
 import ReservationSearch from './components/ReservationSearch';
 import ReservationProcess from './components/ReservationProcess';
 import ReservationConfirmation from './components/ReservationConfirmation';
@@ -11,9 +14,5 @@ import ReservationManagement from './components/ReservationManagement';
 import ErrorDisplay from './components/ErrorDisplay';
 import NotificationSettings from './components/NotificationSettings';
 import CommunityBoard from './components/CommunityBoard';
-import PostDetails from './components/PostDetails';
-import axios from 'axios';
-import Main from './components/Main';
-import SignUp from './components/SignUp'; // Make sure this and other imports are complete
 
-// ... rest of your App.js code
+// ... rest of the code
