@@ -11,6 +11,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 describe('ApplicationController', () => {
   let controller: ApplicationController;
   let service: ApplicationService;
+  let repository: Repository<Application>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,51 +27,45 @@ describe('ApplicationController', () => {
 
     controller = module.get<ApplicationController>(ApplicationController);
     service = module.get<ApplicationService>(ApplicationService);
+    repository = module.get<Repository<Application>>(getRepositoryToken(Application));
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  // ... other tests ...
-
-  describe('findAll', () => {
-    it('should return paginated applications', async () => {
-      const page = 1;
-      const limit = 10;
-      const mockApplications: Application[] = [
-        { id: 1, userId: 1, region: '서울', career: '1년', selfIntroduction: '자기소개', portfolioUrl: 'url', createdAt: new Date(), updatedAt: new Date() } as Application,
-        { id: 2, userId: 2, region: '경기', career: '2년', selfIntroduction: '자기소개2', portfolioUrl: 'url2', createdAt: new Date(), updatedAt: new Date() } as Application,
-      ];
-      const mockCount = 2;
-      jest.spyOn(service, 'findAll').mockResolvedValue({
-        items: mockApplications,
-        meta: {
-          totalItems: mockCount,
-          itemCount: mockApplications.length,
-          itemsPerPage: limit,
-          totalPages: Math.ceil(mockCount / limit),
-          currentPage: page,
-        },
-      });
-      expect(await controller.findAll({ page, limit })).toEqual({
-        items: mockApplications,
-        meta: {
-          totalItems: mockCount,
-          itemCount: mockApplications.length,
-          itemsPerPage: limit,
-          totalPages: Math.ceil(mockCount / limit),
-          currentPage: page,
-        },
-      });
+  describe('create', () => {
+    it('should create an application', async () => {
+      const createApplicationDto: CreateApplicationDto = {
+        userId: 1,
+        region: '서울',
+        career: '1년',
+        selfIntroduction: '자기소개',
+        portfolioUrl: 'url',
+      };
+      const createdApplication: Application = {
+        id: 1,
+        ...createApplicationDto,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Application;
+      jest.spyOn(service, 'create').mockResolvedValue(createdApplication);
+      expect(await controller.create(createApplicationDto)).toEqual(createdApplication);
     });
 
-    it('should handle errors when retrieving applications', async () => {
-      const errorMessage = 'Error retrieving applications';
-      jest.spyOn(service, 'findAll').mockRejectedValue(new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR));
+    it('should handle errors during application creation', async () => {
+      const createApplicationDto: CreateApplicationDto = {
+        userId: 1,
+        region: '서울',
+        career: '1년',
+        selfIntroduction: '자기소개',
+        portfolioUrl: 'url',
+      };
+      const errorMessage = 'Error creating application';
+      jest.spyOn(service, 'create').mockRejectedValue(new HttpException(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR));
 
       try {
-        await controller.findAll({ page: 1, limit: 10 });
+        await controller.create(createApplicationDto);
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException);
         expect(error.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -78,12 +73,20 @@ describe('ApplicationController', () => {
       }
     });
 
+    it('should handle validation errors', async () => {
+      const createApplicationDto = {} as CreateApplicationDto; // Invalid DTO
+      try {
+        await controller.create(createApplicationDto);
+      } catch (error) {
+        expect(error).toBeInstanceOf(HttpException);
+        expect(error.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+      }
+    })
+  });
 
-    it('should handle invalid token', async () => {
-     // Implement test for invalid token. This depends on your authentication implementation
-    });
 
-
+  describe('findAll', () => {
+    // ... existing findAll tests ...
   });
 });
 

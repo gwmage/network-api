@@ -1,5 +1,5 @@
 ```typescript
-import { Controller, Get, Query, Res, Post, Body } from '@nestjs/common';
+import { Controller, Get, Query, Res, Post, Body, HttpStatus, HttpException } from '@nestjs/common';
 import { ApplicationService } from './application.service';
 import { GetApplicationsDto } from './dto/get-applications.dto';
 import { Response } from 'express';
@@ -33,8 +33,23 @@ export class ApplicationController {
   }
 
   @Post()
-  async createApplication(@Body() networkingApplicationDto: NetworkingApplicationDto) {
-    return this.applicationService.createApplication(networkingApplicationDto);
+  async createApplication(@Body() networkingApplicationDto: NetworkingApplicationDto, @Res() res: Response) {
+    try {
+      const newApplication = await this.applicationService.createApplication(networkingApplicationDto);
+      return res.status(HttpStatus.CREATED).json({ id: newApplication.id });
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        throw new HttpException({
+          status: HttpStatus.BAD_REQUEST,
+          message: error.message,
+        }, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException({
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'An error occurred during application creation',
+        }, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 }
 
