@@ -1,7 +1,7 @@
-//import ForgotPassword from './components/ForgotPassword';
-import ForgotPassword from './components/ForgotPassword.jsx';
+// File: network-web/src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, Link } from 'react-router-dom';
+import ForgotPassword from './components/ForgotPassword'; // Fixed import - removed .jsx
 import ProfileManagement from './components/ProfileManagement';
 import AppInformation from './components/AppInformation';
 import MatchingResults from './components/MatchingResults';
