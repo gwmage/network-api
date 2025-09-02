@@ -1,11 +1,12 @@
 ```typescript
-import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
-import { NotificationChannel, NotificationType } from './notification.dto';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
+import { NotificationType } from './notification.dto';
 import { DeliveryStatus } from './notification.dto';
 
 export class NotificationPreferencesDto {
+  @IsOptional()
   @IsEnum(NotificationType)
-  notificationType: NotificationType;
+  notificationType?: NotificationType;
 
   @IsBoolean()
   email: boolean;

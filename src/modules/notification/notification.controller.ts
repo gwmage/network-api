@@ -35,6 +35,20 @@ export class NotificationController {
     return this.notificationService.getNotificationStatus(userId);
   }
 
+  @Get(':notificationId/delivery-status')
+  async getNotificationDeliveryStatus(@Param('notificationId') notificationId: string) {
+    return this.notificationService.getNotificationDeliveryStatus(notificationId);
+  }
+
+  @Patch(':notificationId/delivery-status')
+  async updateNotificationDeliveryStatus(
+    @Param('notificationId') notificationId: string,
+    @Body() updateNotificationDto: UpdateNotificationDto
+  ) {
+    return this.notificationService.updateNotificationDeliveryStatus(notificationId, updateNotificationDto);
+  }
+
+
   @Get('preferences')
   async getPreferences(@Req() req: Request): Promise<NotificationPreferencesDto> {
     const userId = req.user['id']; 
