@@ -18,7 +18,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET || 'your-secret-key',
+        secret: process.env.JWT_SECRET || 'your-secret-key', // Replace 'your-secret-key' with a strong secret in production
       });
       request['user'] = payload;
     } catch {
@@ -32,4 +32,5 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return type === 'Bearer' ? token : undefined;
   }
 }
+
 ```
