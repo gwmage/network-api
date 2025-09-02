@@ -16,14 +16,14 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'text' })
+  content: string;
+
   @ManyToOne(() => User, (user) => user.comments)
   author: User;
 
   @ManyToOne(() => Post, (post) => post.comments)
   post: Post;
-
-  @Column({ type: 'text' })
-  content: string;
 
   @CreateDateColumn()
   createdAt: Date;

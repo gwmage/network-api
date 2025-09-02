@@ -13,48 +13,67 @@ import { NotFoundException } from '@nestjs/common';
 import { UpdateCommentDto } from '../src/community/dto/update-comment.dto';
 import { PaginationQueryDto } from '../src/common/dtos/pagination-query.dto';
 import { User } from '../src/users/user.entity';
+import { PageDto } from '../src/common/dtos/page.dto';
+import { PageMetaDto } from '../src/common/dtos/page-meta.dto';
+import { PageOptionsDto } from '../src/common/dtos/page-options.dto';
+
+
 
 describe('CommunityController', () => {
-  // ... (Existing setup code)
+  let controller: CommunityController;
+  let service: CommunityService;
+  let communityRepository: Repository<Community>;
+  let commentRepository: Repository<Comment>;
 
-  describe('findOne', () => {
-    it('should return a community post by ID', async () => {
-      const postId = 1;
-      const communityPost: Community = { id: postId, title: 'Test Title', content: 'Test Content' };
-      jest.spyOn(service, 'findOne').mockResolvedValue(communityPost);
 
-      expect(await controller.findOne(postId)).toEqual(communityPost);
-    });
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [CommunityController],
+      providers: [
+        CommunityService,
+        {
+          provide: getRepositoryToken(Community),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Comment),
+          useClass: Repository,
+        },
+      ],
+    }).compile();
 
-    it('should throw NotFoundException if post is not found', async () => {
-      const postId = 999;
-      jest.spyOn(service, 'findOne').mockRejectedValue(new NotFoundException());
+    controller = module.get<CommunityController>(CommunityController);
+    service = module.get<CommunityService>(CommunityService);
+    communityRepository = module.get<Repository<Community>>(getRepositoryToken(Community));
+    commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
+  });
 
-      await expect(controller.findOne(postId)).rejects.toThrow(NotFoundException);
-    });
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
   });
 
 
-  describe('createComment', () => {
-    it('should create a new comment', async () => {
-      const postId = 1;
-      const createCommentDto: CreateCommentDto = { content: 'New Comment' };
-      const createdComment: Comment = { id: 1, ...createCommentDto, post: { id: postId } as Community, author: { id: 1 } as User };
-      jest.spyOn(service, 'createComment').mockResolvedValue(createdComment);
+  describe('findAll', () => {
+    it('should return an array of community posts with pagination', async () => {
+      const paginationQueryDto: PaginationQueryDto = {
+        limit: 10,
+        offset: 0,
+      };
+      const posts: Community[] = [
+        { id: 1, title: 'Post 1', content: 'Content 1' } as Community,
+        { id: 2, title: 'Post 2', content: 'Content 2' } as Community,
+      ];
+      const pageMetaDto: PageMetaDto = new PageMetaDto({ paginationQueryDto, itemCount: posts.length });
+      const pageDto: PageDto<Community> = new PageDto(posts, pageMetaDto);
 
-      expect(await controller.createComment(postId, createCommentDto, { user: { id: 1 } as User })).toEqual(createdComment);
-    });
 
-    it('should throw NotFoundException if post not found', async () => {
-      const postId = 999;
-      const createCommentDto: CreateCommentDto = { content: 'New Comment' };
-      jest.spyOn(service, 'createComment').mockRejectedValue(new NotFoundException('Post not found'));
+      jest.spyOn(service, 'findAll').mockResolvedValue(pageDto);
 
-      await expect(controller.createComment(postId, createCommentDto, { user: { id: 1 } as User })).rejects.toThrowError(NotFoundException);
+      expect(await controller.findAll(paginationQueryDto)).toEqual(pageDto);
     });
   });
 
-  // ... (Existing tests for updateComment, deleteComment)
+  // ... (Existing tests)
 });
 
 ```

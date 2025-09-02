@@ -10,6 +10,8 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { FindAllCommentsDto } from './dto/findAllComments.dto';
+
 
 @Injectable()
 export class CommunityRepository {
@@ -29,8 +31,8 @@ export class CommunityRepository {
     return this.postRepository.save(post);
   }
 
-  async findAllPosts(options: { page: number, limit: number, categories?: number[], tags?: number[] }): Promise<[Post[], number]> {
-    const { page, limit, categories, tags } = options;
+  async findAllPosts(options: { page: number; limit: number; categories?: number[]; tags?: number[]; search?: string }): Promise<[Post[], number]> {
+    const { page, limit, categories, tags, search } = options;
     const queryBuilder = this.postRepository.createQueryBuilder('post');
 
     if (categories) {
@@ -40,7 +42,11 @@ export class CommunityRepository {
     if (tags) {
       queryBuilder.leftJoinAndSelect('post.tags', 'tag').where('tag.id IN (:...tags)', { tags });
     }
-    
+
+    if (search) {
+      queryBuilder.where('post.title LIKE :search OR post.content LIKE :search', { search: `%${search}%` });
+    }
+
     return queryBuilder
       .leftJoinAndSelect('post.author', 'author')
       .orderBy('post.createdAt', 'DESC')
@@ -49,9 +55,8 @@ export class CommunityRepository {
       .getManyAndCount();
   }
 
-
   async findOnePost(id: number): Promise<Post> {
-    return this.postRepository.findOne({ where: { id }, relations: ['author', 'categories', 'tags', 'comments'] });
+    return this.postRepository.findOne({ where: { id }, relations: ['author', 'categories', 'tags', 'comments', 'comments.author'] });
   }
 
   async updatePost(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
@@ -64,18 +69,30 @@ export class CommunityRepository {
     return this.postRepository.delete(id);
   }
 
-
   async createComment(createCommentDto: CreateCommentDto): Promise<Comment> {
     const comment = this.commentRepository.create(createCommentDto);
     return this.commentRepository.save(comment);
   }
 
-  async findAllComments(): Promise<Comment[]> {
-    return this.commentRepository.find();
+  async findAllComments(options: FindAllCommentsDto): Promise<[Comment[], number]> {
+    const { page, limit, postId } = options;
+    const queryBuilder = this.commentRepository.createQueryBuilder('comment');
+
+
+    if (postId) {
+      queryBuilder.where('comment.postId = :postId', { postId });
+    }
+
+    return queryBuilder
+    .leftJoinAndSelect('comment.author', 'author')
+    .orderBy('comment.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
   }
 
   async findOneComment(id: number): Promise<Comment> {
-    return this.commentRepository.findOne({ where: { id } });
+    return this.commentRepository.findOne({ where: { id }, relations: ['author'] });
   }
 
   async updateComment(id: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {
@@ -87,8 +104,6 @@ export class CommunityRepository {
   async removeComment(id: number): Promise<DeleteResult> {
     return this.commentRepository.delete(id);
   }
-
-  // ... existing methods for categories and tags
 }
 
 ```
