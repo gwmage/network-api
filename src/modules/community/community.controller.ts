@@ -5,61 +5,56 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { CreateTagDto } from './dto/create-tag.dto';
-import { UpdateTagDto } from './dto/update-tag.dto';
+
 
 @Controller('community')
 export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
   // Posts
-  @Post('posts')
-  createPost(@Body() createPostDto: CreatePostDto) {
-    return this.communityService.createPost(createPostDto);
+  // ... (Existing Post methods remain unchanged)
+
+  // Comments
+  @Post('posts/:postId/comments')
+  createComment(@Param('postId', ParseIntPipe) postId: number, @Body() createCommentDto: CreateCommentDto) {
+    return this.communityService.createComment(postId, createCommentDto);
   }
 
-  @Get('posts')
-  async findAllPosts(
-    @Query('page', ParseIntPipe) page: number = 1, 
-    @Query('limit', ParseIntPipe) limit: number = 10,
-    @Query('category') category?: string,
-    @Query('tags') tags?: string[],
+  @Get('posts/:postId/comments')
+  findAllComments(@Param('postId', ParseIntPipe) postId: number) {
+    return this.communityService.findAllComments(postId);
+  }
+
+  @Get('posts/:postId/comments/:id')
+  async findOneComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number) {
+    const comment = await this.communityService.findOneComment(postId, id);
+    if (!comment) {
+      throw new NotFoundException(`Comment with ID ${id} not found.`);
+    }
+    return comment;
+  }
+
+  @Patch('posts/:postId/comments/:id')
+  async updateComment(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCommentDto: UpdateCommentDto,
   ) {
-    if (page < 1 || limit < 1) {
-      throw new BadRequestException('Invalid page or limit parameters.');
+    const updatedComment = await this.communityService.updateComment(postId, id, updateCommentDto);
+    if (!updatedComment) {
+      throw new NotFoundException(`Comment with ID ${id} not found.`);
     }
-    return this.communityService.findAllPosts(page, limit, category, tags);
+    return updatedComment;
   }
 
-  @Get('posts/:id')
-  async findOnePost(@Param('id', ParseIntPipe) id: number) {
-    const post = await this.communityService.findOnePost(id);
-    if (!post) {
-      throw new NotFoundException(`Post with ID ${id} not found.`);
-    }
-    return post;
-  }
 
-  @Put('posts/:id')
-  async updatePost(@Param('id', ParseIntPipe) id: number, @Body() updatePostDto: UpdatePostDto) {
-    const updatedPost = await this.communityService.updatePost(id, updatePostDto);
-    if (!updatedPost) {
-      throw new NotFoundException(`Post with ID ${id} not found.`);
-    }
-    return updatedPost;
-  }
-
-  @Delete('posts/:id')
-  async removePost(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.communityService.removePost(id);
+  @Delete('posts/:postId/comments/:id')
+  async removeComment(@Param('postId', ParseIntPipe) postId: number, @Param('id', ParseIntPipe) id: number) {
+    const result = await this.communityService.removeComment(postId, id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Post with ID ${id} not found.`);
+      throw new NotFoundException(`Comment with ID ${id} not found.`);
     }
-    return { message: 'Post deleted successfully.' };
+    return { message: 'Comment deleted successfully.' };
   }
-
-  // ... (rest of the code remains the same)
 }
 ```

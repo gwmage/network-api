@@ -10,6 +10,9 @@ export class Category {
   @Column({ unique: true })
   name: string;
 
+  @Column({ nullable: true })
+  description: string;
+
   @ManyToMany(() => Post, (post) => post.categories)
   posts: Post[];
 }
