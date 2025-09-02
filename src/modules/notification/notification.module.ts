@@ -7,6 +7,7 @@ import { Notification } from './entities/notification.entity';
 import { UsersModule } from '../users/users.module';
 import * as admin from 'firebase-admin';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -16,6 +17,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
       transport: {
         // Configure your email transport here (e.g., SMTP, SendGrid)
       },
+    }),
+    BullModule.registerQueue({
+      name: 'notification', // Name of the queue
     }),
   ],
   controllers: [NotificationController],
