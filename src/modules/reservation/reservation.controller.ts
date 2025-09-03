@@ -15,8 +15,8 @@ export class ReservationController {
   ) {
     try {
       const userId = req.user['userId']; // Assuming userId is available in the request object
-      const result = await this.reservationService.cancelReservation(reservationId, userId);
-      return res.status(HttpStatus.OK).json({ message: 'Reservation cancelled successfully', data: result });
+      await this.reservationService.cancelReservation(reservationId, userId);
+      return res.status(HttpStatus.OK).json({ message: 'Reservation cancelled successfully' });
     } catch (error) {
       if (error instanceof HttpException) {
         return res.status(error.getStatus()).json({ message: error.message });
