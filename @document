@@ -1,63 +1,57 @@
-"## New API Endpoints Documentation
+"## Auth API Endpoints
 
-**1. Login Endpoint:**
+**1. Login Endpoint (/auth/login)**
 
-- **Method:** POST
-- **Path:** /auth/login
-- **Request Body:**
+* **Method:** POST
+* **Request Body:**
+    
+    {
+      "email": "user@example.com",
+      "password": "password123"
+    }
+    
+* **Response (Success - 200 OK):**
+    
+    {
+      "accessToken": "<JWT_TOKEN>",
+      "user": {
+        "id": <USER_ID>,
+        "name": "<USER_NAME>",
+        "email": "<USER_EMAIL>"
+      }
+    }
+    
+* **Response (Error - 401 Unauthorized):**
+    
+    {
+      "statusCode": 401,
+      "message": "Invalid credentials"
+    }
+    
+* **Error Codes:**
+    * 401 Unauthorized: Invalid email or password.
 
+**2. Password Recovery Endpoint (/auth/recover)**
 
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-
-
-- **Response (Success - 200 OK):**
-
-
-{
-  "id": 123,
-  "name": "John Doe",
-  "email": "user@example.com"
-}
-
-
-- **Response (Failure - 401 Unauthorized):**
-
-
-{
-  "statusCode": 401,
-  "message": "Invalid credentials"
-}
-
-
-**2. Password Recovery Initiation Endpoint:**
-
-- **Method:** POST
-- **Path:** /auth/password-recovery
-- **Request Body:**
-
-
-{
-  "email": "user@example.com"
-}
-
-
-- **Response (Success - 200 OK):**
-
-
-{}
-
-- **Response (Failure - 404 Not Found):**
-
-
-{
-  "statusCode": 404,
-  "message": "Email not found"
-}
-
-
-**Error Handling:**
-
-All endpoints handle errors gracefully and return appropriate HTTP status codes and JSON error messages.  Login failures return 401 Unauthorized.  Password recovery initiation failures can return 404 Not Found if the email address is not registered."
+* **Method:** POST
+* **Request Body:**
+    
+    {
+      "email": "user@example.com"
+    }
+    
+* **Response (Success - 200 OK):**
+    
+    {
+      "message": "Password recovery email sent"
+    }
+    
+* **Response (Error - 404 Not Found):**
+    
+    {
+      "statusCode": 404,
+      "message": "Email not found"
+    }
+    
+* **Error Codes:**
+    * 404 Not Found: Email address not registered."
