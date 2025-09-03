@@ -1,5 +1,7 @@
+```typescript
 // Import necessary decorators and types
-import { IsString, IsDate, IsOptional } from 'class-validator';
+import { IsString, IsDate, IsOptional, IsEnum, IsUUID } from 'class-validator';
+import { NotificationChannel, NotificationStatus } from './notification.dto';
 
 export class NotificationDto {
   @IsString()
@@ -15,4 +17,17 @@ export class NotificationDto {
   @IsDate()
   @IsOptional()
   updatedAt?: Date;
+
+  @IsUUID()
+  recipientId: string;
+
+  @IsString()
+  matchingInformation: string;
+
+  @IsEnum(NotificationChannel)
+  deliveryMethod: NotificationChannel;
+
+  @IsEnum(NotificationStatus)
+  deliveryStatus: NotificationStatus;
 }
+```

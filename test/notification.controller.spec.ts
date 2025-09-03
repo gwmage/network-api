@@ -8,11 +8,13 @@ import { Repository } from 'typeorm';
 import { UsersService } from '../src/users/users.service';
 import { User } from '../src/users/user.entity';
 import { UpdateNotificationPreferencesDto } from '../src/notification/dto/notification.dto';
+import { HttpException } from '@nestjs/common';
 
 describe('NotificationController', () => {
   let controller: NotificationController;
   let service: NotificationService;
   let notificationRepository: Repository<Notification>;
+  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,6 +36,7 @@ describe('NotificationController', () => {
     controller = module.get<NotificationController>(NotificationController);
     service = module.get<NotificationService>(NotificationService);
     notificationRepository = module.get<Repository<Notification>>(getRepositoryToken(Notification));
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   it('should be defined', () => {
@@ -58,6 +61,14 @@ describe('NotificationController', () => {
       expect(await controller.updateNotificationPreferences(userId, updateDto)).toBe(result);
       expect(service.updatePreferences).toHaveBeenCalledWith(userId, updateDto);
     });
+
+    it('should throw an error if user not found', async () => {
+      const userId = 'user-id';
+      const updateDto: UpdateNotificationPreferencesDto = { push: true, email: false };
+      jest.spyOn(service, 'updatePreferences').mockRejectedValue(new HttpException('User not found', 404));
+
+      await expect(controller.updateNotificationPreferences(userId, updateDto)).rejects.toThrowError(HttpException);
+    });
   });
 
   describe('getNotificationPreferences', () => {
@@ -68,7 +79,14 @@ describe('NotificationController', () => {
 
       expect(await controller.getNotificationPreferences(userId)).toBe(result);
     });
-  });
 
+    it('should throw an error if user not found', async () => {
+      const userId = 'non-existent-user-id';
+      jest.spyOn(service, 'getPreferences').mockRejectedValue(new HttpException('User not found', 404));
+
+      await expect(controller.getNotificationPreferences(userId)).rejects.toThrowError(HttpException);
+
+    });
+  });
 });
 ```
