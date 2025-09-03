@@ -1,43 +1,27 @@
 ```typescript
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
-import { Profile } from '../../profile/entities/profile.entity';
-import { Point } from 'geojson'; // Import necessary type
+import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
+import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 
 @Entity()
+@Unique(['email']) // Ensure email is unique
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @Column()
-  password?: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
   @Column({ nullable: true })
-  refreshToken?: string;
+  @IsPhoneNumber('KR')
+  phoneNumber: string;
 
-  @OneToOne(() => Profile, { cascade: true, eager: true})
-  @JoinColumn()
-  profile: Profile;
-
-  @Column({ type: 'jsonb', nullable: true })
-  preferences: any;
-
-  @Column({ type: 'jsonb', nullable: true })
-  interests: any;
-
-  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
-  location: Point;
-
-  @Column({ nullable: true })
-  region: string;
-
-  @Column({ default: true })
-  pushNotificationEnabled: boolean;
-
-  @Column({ default: false })
-  emailNotificationEnabled: boolean;
 }
 
 ```

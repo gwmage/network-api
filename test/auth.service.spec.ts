@@ -40,16 +40,16 @@ describe('AuthService', () => {
     };
 
     jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(null);
-    jest.spyOn(userRepository, 'create').mockReturnValue({ ...registerDto, id: 1 } as User);
-    jest.spyOn(userRepository, 'save').mockResolvedValue({ ...registerDto, id: 1 } as User);
     jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedPassword');
-
+    jest.spyOn(userRepository, 'create').mockReturnValue({ ...registerDto, id: 1, password: 'hashedPassword' } as User);
+    jest.spyOn(userRepository, 'save').mockResolvedValue({ ...registerDto, id: 1, password: 'hashedPassword' } as User);
 
     const result = await authService.register(registerDto);
 
     expect(result.status).toBe('success');
     expect(result.message).toBe('User registered successfully');
     expect(result.userId).toBe(1);
+    expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
   });
 
   it('should handle email uniqueness', async () => {
@@ -84,7 +84,5 @@ describe('AuthService', () => {
     expect(result.message).toBe('Validation failed');
     expect(result.errors).toBeDefined();
   });
-
-
 });
 ```
