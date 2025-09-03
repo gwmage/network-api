@@ -58,6 +58,7 @@ describe('MatchingService', () => {
       console.log(`Matching time for ${numProfiles} profiles: ${elapsedTimeMs} ms`);
 
       expect(elapsedTimeMs).toBeLessThan(500); // Adjust threshold as needed
+      expect(results).toBeDefined(); // Ensure results are returned
     });
   });
 });

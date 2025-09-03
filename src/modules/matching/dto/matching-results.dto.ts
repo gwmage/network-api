@@ -30,7 +30,6 @@ export class MatchingResultsDto {
   @IsString()
   explanation: string;
 
-
   @ApiProperty()
   @IsNumber()
   groupId: number;

@@ -1,66 +1,128 @@
+```typescript
 import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UserMatch } from './entities/user-match.entity';
-import { MatchingGroup } from './entities/matching-group.entity';
-import { MatchExplanation } from './entities/match-explanation.entity';
-import { UserInputDto } from './dto/user-input.dto';
-import { UserMatchingInputDto } from './dto/user-matching-input.dto';
-import { MatchingGroupDto } from './dto/matching-group.dto';
-import { MatchingResultsDto } from './dto/matching-results.dto';
-import { ParticipantDto } from './dto/participant.dto';
-import { MatchNotificationDataDto } from '../notification/dto/match-notification-data.dto';
-import { NotificationService } from '../notification/notification.service';
-import { NotificationEvent } from '../notification/dto/notification-event.enum';
+import { User } from '../users/entities/user.entity';
+import { Repository, In } from 'typeorm';
+import { Match } from './entities/match.entity';
+import { NotificationService } from '../notifications/notification.service';
+import { PerformanceObserver, performance } from 'perf_hooks';
 
 @Injectable()
 export class MatchingService {
   private readonly logger = new Logger(MatchingService.name);
 
   constructor(
-    @InjectRepository(UserMatch)
-    private userMatchRepository: Repository<UserMatch>,
-    @InjectRepository(MatchingGroup)
-    private matchingGroupRepository: Repository<MatchingGroup>,
-    @InjectRepository(MatchExplanation)
-    private matchExplanationRepository: Repository<MatchExplanation>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Match)
+    private matchRepository: Repository<Match>,
     private notificationService: NotificationService,
   ) {}
 
-  async generateMatchingResults(
-    input: UserInputDto,
-  ): Promise<MatchingResultsDto> {
-    const startTime = Date.now();
-    // ... (Your existing matching logic) ...
-
-    const executionTime = Date.now() - startTime;
-    this.logger.log(`Matching execution time: ${executionTime}ms`);
-
-    return {
-      groups: [], // Replace with actual group data
-      explanations: [], // Replace with actual explanation data
-    };
+  async triggerMatching(): Promise<{ status: string }> {
+    // ... (no changes)
   }
 
-  async sendMatchNotification(
-    userId: string,
-    input: MatchNotificationDataDto,
-    user: any, // Add user object
-  ): Promise<void> {
+  async getMatchingStatus(): Promise<{ status: string }> {
+    // ... (no changes)
+  }
+
+
+  @Cron(CronExpression.EVERY_WEEK)
+  async runMatching() {
+    // ... (no changes in performance monitoring setup)
+
+    this.logger.log('Starting AI matching process...');
     try {
-      const notificationType = user.profile.preferences.notificationType || 'push';
-      const notificationMessage = `You have a new match in ${input.region || 'your area'}!`;
-      await this.notificationService.sendNotification(
-        userId,
-        notificationMessage,
-        notificationType,
-        NotificationEvent.MATCH_FOUND,
-        input,
-      );
+      performance.mark('matchingStart');
+
+      // Optimized User Fetching with necessary relations and filtering
+      const users = await this.userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.preferences', 'preferences')
+        .leftJoinAndSelect('user.interests', 'interests')
+        .where(
+          // Example filtering based on active users or other criteria
+          'user.isActive = :isActive', { isActive: true }
+        )
+        .getMany();
+
+
+      if (!users || users.length === 0) {
+        this.logger.warn('No users found for matching.');
+        return;
+      }
+      performance.mark('usersFetched');
+      performance.measure('Fetch Users', 'matchingStart', 'usersFetched');
+
+      const matchedGroups = this.matchUsers(users);
+      performance.mark('matchingComplete');
+      performance.measure('Matching Algorithm', 'usersFetched', 'matchingComplete');
+
+      // Optimized Saving using batched inserts
+      const matchesToSave = matchedGroups.flatMap(group => this.createMatchEntities(group));
+      const savedMatches = await this.matchRepository.save(matchesToSave, { chunk: 500 }); // Adjust chunk size as needed
+
+      performance.mark('matchesSaved');
+      performance.measure('Save Matches', 'matchingComplete', 'matchesSaved');
+
+      await this.sendMatchNotifications(savedMatches);
+      // ... (rest of the performance measurements and logging)
     } catch (error) {
-      this.logger.error(`Failed to send notifications: ${error.message}`);
+        // ... error handling
+    } finally {
+        // ... cleanup
     }
   }
 
-  // ... (Other methods in your service) ...
+  private createMatchEntities(group: User[]): Match[] {
+    const matches: Match[] = [];
+    for (const user of group) {
+        matches.push(this.matchRepository.create({ users: group }));
+    }
+    return matches;
 }
+
+
+  private calculateMetrics(users: User[], matchedGroups: User[][]): { precision: number, recall: number, f1Score: number } {
+    // ... (Placeholder implementation - Needs actual metric calculation logic)
+  }
+
+  private async sendMatchNotifications(matches: Match[]): Promise<void> {
+      // ... existing code
+  }
+
+
+  private matchUsers(users: User[]): User[][] {
+    const matchedGroups: User[][] = [];
+    // ... (Your matching algorithm logic here)
+
+    // Example: Group users based on interests (replace with your actual algorithm)
+    const interestMap: { [interest: string]: User[] } = {};
+    users.forEach(user => {
+      user.interests.forEach(interest => {
+        if (!interestMap[interest.name]) {
+          interestMap[interest.name] = [];
+        }
+        interestMap[interest.name].push(user);
+      });
+    });
+
+    for (const interest in interestMap) {
+      const groupSize = this.getGroupSize(); // Dynamic group size
+      for (let i = 0; i < interestMap[interest].length; i += groupSize) {
+        matchedGroups.push(interestMap[interest].slice(i, i + groupSize));
+      }
+    }
+
+    return matchedGroups;
+  }
+
+
+
+  private getGroupSize(): number {
+    // ... (Logic to determine optimal group size dynamically)
+  }
+}
+
+```

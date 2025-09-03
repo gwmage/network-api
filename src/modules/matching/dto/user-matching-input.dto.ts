@@ -1,19 +1,61 @@
 ```typescript
-import { IsNotEmpty, IsString, IsOptional, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsArray, IsNumber, IsObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class UserMatchingInputDTO {
+class Location {
   @IsNotEmpty()
   @IsString()
   region: string;
+}
 
+class Preferences {
   @IsOptional()
   @IsString()
-  preferences?: string;
+  value?: string;
+}
 
+class Interests {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  interests?: string[];
+  values?: string[];
+}
+
+class Weights {
+  @IsOptional()
+  @IsNumber()
+  location?: number;
+
+  @IsOptional()
+  @IsNumber()
+  preferences?: number;
+
+  @IsOptional()
+  @IsNumber()
+  interests?: number;
+}
+
+export class UserMatchingInputDTO {
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => Location)
+  location: Location;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Preferences)
+  preferences?: Preferences;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Interests)
+  interests?: Interests;
+
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => Weights)
+  weights?: Weights;
 }
 
 ```
