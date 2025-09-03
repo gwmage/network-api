@@ -7,12 +7,13 @@ import { User } from './entities/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import {ConfigService} from "@nestjs/config";
+import {MailerService} from "@nestjs-modules/mailer";
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
-  constructor(private userRepository: UserRepository, private jwtService: JwtService, private configService: ConfigService) {}
+  constructor(private userRepository: UserRepository, private jwtService: JwtService, private configService: ConfigService, private mailerService: MailerService) {}
 
   async register(registerDto: RegisterDto) {
     // ... (Existing registration logic)
@@ -48,13 +49,18 @@ export class AuthService {
     resetTokenExpiration.setHours(resetTokenExpiration.getHours() + 24); // Token expires in 24 hours
 
     await this.userRepository.updateResetToken(user.id, resetToken, resetTokenExpiration);
-    const mailOptions = {
-      from: this.configService.get<string>('MAIL_FROM'),
-      to: user.email,
-      subject: 'Password Reset Request',
-      text: `You requested a password reset. Please use this token to reset your password: ${resetToken}`,
-      html: `<p>You requested a password reset. Please use this token to reset your password: ${resetToken}</p>`,
-    };
 
+    try{
+        await this.mailerService.sendMail({
+          from: this.configService.get<string>('MAIL_FROM'),
+          to: user.email,
+          subject: 'Password Reset Request',
+          text: `You requested a password reset. Please use this token to reset your password: ${resetToken}`,
+          html: `<p>You requested a password reset. Please use this token to reset your password: ${resetToken}</p>`,
+        });
+    } catch (error) {
+        this.logger.error(`Failed to send password reset email: ${error.message}`);
+        throw new HttpException('Failed to send reset email', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
-}
+}"

@@ -1,37 +1,62 @@
-{"## Save Application Information
+"## API Documentation: User Authentication
 
-**Endpoint:** `/applications`
+This document describes the API endpoints for user authentication.
 
-**Method:** `POST`
+### 1. Login
 
-**Request Body:**
-
-
+* **Endpoint:** `/auth/login`
+* **Method:** POST
+* **Request Body:**
+```json
 {
-  "name": "string",
-  "email": "string",
-  "phoneNumber": "string",
-  "title": "string",
-  "content": "string"
+  "email": "user@example.com",
+  "password": "password123"
 }
-
-
-**Response (Success - 201 Created):**
-
-
+```
+* **Input Validation:**
+    * Email: Required, valid email format.
+    * Password: Required, minimum 8 characters.
+* **Response (Success - 200 OK):**
+```json
 {
-  "id": "number",
-  "name": "string",
-  "email": "string",
-  "phoneNumber": "string",
-  "title": "string",
-  "content": "string",
-  "createdAt": "Date",
-  "updatedAt": "Date"
+  "accessToken": "your_jwt_token",
+  "user": {
+    "id": 123,
+    "name": "User Name",
+    "email": "user@example.com"
+  }
 }
+```
+* **Response (Failure - 401 Unauthorized):**
+```json
+{
+  "message": "Invalid credentials"
+}
+```
+* **Authentication Mechanism:**  JWT (JSON Web Token)
 
+### 2. Forgot Password
 
-**Error Responses:**
-
-* **400 Bad Request:**  Returned if the request body is invalid (e.g., missing required fields, invalid data types).
-* **500 Internal Server Error:** Returned if there's an error saving the application information to the database.
+* **Endpoint:** `/auth/forgot-password`
+* **Method:** POST
+* **Request Body:**
+```json
+{
+  "email": "user@example.com"
+}
+```
+* **Input Validation:**
+    * Email: Required, valid email format.
+* **Response (Success - 200 OK):**
+```json
+{
+  "message": "Password reset email sent"
+}
+```
+* **Response (Failure - 404 Not Found):**
+```json
+{
+  "message": "Email not found"
+}
+```
+* **Password Recovery Logic:** Sends a password reset email containing a unique token to the provided email address.  The email includes instructions on how to reset the password using the token."
