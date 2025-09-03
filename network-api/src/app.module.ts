@@ -9,6 +9,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './modules/users/entities/user.entity';
 import { CommunityModule } from './modules/community/community.module';
 import { ApplicationModule } from './modules/application/application.module';
+import { Community } from './modules/community/entities/community.entity';
+import { Post } from './modules/community/entities/post.entity';
+import { Comment } from './modules/community/entities/comment.entity';
+
 
 @Module({
   imports: [
@@ -23,7 +27,7 @@ import { ApplicationModule } from './modules/application/application.module';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User],
+      entities: [User, Community, Post, Comment], // Add entities here
       synchronize: true,
     }),
     UsersModule,
