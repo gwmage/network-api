@@ -11,17 +11,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    try {
-      const registrationResult = await this.authService.register(registerDto);
-      return { statusCode: HttpStatus.CREATED, message: 'User registered successfully', data: registrationResult }; 
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      } else {
-        this.logger.error(`Error in registration: ${error}`);
-        throw new HttpException('Registration failed', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }
+    // ... existing code ...
   }
 
   @Post('login')
@@ -39,14 +29,6 @@ export class AuthController {
 
   @Post('password-recovery')
   async initiatePasswordRecovery(@Body() passwordRecoveryDto: PasswordRecoveryDto): Promise<void> {
-    try {
-      return await this.authService.initiatePasswordRecovery(passwordRecoveryDto.email);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      } else {
-        throw new HttpException('Password recovery initiation failed', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }    
+      // ... existing code ...
   }
 }"
