@@ -1,5 +1,6 @@
 ```typescript
 import { User } from 'src/modules/auth/entities/user.entity';
+import { Comment } from 'src/modules/community/comment/entities/comment.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,30 +8,50 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { NotificationType, NotificationStatus } from '../dto/notification.dto';
+
+export enum NotificationType {
+  COMMENT = 'comment',
+  // Add other notification types as needed
+}
+
+export enum NotificationDeliveryStatus {
+  PENDING = 'pending',
+  DELIVERED = 'delivered',
+  READ = 'read',
+  FAILED = 'failed',
+}
+
+export enum NotificationStatus {
+  SENT = 'sent',
+  FAILED = 'failed',
+}
+
 
 @Entity()
 export class Notification {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @ManyToOne(() => User, (user) => user.notifications)
   recipient: User;
 
+  @ManyToOne(() => Comment, (comment) => comment.notifications, {
+    nullable: true,
+  })
+  comment: Comment;
+
   @Column({
     type: 'enum',
     enum: NotificationType,
+    nullable: true,
   })
   type: NotificationType;
 
-  @Column()
-  title: string;
+  @Column({ nullable: true })
+  content: string;
 
-  @Column()
-  message: string;
-
-  @Column({ type: 'jsonb', nullable: true })
-  data: any;
+  @CreateDateColumn()
+  timestamp: Date;
 
   @Column({
     type: 'enum',
@@ -39,14 +60,12 @@ export class Notification {
   })
   status: NotificationStatus;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @CreateDateColumn()
-  updatedAt: Date;
-
-  @Column({ default: false })
-  read: boolean;
+  @Column({
+    type: 'enum',
+    enum: NotificationDeliveryStatus,
+    default: NotificationDeliveryStatus.PENDING,
+  })
+  deliveryStatus: NotificationDeliveryStatus;
 }
 
 ```
