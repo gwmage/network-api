@@ -1,43 +1,63 @@
-"## New Endpoint: /register
+"## New API Endpoints Documentation
 
-**Method:** POST
+**1. Login Endpoint:**
 
-**Route:** `/auth/register`
-
-**Request Body:**
+- **Method:** POST
+- **Path:** /auth/login
+- **Request Body:**
 
 
 {
   "email": "user@example.com",
-  "password": "password123",
-  "name": "John Doe",
-  "phoneNumber": "+15551234567"
+  "password": "password123"
 }
 
 
-**Validation Rules:**
-
-* **email:** Required, valid email format.
-* **password:** Required, minimum 8 characters.
-* **name:** Required, string.
-* **phoneNumber:** Required, valid phone number format (e.g., +15551234567).
-
-**Success Response (201 Created):**
+- **Response (Success - 200 OK):**
 
 
 {
-  "success": true
+  "id": 123,
+  "name": "John Doe",
+  "email": "user@example.com"
 }
 
 
-**Error Responses:**
+- **Response (Failure - 401 Unauthorized):**
 
-* **400 Bad Request:**  `{ "error": "Email already exists" }` or other validation error messages.
-* **500 Internal Server Error:** `{ "error": "Registration failed" }` if a database or other internal error occurs.
 
-## Database Schema Updates
+{
+  "statusCode": 401,
+  "message": "Invalid credentials"
+}
 
-**User Entity:**
 
-* **name:** Added string field for user's name.
-* **phoneNumber:** Added string field for user's phone number."
+**2. Password Recovery Initiation Endpoint:**
+
+- **Method:** POST
+- **Path:** /auth/password-recovery
+- **Request Body:**
+
+
+{
+  "email": "user@example.com"
+}
+
+
+- **Response (Success - 200 OK):**
+
+
+{}
+
+- **Response (Failure - 404 Not Found):**
+
+
+{
+  "statusCode": 404,
+  "message": "Email not found"
+}
+
+
+**Error Handling:**
+
+All endpoints handle errors gracefully and return appropriate HTTP status codes and JSON error messages.  Login failures return 401 Unauthorized.  Password recovery initiation failures can return 404 Not Found if the email address is not registered."
