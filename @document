@@ -1,57 +1,37 @@
-"## Auth API Endpoints
+{"## Save Application Information
 
-**1. Login Endpoint (/auth/login)**
+**Endpoint:** `/applications`
 
-* **Method:** POST
-* **Request Body:**
-    
-    {
-      "email": "user@example.com",
-      "password": "password123"
-    }
-    
-* **Response (Success - 200 OK):**
-    
-    {
-      "accessToken": "<JWT_TOKEN>",
-      "user": {
-        "id": <USER_ID>,
-        "name": "<USER_NAME>",
-        "email": "<USER_EMAIL>"
-      }
-    }
-    
-* **Response (Error - 401 Unauthorized):**
-    
-    {
-      "statusCode": 401,
-      "message": "Invalid credentials"
-    }
-    
-* **Error Codes:**
-    * 401 Unauthorized: Invalid email or password.
+**Method:** `POST`
 
-**2. Password Recovery Endpoint (/auth/recover)**
+**Request Body:**
 
-* **Method:** POST
-* **Request Body:**
-    
-    {
-      "email": "user@example.com"
-    }
-    
-* **Response (Success - 200 OK):**
-    
-    {
-      "message": "Password recovery email sent"
-    }
-    
-* **Response (Error - 404 Not Found):**
-    
-    {
-      "statusCode": 404,
-      "message": "Email not found"
-    }
-    
-* **Error Codes:**
-    * 404 Not Found: Email address not registered."
+
+{
+  "name": "string",
+  "email": "string",
+  "phoneNumber": "string",
+  "title": "string",
+  "content": "string"
+}
+
+
+**Response (Success - 201 Created):**
+
+
+{
+  "id": "number",
+  "name": "string",
+  "email": "string",
+  "phoneNumber": "string",
+  "title": "string",
+  "content": "string",
+  "createdAt": "Date",
+  "updatedAt": "Date"
+}
+
+
+**Error Responses:**
+
+* **400 Bad Request:**  Returned if the request body is invalid (e.g., missing required fields, invalid data types).
+* **500 Internal Server Error:** Returned if there's an error saving the application information to the database.

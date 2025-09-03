@@ -1,4 +1,4 @@
-"import { Module } from '@nestjs/common';
+{"import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
@@ -14,6 +14,7 @@ import { Comment } from './modules/community/entities/comment.entity';
 import { MatchingModule } from './modules/matching/matching.module'; // Import MatchingModule
 import { MatchingGroup } from './modules/matching/entities/matching-group.entity';
 import { MatchExplanation } from './modules/matching/entities/match-explanation.entity';
+import { Application } from './modules/application/entities/application.entity';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { MatchExplanation } from './modules/matching/entities/match-explanation.
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, Community, Post, Comment, MatchingGroup, MatchExplanation],
+      entities: [User, Community, Post, Comment, MatchingGroup, MatchExplanation, Application],
       synchronize: true,
     }),
     UsersModule,
@@ -40,4 +41,4 @@ import { MatchExplanation } from './modules/matching/entities/match-explanation.
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}"
+export class AppModule {}
