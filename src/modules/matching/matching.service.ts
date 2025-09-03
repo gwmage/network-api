@@ -1,128 +1,67 @@
 ```typescript
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
-import { Repository, In } from 'typeorm';
-import { Match } from './entities/match.entity';
-import { NotificationService } from '../notifications/notification.service';
-import { PerformanceObserver, performance } from 'perf_hooks';
-
-@Injectable()
-export class MatchingService {
-  private readonly logger = new Logger(MatchingService.name);
-
-  constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(Match)
-    private matchRepository: Repository<Match>,
-    private notificationService: NotificationService,
-  ) {}
-
-  async triggerMatching(): Promise<{ status: string }> {
-    // ... (no changes)
-  }
-
-  async getMatchingStatus(): Promise<{ status: string }> {
-    // ... (no changes)
-  }
-
-
-  @Cron(CronExpression.EVERY_WEEK)
-  async runMatching() {
-    // ... (no changes in performance monitoring setup)
-
-    this.logger.log('Starting AI matching process...');
-    try {
-      performance.mark('matchingStart');
-
-      // Optimized User Fetching with necessary relations and filtering
-      const users = await this.userRepository.createQueryBuilder('user')
-        .leftJoinAndSelect('user.preferences', 'preferences')
-        .leftJoinAndSelect('user.interests', 'interests')
-        .where(
-          // Example filtering based on active users or other criteria
-          'user.isActive = :isActive', { isActive: true }
-        )
-        .getMany();
-
-
-      if (!users || users.length === 0) {
-        this.logger.warn('No users found for matching.');
-        return;
-      }
-      performance.mark('usersFetched');
-      performance.measure('Fetch Users', 'matchingStart', 'usersFetched');
-
-      const matchedGroups = this.matchUsers(users);
-      performance.mark('matchingComplete');
-      performance.measure('Matching Algorithm', 'usersFetched', 'matchingComplete');
-
-      // Optimized Saving using batched inserts
-      const matchesToSave = matchedGroups.flatMap(group => this.createMatchEntities(group));
-      const savedMatches = await this.matchRepository.save(matchesToSave, { chunk: 500 }); // Adjust chunk size as needed
-
-      performance.mark('matchesSaved');
-      performance.measure('Save Matches', 'matchingComplete', 'matchesSaved');
-
-      await this.sendMatchNotifications(savedMatches);
-      // ... (rest of the performance measurements and logging)
-    } catch (error) {
-        // ... error handling
-    } finally {
-        // ... cleanup
-    }
-  }
-
-  private createMatchEntities(group: User[]): Match[] {
-    const matches: Match[] = [];
-    for (const user of group) {
-        matches.push(this.matchRepository.create({ users: group }));
-    }
-    return matches;
-}
-
-
-  private calculateMetrics(users: User[], matchedGroups: User[][]): { precision: number, recall: number, f1Score: number } {
-    // ... (Placeholder implementation - Needs actual metric calculation logic)
-  }
-
-  private async sendMatchNotifications(matches: Match[]): Promise<void> {
-      // ... existing code
-  }
-
-
   private matchUsers(users: User[]): User[][] {
     const matchedGroups: User[][] = [];
-    // ... (Your matching algorithm logic here)
+    const userCount = users.length;
 
-    // Example: Group users based on interests (replace with your actual algorithm)
-    const interestMap: { [interest: string]: User[] } = {};
-    users.forEach(user => {
-      user.interests.forEach(interest => {
-        if (!interestMap[interest.name]) {
-          interestMap[interest.name] = [];
-        }
-        interestMap[interest.name].push(user);
-      });
-    });
+    // Create an adjacency matrix to store compatibility scores
+    const compatibilityMatrix: number[][] = Array(userCount).fill(null).map(() => Array(userCount).fill(0));
 
-    for (const interest in interestMap) {
-      const groupSize = this.getGroupSize(); // Dynamic group size
-      for (let i = 0; i < interestMap[interest].length; i += groupSize) {
-        matchedGroups.push(interestMap[interest].slice(i, i + groupSize));
+    // Pre-calculate compatibility scores for all user pairs
+    for (let i = 0; i < userCount; i++) {
+      for (let j = i + 1; j < userCount; j++) {
+        compatibilityMatrix[i][j] = this.calculateCompatibilityScore(users[i], users[j]);
+        compatibilityMatrix[j][i] = compatibilityMatrix[i][j]; // Matrix is symmetric
       }
     }
+
+    // Matching algorithm using greedy approach based on compatibility scores
+    const matchedUsers: Set<number> = new Set();
+    const groupSize = this.getGroupSize();
+
+    for (let i = 0; i < userCount; i++) {
+      if (!matchedUsers.has(i)) {
+        const group: User[] = [users[i]];
+        matchedUsers.add(i);
+
+        const compatibleUsers = compatibilityMatrix[i]
+          .map((score, index) => ({ score, index }))
+          .sort((a, b) => b.score - a.score);
+
+        for (const { index } of compatibleUsers) {
+          if (group.length < groupSize && !matchedUsers.has(index)) {
+            group.push(users[index]);
+            matchedUsers.add(index);
+          }
+        }
+        matchedGroups.push(group);
+      }
+    }
+
 
     return matchedGroups;
   }
 
+  private calculateCompatibilityScore(user1: User, user2: User): number {
+    let score = 0;
 
+    // Matching based on interests
+    const commonInterests = user1.interests.filter(interest => user2.interests.some(i => i.name === interest.name));
+    score += commonInterests.length * 2; // Weigh interests more heavily
+
+
+    // Matching based on preferences (example)
+    if (user1.preferences.gender === user2.preferences.gender) {
+      score++;
+    }
+
+    // Add more criteria for matching and adjust weights as needed
+
+    return score;
+  }
 
   private getGroupSize(): number {
-    // ... (Logic to determine optimal group size dynamically)
+    // Dynamic group size logic (can be based on user preferences, number of users etc.)
+    return 5; // Default group size
   }
-}
 
 ```
