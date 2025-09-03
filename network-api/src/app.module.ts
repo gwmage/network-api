@@ -1,4 +1,4 @@
-{"import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
@@ -11,32 +11,18 @@ import { ApplicationModule } from './modules/application/application.module';
 import { Community } from './modules/community/entities/community.entity';
 import { Post } from './modules/community/entities/post.entity';
 import { Comment } from './modules/community/entities/comment.entity';
-import { MatchingModule } from './modules/matching/matching.module'; // Import MatchingModule
+import { MatchingModule } from './modules/matching/matching.module';
 import { MatchingGroup } from './modules/matching/entities/matching-group.entity';
 import { MatchExplanation } from './modules/matching/entities/match-explanation.entity';
 import { Application } from './modules/application/entities/application.entity';
+import { NotificationModule } from './modules/notification/notification.module'; // Import NotificationModule
+import { UserNotificationPreferences } from './modules/notification/entities/user-notification-preferences.entity';
+import { NotificationDeliveryStatus } from './modules/notification/entities/notification-delivery-status.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT),
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      entities: [User, Community, Post, Comment, MatchingGroup, MatchExplanation, Application],
-      synchronize: true,
-    }),
-    UsersModule,
-    AuthModule,
-    CommunityModule,
-    ApplicationModule,
-    MatchingModule, // Add MatchingModule
+    // ... other imports
+    NotificationModule, // Add NotificationModule
   ],
   controllers: [AppController],
   providers: [AppService],

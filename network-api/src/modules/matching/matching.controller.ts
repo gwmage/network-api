@@ -1,27 +1,22 @@
-"import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
 import { MatchingService } from './matching.service';
 import { UserMatchingInputDto } from './dto/user-matching-input.dto';
 import { MatchingGroupDto } from './dto/matching-group.dto';
+import { MatchingResultsDto } from './dto/matching-results.dto';
 
 @Controller('matching')
 export class MatchingController {
-  constructor(private readonly matchingService: MatchingService) {}
+  // ... existing code ...
 
-  @Post()
-  async matchUsers(@Body() input: UserMatchingInputDto): Promise<MatchingGroupDto[]> {
-    // Call matching service and return results
-    return []; // Placeholder
+  @Post('generate')
+  async generateMatchingResults(
+    @Body() input: UserMatchingInputDto,
+  ): Promise<MatchingResultsDto> {
+    return this.matchingService.generateMatchingResults(input);
   }
 
-  @Get('groups')
-  async getMatchedGroups(): Promise<MatchingGroupDto[]> {
-    // Retrieve and return matched groups
-    return []; // Placeholder
+  @Get('results')
+  async retrieveMatchingResults(@Query('userId') userId?: number): Promise<MatchingResultsDto> {
+    return this.matchingService.retrieveMatchingResults(userId);
   }
-
-  @Get('progress')
-  async getMatchingProgress(): Promise<any> {
-    // Retrieve and return matching progress data and explanations
-    return {}; // Placeholder
-  }
-}"
+}
