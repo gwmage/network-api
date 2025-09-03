@@ -1,14 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UserMatch } from './entities/user-match.entity';
-import { MatchingRequestDto } from './dto/matching-request.dto';
-import { MatchingResultsDto, ParticipantDto } from './dto/matching-results.dto';
-import { User } from '../users/entities/user.entity';
 import { MatchingGroup } from './entities/matching-group.entity';
-import { MatchExpansion } from './entities/match-expansion.entity';
-import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
-import { Cron } from '@nestjs/schedule';
+import { MatchExplanation } from './entities/match-explanation.entity';
+import { UserInputDto } from './dto/user-input.dto';
+import { UserMatchingInputDto } from './dto/user-matching-input.dto';
+import { MatchingGroupDto } from './dto/matching-group.dto';
+import { MatchingResultsDto } from './dto/matching-results.dto';
+import { ParticipantDto } from './dto/participant.dto';
+import { MatchNotificationDataDto } from '../notification/dto/match-notification-data.dto';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationEvent } from '../notification/dto/notification-event.enum';
 
@@ -19,59 +20,47 @@ export class MatchingService {
   constructor(
     @InjectRepository(UserMatch)
     private userMatchRepository: Repository<UserMatch>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
     @InjectRepository(MatchingGroup)
     private matchingGroupRepository: Repository<MatchingGroup>,
-    @InjectRepository(MatchExpansion)
-    private matchExpansionRepository: Repository<MatchExpansion>,
-    private notificationService: NotificationService
+    @InjectRepository(MatchExplanation)
+    private matchExplanationRepository: Repository<MatchExplanation>,
+    private notificationService: NotificationService,
   ) {}
 
-  @Cron('0 0 * * *') // Run every day at midnight
-  async runMatching() {
+  async generateMatchingResults(
+    input: UserInputDto,
+  ): Promise<MatchingResultsDto> {
     const startTime = Date.now();
-    const allUsers = await this.userRepository.find();
-    //const userMatches = await this.userMatchRepository.find(); // Not used
-
-    for (const user of allUsers) {
-      const input: UserMatchingInputDTO = {
-        region: user.region,
-        preferences: user.preferences, // Accessing user properties directly
-        interests: user.interests
-      };
-      await this.findMatches(input);
-    }
+    // ... (Your existing matching logic) ...
 
     const executionTime = Date.now() - startTime;
     this.logger.log(`Matching execution time: ${executionTime}ms`);
+
+    return {
+      groups: [], // Replace with actual group data
+      explanations: [], // Replace with actual explanation data
+    };
   }
 
-
-  async findMatches(input: UserMatchingInputDTO): Promise<MatchingResultsDto[]> {
-    const { region, preferences, interests } = input; // Correctly destructure input
-
-    // Example usage of input properties: 
-    console.log('Region:', region);
-    console.log('Preferences:', preferences);
-    console.log('Interests:', interests);
-
-     // Access user based on context, if needed 
-    // const userId = ...; // Get userId from appropriate context
-    // const user = await this.userRepository.findOne({where: { id: userId }});
-
-
-    // Example notification (adapt as needed)
-    const notificationType = 'push'; // Replace with user preference lookup
-    const notificationMessage = `You have a new match in ${region || 'your area'}!`;
-
+  async sendMatchNotification(
+    userId: string,
+    input: MatchNotificationDataDto,
+    user: any, // Add user object
+  ): Promise<void> {
     try {
-      // Replace with actual user ID for notification
-      // await this.notificationService.sendNotification(userId, notificationMessage, notificationType);
+      const notificationType = user.profile.preferences.notificationType || 'push';
+      const notificationMessage = `You have a new match in ${input.region || 'your area'}!`;
+      await this.notificationService.sendNotification(
+        userId,
+        notificationMessage,
+        notificationType,
+        NotificationEvent.MATCH_FOUND,
+        input,
+      );
     } catch (error) {
       this.logger.error(`Failed to send notifications: ${error.message}`);
     }
-
-    return []; // Placeholder return. Replace with actual matching logic and results.
   }
+
+  // ... (Other methods in your service) ...
 }
