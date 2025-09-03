@@ -1,125 +1,86 @@
-```typescript
+// test/auth.controller.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from '../src/auth/auth.controller';
-import { AuthService } from '../src/auth/auth.service';
-import { UsersService } from '../src/users/users.service';
-import { CreateUserDto } from '../src/users/dto/create-user.dto';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { AuthController } from '../src/modules/auth/auth.controller';
+import { AuthService } from '../src/modules/auth/auth.service';
+import { RegisterDto } from '../src/modules/auth/dto/register.dto';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from '../src/modules/auth/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { ConflictException } from '@nestjs/common';
+import { UserRepository } from '../src/modules/auth/user.repository';
+
+
+// Mock UserRepository
+const mockUserRepository = {
+  createUser: jest.fn(),
+  checkEmailUniqueness: jest.fn(),
+};
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let usersService: UsersService;
+  let authService: AuthService;
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        AuthService,
         {
-          provide: AuthService,
-          useValue: {}, // We're not testing the service here, so an empty object is sufficient
-        },
-        {
-          provide: UsersService,
-          useValue: {
-            create: jest.fn(),
-          },
+          provide: getRepositoryToken(UserRepository), // Use UserRepository here
+          useValue: mockUserRepository,
         },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    usersService = module.get<UsersService>(UsersService);
+    authService = module.get<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
 
   it('should register a new user', async () => {
-    const createUserDto: CreateUserDto = {
-      username: 'testuser',
+    const registerDto: RegisterDto = {
       email: 'test@example.com',
       password: 'password123',
-      firstName: 'Test',
-      lastName: 'User',
+      name: 'Test User',
+      phoneNumber: '010-1234-5678',
+      location: 'Test Location',
+      preferences: 'Test Preferences',
+      interests: ['Test Interest 1', 'Test Interest 2']
     };
-    const createdUser = { ...createUserDto, id: 1 };
-    (usersService.create as jest.Mock).mockResolvedValue(createdUser);
 
-    const result = await controller.register(createUserDto);
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const createdUser = { ...registerDto, password: hashedPassword, id: 1 };
 
-    expect(usersService.create).toHaveBeenCalledWith(createUserDto);
+    mockUserRepository.createUser.mockResolvedValue(createdUser);
+    mockUserRepository.checkEmailUniqueness.mockResolvedValue(undefined);
+
+
+    const result = await controller.register(registerDto);
+
     expect(result).toEqual({
       status: 'success',
       message: 'User registered successfully',
-      userId: 1,
+    });
+    expect(mockUserRepository.createUser).toHaveBeenCalledWith({
+      ...registerDto,
+      password: expect.any(String), // Expect password to be hashed
     });
   });
 
-  it('should handle validation errors', async () => {
-    const createUserDto: CreateUserDto = {
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'short', // Short password
-      firstName: 'Test',
-      lastName: 'User',
-    };
 
-    (usersService.create as jest.Mock).mockRejectedValue(new HttpException('Validation error', HttpStatus.BAD_REQUEST));
 
-    try {
-      await controller.register(createUserDto);
-    } catch (error) {
-      expect(error).toBeInstanceOf(HttpException);
-      expect(error.getStatus()).toBe(400);
-      expect(error.message).toEqual('Validation error');
-    }
-  });
-
-  it('should handle duplicate email', async () => {
-    const createUserDto: CreateUserDto = {
-      username: 'testuser',
-      email: 'test@example.com',
+  it('should throw ConflictException if email already exists', async () => {
+    const registerDto: RegisterDto = {
+      email: 'existing@example.com',
       password: 'password123',
-      firstName: 'Test',
-      lastName: 'User',
+      name: 'Existing User',
     };
 
-    (usersService.create as jest.Mock).mockRejectedValue({ code: '23505' }); // Duplicate key error code
-
-    try {
-      await controller.register(createUserDto);
-    } catch (error) {
-      expect(error.status).toBe(409);
-      expect(error.response).toEqual({
-        status: 'error',
-        message: 'Email already exists',
-        errors: { email: 'This email is already registered.' },
-      });
-    }
+    mockUserRepository.checkEmailUniqueness.mockRejectedValue(new ConflictException('Email already exists'));
+    
+    await expect(controller.register(registerDto)).rejects.toThrow(ConflictException);
   });
 
-  it('should handle other errors', async () => {
-    const createUserDto: CreateUserDto = {
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
-      firstName: 'Test',
-      lastName: 'User',
-    };
 
-    (usersService.create as jest.Mock).mockRejectedValue(new Error('Something went wrong'));
-
-    try {
-      await controller.register(createUserDto);
-    } catch (error) {
-      expect(error.status).toBe(500);
-      expect(error.response).toEqual({
-        status: 'error',
-        message: 'Something went wrong',
-      });
-    }
-  });
 });
-
-```

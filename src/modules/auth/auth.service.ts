@@ -1,31 +1,26 @@
-```typescript
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { UserRepository } from './user.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    @InjectRepository(UserRepository)
+    private userRepository: UserRepository,
+  ) {}
 
   async register(registerDto: RegisterDto) {
-    // 1. Input validation
-    // Validation is handled by class-validator in RegisterDto
 
-    // 2. Check for duplicate emails
-    const existingUser = await this.usersService.findOneBy({ email: registerDto.email });
-    if (existingUser) {
-      return {
-        status: 'error',
-        message: 'Email already exists',
-      };
-    }
+    await this.userRepository.checkEmailUniqueness(registerDto.email);
 
-    // 3. Hash the password
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
-    // 4. Create a new user entity and save it
-    const newUser = await this.usersService.create({
+    const newUser = await this.userRepository.createUser({
       ...registerDto,
       password: hashedPassword,
     });
@@ -33,8 +28,7 @@ export class AuthService {
     return {
       status: 'success',
       message: 'User registered successfully',
-      userId: newUser.id, // Return userId instead of the entire user object
+      userId: newUser.id, 
     };
   }
 }
-```
