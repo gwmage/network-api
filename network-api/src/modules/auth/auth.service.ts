@@ -17,7 +17,7 @@ export class AuthService {
 
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Email already exists', HttpStatus.CONFLICT);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -32,7 +32,7 @@ export class AuthService {
 
       await this.userRepository.save(newUser);
       this.logger.log(`New user registered: ${email}`);
-      return { success: true };
+      return { success: true, userId: newUser.id };
     } catch (error) {
       this.logger.error(`Error registering user: ${error}`);
       throw new HttpException('Registration failed', HttpStatus.INTERNAL_SERVER_ERROR);
