@@ -44,7 +44,7 @@ describe('AuthController', () => {
       lastName: 'User',
     };
     const createdUser = { ...createUserDto, id: 1 };
-    jest.spyOn(usersService, 'create').mockResolvedValue(createdUser);
+    (usersService.create as jest.Mock).mockResolvedValue(createdUser);
 
     const result = await controller.register(createUserDto);
 
@@ -65,14 +65,14 @@ describe('AuthController', () => {
       lastName: 'User',
     };
 
-    jest.spyOn(usersService, 'create').mockRejectedValue(new HttpException('Validation error', HttpStatus.BAD_REQUEST));
+    (usersService.create as jest.Mock).mockRejectedValue(new HttpException('Validation error', HttpStatus.BAD_REQUEST));
 
     try {
       await controller.register(createUserDto);
     } catch (error) {
       expect(error).toBeInstanceOf(HttpException);
       expect(error.getStatus()).toBe(400);
-      expect(error.getResponse()).toEqual('Validation error');
+      expect(error.message).toEqual('Validation error');
     }
   });
 
@@ -85,7 +85,7 @@ describe('AuthController', () => {
       lastName: 'User',
     };
 
-    jest.spyOn(usersService, 'create').mockRejectedValue({ code: '23505' }); // Duplicate key error code
+    (usersService.create as jest.Mock).mockRejectedValue({ code: '23505' }); // Duplicate key error code
 
     try {
       await controller.register(createUserDto);
@@ -95,6 +95,28 @@ describe('AuthController', () => {
         status: 'error',
         message: 'Email already exists',
         errors: { email: 'This email is already registered.' },
+      });
+    }
+  });
+
+  it('should handle other errors', async () => {
+    const createUserDto: CreateUserDto = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    (usersService.create as jest.Mock).mockRejectedValue(new Error('Something went wrong'));
+
+    try {
+      await controller.register(createUserDto);
+    } catch (error) {
+      expect(error.status).toBe(500);
+      expect(error.response).toEqual({
+        status: 'error',
+        message: 'Something went wrong',
       });
     }
   });
