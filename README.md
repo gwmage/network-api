@@ -1,4 +1,3 @@
-```markdown
 # 네트워킹2
 
 This repository is for the '네트워킹2' project, managed through Eposo.
@@ -49,9 +48,9 @@ Returns a JSON object indicating the status of the matching request. This may in
 
 **Example Usage:**
 
-```
+
 POST /matching
-```
+
 
 **Matching Status Request (/matching/status):**
 
@@ -67,9 +66,9 @@ Returns a JSON object indicating the current status of the matching process.
 
 **Example Usage:**
 
-```
+
 GET /matching/status
-```
+
 
 
 ## Configuring the Scheduled Matching Task
@@ -83,7 +82,7 @@ The cron expression determines when the task runs. The default expression `0 0 *
 
 **Example `schedule.config.ts`:**
 
-```typescript
+typescript
 import { Cron } from '@nestjs/schedule';
 // ... other imports
 
@@ -92,10 +91,9 @@ async handleCron() {
   // ... matching logic
 }
 
-```
+
 
 
 ## Community Board
 
 (Content omitted for brevity - same as before)
-```

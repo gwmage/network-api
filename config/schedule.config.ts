@@ -1,24 +1,15 @@
-```typescript
-import { Cron, Timeout } from '@nestjs/schedule';
-import { Injectable, Logger } from '@nestjs/common';
-import { MatchingService } from '../matching/matching.service'; // Adjust path as needed
+/* Placeholder for schedule config - needs more context on where the matching logic resides.  Assuming matching logic is in MatchingService. */
+import { Cron } from '@nestjs/schedule';
+import { Injectable } from '@nestjs/common';
+import { MatchingService } from '../src/modules/matching/matching.service'; // Import MatchingService
 
 @Injectable()
 export class ScheduleService {
-  private readonly logger = new Logger(ScheduleService.name);
-
   constructor(private matchingService: MatchingService) {}
 
-  @Cron('0 0 * * 0') // Run every Sunday at 00:00 (midnight) - Adjust cron expression as needed
+  @Cron('0 0 * * 0') // Every Sunday at midnight
   async handleCron() {
-    this.logger.debug('Running weekly matching algorithm...');
-    try {
-      await this.matchingService.runMatching(); // Call the matching service
-      this.logger.debug('Matching algorithm completed successfully.');
-    } catch (error) {
-      this.logger.error(`Error running matching algorithm: ${error}`);
-    }
+    // Call matching service
+     await this.matchingService.triggerMatching();
   }
 }
-
-```
