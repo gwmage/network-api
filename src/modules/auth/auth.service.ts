@@ -1,34 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { RegisterDto } from './dto/register.dto';
-import * as bcrypt from 'bcrypt';
-import { UserRepository } from './user.repository';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
+import { AuthRepository } from './user.repository';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    @InjectRepository(UserRepository)
-    private userRepository: UserRepository,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    private jwtService: JwtService,
+    private authRepository: AuthRepository,
   ) {}
 
-  async register(registerDto: RegisterDto) {
+  async validateUser(username: string, pass: string): Promise<any> {
+    const user = await this.authRepository.findOne({ where: { username } });
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
+  }
 
-    await this.userRepository.checkEmailUniqueness(registerDto.email);
-
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-
-    const newUser = await this.userRepository.createUser({
-      ...registerDto,
-      password: hashedPassword,
-    });
-
+  async login(user: any) {
+    const payload = { username: user.username, sub: user.userId };
     return {
-      status: 'success',
-      message: 'User registered successfully',
-      userId: newUser.id, 
+      access_token: this.jwtService.sign(payload),
     };
   }
 }
