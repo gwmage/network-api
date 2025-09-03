@@ -1,7 +1,13 @@
 ```typescript
-// Import necessary decorators and types
 import { IsString, IsDate, IsOptional, IsEnum, IsUUID } from 'class-validator';
-import { NotificationChannel, NotificationStatus } from './notification.dto';
+import { NotificationStatus } from './notification.dto';
+
+export enum NotificationChannel {
+  PUSH = 'push',
+  EMAIL = 'email',
+  SMS = 'sms',
+}
+
 
 export class NotificationDto {
   @IsString()
@@ -18,16 +24,25 @@ export class NotificationDto {
   @IsOptional()
   updatedAt?: Date;
 
-  @IsUUID()
-  recipientId: string;
-
-  @IsString()
-  matchingInformation: string;
-
-  @IsEnum(NotificationChannel)
-  deliveryMethod: NotificationChannel;
-
   @IsEnum(NotificationStatus)
   deliveryStatus: NotificationStatus;
+
+  @IsUUID()
+  recipientId: string; // Add recipientId
+
+  @IsString()
+  matchingInformation: string; // Add matchingInformation
+
+  @IsEnum(NotificationChannel)
+  deliveryMethod: NotificationChannel; // Add deliveryMethod field
 }
+
+export enum NotificationStatus {
+  PENDING = 'pending',
+  SENT = 'sent',
+  DELIVERED = 'delivered',
+  FAILED = 'failed',
+  READ = 'read'
+}
+
 ```

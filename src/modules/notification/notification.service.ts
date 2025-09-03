@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { NotificationDeliveryStatus } from './entities/notification.entity';
 
-
 @Injectable()
 export class NotificationService {
   constructor(
@@ -13,17 +12,38 @@ export class NotificationService {
     private readonly notificationRepository: Repository<Notification>,
   ) {}
 
-  async getNotificationDeliveryStatus(notificationIds: number[]): Promise<Map<number, NotificationDeliveryStatus>> {
-    const notifications = await this.notificationRepository.findByIds(notificationIds);
-    const statusMap = new Map<number, NotificationDeliveryStatus>();
-
-    notifications.forEach(notification => {
-      statusMap.set(notification.id, notification.deliveryStatus);
+  async getNotificationStatus(userId: number): Promise<NotificationDeliveryStatus> {
+    const notifications = await this.notificationRepository.find({
+      where: { recipient: { id: userId } },
+      order: { timestamp: 'DESC' },
     });
 
-    return statusMap;
+    if (notifications.length === 0) {
+      return NotificationDeliveryStatus.UNREAD;
+    }
+
+    return notifications[0].deliveryStatus;
   }
 
-  // Existing methods...
+  async updateNotificationStatus(notificationId: number, status: NotificationDeliveryStatus): Promise<void> {
+    const notification = await this.notificationRepository.findOne({ where: { id: notificationId } });
+
+    if (!notification) {
+      throw new Error(`Notification with ID ${notificationId} not found.`);
+    }
+
+    notification.deliveryStatus = status;
+    await this.notificationRepository.save(notification);
+  }
+
+  async getNotificationDeliveryStatus(notificationId: number): Promise<NotificationDeliveryStatus> {
+    const notification = await this.notificationRepository.findOne({ where: { id: notificationId } });
+
+    if (!notification) {
+      throw new Error(`Notification with ID ${notificationId} not found.`);
+    }
+
+    return notification.deliveryStatus;
+  }
 }
 ```

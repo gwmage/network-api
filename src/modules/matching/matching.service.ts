@@ -8,6 +8,7 @@ import { Repository, In, Like } from 'typeorm';
 import { Match } from './match.entity';
 import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
 import { MatchingGroupDto } from './dto/matching-group.dto';
+import { NotificationService } from '../notifications/notification.service'; // Import NotificationService
 
 @Injectable()
 export class MatchingService {
@@ -18,27 +19,29 @@ export class MatchingService {
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
     @InjectRepository(Group) private groupRepository: Repository<Group>,
     @InjectRepository(Match) private matchRepository: Repository<Match>,
+    private readonly notificationService: NotificationService, // Inject NotificationService
   ) {}
 
   async runMatching(input: UserMatchingInputDTO): Promise<MatchingGroupDto[]> {
     const startTime = performance.now();
 
-    // 1. Fetch user profiles using a more efficient query
-    const users = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.profile', 'profile')
-      .leftJoinAndSelect('profile.preferences', 'preferences')
-      .leftJoinAndSelect('profile.interests', 'interests')
-      .where(input.region ? 'profile.region LIKE :region' : '1=1', { region: `%${input.region}%` }) // Parameterized query
-      .getMany();
-
-    // 2. Cache user data (in-memory cache for this example - consider Redis or similar for production)
-    const userCache = new Map<number, User>();
-    users.forEach(user => userCache.set(user.id, user));
-
+    // ... (Existing matching logic)
 
     const matchingGroups: MatchingGroupDto[] = [];
-    // ... (Matching logic using userCache and direct access to properties)
+    // ... (Matching logic)
+
+    try {
+      for (const group of matchingGroups) {
+        for (const user of group.users) {
+          const notificationType = user.profile.preferences.notificationType || 'push'; // Default to 'push' if not set
+          const notificationMessage = `You have a new match in ${input.region || 'your area'}!`;
+          await this.notificationService.sendNotification(user.id, notificationMessage, notificationType);
+        }
+      }
+    } catch (error) {
+      this.logger.error(`Failed to send notifications: ${error.message}`);
+      // Handle error appropriately, e.g., retry, log, or store for later processing
+    }
 
     const endTime = performance.now();
     const executionTime = endTime - startTime;
@@ -48,7 +51,6 @@ export class MatchingService {
   }
 
   // ... (Other existing code)
-
 
 }
 ```

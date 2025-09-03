@@ -12,11 +12,21 @@ export class NotificationController {
 
   // ... other methods
 
-  @Get(':notificationId/delivery-status')
-  async getNotificationDeliveryStatus(@Param('notificationId') notificationId: string) {
-    return this.notificationService.getNotificationDeliveryStatus(notificationId);
+  @Get(':notificationId/status')
+  async getNotificationStatus(@Param('notificationId') notificationId: string) {
+    return this.notificationService.getNotificationStatus(notificationId);
+  }
+
+
+  @Patch(':notificationId/status')
+  async updateNotificationStatus(
+    @Param('notificationId') notificationId: string,
+    @Body() updateNotificationDto: UpdateNotificationDto
+  ) {
+    return this.notificationService.updateNotificationStatus(notificationId, updateNotificationDto);
   }
 
   // ... other methods
 }
+
 ```

@@ -32,6 +32,12 @@ export class User {
 
   @Column({ nullable: true })
   region: string;
+
+  @Column({ default: true })
+  pushNotificationEnabled: boolean;
+
+  @Column({ default: false })
+  emailNotificationEnabled: boolean;
 }
 
 ```

@@ -12,10 +12,9 @@ export class UserDto {
   data: any;
 
   @ApiProperty()
-  notificationSettings: {
+  notificationPreferences: {
     push: boolean;
     email: boolean;
   };
 }
-
 ```
