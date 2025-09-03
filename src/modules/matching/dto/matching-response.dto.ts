@@ -11,12 +11,10 @@ export class ParticipantDto {
   @IsString()
   name: string;
 
-  // Add other relevant participant properties like profile picture, etc. as needed.
   @ApiProperty()
   @IsString()
   profilePictureUrl?: string;
 }
-
 
 export class MatchingInfoDto {
   @ApiProperty()

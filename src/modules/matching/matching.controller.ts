@@ -1,33 +1,26 @@
 ```typescript
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Delete, Param, HttpException, HttpStatus, ValidationPipe, Logger } from '@nestjs/common';
 import { MatchingService } from './matching.service';
-import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
-import { MatchingResultsDto } from './dto/matching-results.dto';
+import { UserData } from './dto/user-data.dto';
+import { MatchResultDto } from './dto/match-result.dto';
+import { MatchingStatusDto } from './dto/matching-status.dto';
 
 @Controller('matching')
 export class MatchingController {
+  private readonly logger = new Logger(MatchingController.name);
+
   constructor(private readonly matchingService: MatchingService) {}
 
-  @Post()
-  async initiateMatching(@Body(new ValidationPipe()) userInput: UserMatchingInputDTO): Promise<MatchingResultsDto> {
-    try {
-      const matchingResult = await this.matchingService.initiateMatching(userInput);
-      return matchingResult;
-    } catch (error) {
-      console.error('Error initiating matching:', error);
-      throw error; // Re-throw the error to be handled by the global exception filter
-    }
-  }
+  // ... other methods
 
-
-  @Post('run')
-  async runMatching(@Body(new ValidationPipe()) criteria: any): Promise<MatchingResultsDto> { // Update type if needed
+  @Get('results/:userId')
+  async getMatchingResults(@Param('userId') userId: string): Promise<MatchResultDto> {
     try {
-      const matchingResult = await this.matchingService.runMatching(criteria);
-      return matchingResult;
+      const matchingResults = await this.matchingService.getMatchingResultsForUser(userId);
+      return matchingResults;
     } catch (error) {
-      console.error('Error running matching with criteria:', error);
-      throw error;
+      this.logger.error(`Failed to retrieve matching results for user ${userId}: ${error.message}`, error.stack);
+      throw new HttpException('Failed to retrieve matching results', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
