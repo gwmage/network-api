@@ -16,4 +16,10 @@ export class User {
 
   @Column()
   phoneNumber: string;
+
+  @Column({ nullable: true })
+  resetToken: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpiration: Date;
 }"
