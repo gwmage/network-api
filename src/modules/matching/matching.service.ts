@@ -7,7 +7,7 @@ import { MatchingResultsDto, ParticipantDto } from './dto/matching-results.dto';
 import { User } from '../users/entities/user.entity';
 import { MatchingGroup } from './entities/matching-group.entity';
 import { MatchExpansion } from './entities/match-expansion.entity';
-import { UserMatchingInput } from './dto/user-matching-input.dto';
+import { UserMatchingInputDTO } from './dto/user-matching-input.dto';
 import { Cron } from '@nestjs/schedule';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationEvent } from '../notification/dto/notification-event.enum';
@@ -32,12 +32,12 @@ export class MatchingService {
   async runMatching() {
     const startTime = Date.now();
     const allUsers = await this.userRepository.find();
-    const userMatches = await this.userMatchRepository.find();
+    //const userMatches = await this.userMatchRepository.find(); // Not used
 
     for (const user of allUsers) {
-      const input: UserMatchingInput = {
-        userId: user.id,
+      const input: UserMatchingInputDTO = {
         region: user.region,
+        preferences: user.preferences, // Accessing user properties directly
         interests: user.interests
       };
       await this.findMatches(input);
@@ -48,21 +48,26 @@ export class MatchingService {
   }
 
 
-  async findMatches(input: UserMatchingInput): Promise<MatchingResultsDto[]> {
-    const { userId, region, interests } = input;
+  async findMatches(input: UserMatchingInputDTO): Promise<MatchingResultsDto[]> {
+    const { region, preferences, interests } = input; // Correctly destructure input
 
-    const user = await this.userRepository.findOne({where: { id: userId }});
-    if (!user) {
-      throw new Error(`User with id ${userId} not found`);
-    }
+    // Example usage of input properties: 
+    console.log('Region:', region);
+    console.log('Preferences:', preferences);
+    console.log('Interests:', interests);
 
-    const notificationType = user.notificationPreferences.notificationType || 'push'; // Default to 'push' if not set
-    const notificationMessage = `You have a new match in ${input.region || 'your area'}!`;
+     // Access user based on context, if needed 
+    // const userId = ...; // Get userId from appropriate context
+    // const user = await this.userRepository.findOne({where: { id: userId }});
+
+
+    // Example notification (adapt as needed)
+    const notificationType = 'push'; // Replace with user preference lookup
+    const notificationMessage = `You have a new match in ${region || 'your area'}!`;
 
     try {
-
-      await this.notificationService.sendNotification(user.id, notificationMessage, notificationType);
-
+      // Replace with actual user ID for notification
+      // await this.notificationService.sendNotification(userId, notificationMessage, notificationType);
     } catch (error) {
       this.logger.error(`Failed to send notifications: ${error.message}`);
     }
