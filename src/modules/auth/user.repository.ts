@@ -1,6 +1,5 @@
-```typescript
 import { EntityRepository, Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { ConflictException } from '@nestjs/common';
 
 @EntityRepository(User)
@@ -15,5 +14,10 @@ export class UserRepository extends Repository<User> {
       throw new ConflictException('Email already exists');
     }
   }
+
+  async createUser(user: User) {
+      return this.save(user);
+  }
+
+
 }
-```

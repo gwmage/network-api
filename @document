@@ -1,0 +1,17 @@
+/**
+ * @POST /auth/register
+ * @description Registers a new user.
+ * @requestBody
+ * @param {string} email - User's email address. Must be a valid email format.
+ * @param {string} password - User's password. Must be at least 8 characters long.
+ * @param {string} name - User's name.
+ * @param {string} phoneNumber - User's phone number.
+ * @param {string} location - User's location.
+ * @param {string} preferences - User's preferences.
+ * @param {string[]} interests - User's interests.
+ * 
+ * @response 201 - Registration successful.
+ * @response 400 - Bad Request. Invalid input data.
+ * @response 409 - Conflict. Email already exists.
+ * @response 500 - Internal Server Error. An unexpected error occurred.
+ */
