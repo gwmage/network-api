@@ -22,13 +22,23 @@ export class AuthController {
       if (error instanceof HttpException) {
         throw error;
       } else {
+        this.logger.error(`Login failed: ${error.message}`);
         throw new HttpException('Login failed', HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }
 
-  @Post('password-recovery')
-  async initiatePasswordRecovery(@Body() passwordRecoveryDto: PasswordRecoveryDto): Promise<void> {
-      // ... existing code ...
+  @Post('forgot-password')
+  async initiatePasswordRecovery(@Body() passwordRecoveryDto: PasswordRecoveryDto): Promise<{message: string}> {
+      try {
+          await this.authService.initiatePasswordRecovery(passwordRecoveryDto.email);
+          return { message: 'Password reset email sent' };
+      } catch (error) {
+          if (error instanceof HttpException) {
+              throw error; // Re-throw HttpExceptions to preserve status code
+          }
+          this.logger.error('Failed to initiate password recovery', error);
+          throw new HttpException('Failed to initiate password recovery', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
   }
 }"
