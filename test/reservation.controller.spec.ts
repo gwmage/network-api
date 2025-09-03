@@ -2,8 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationController } from '../src/modules/reservation/reservation.controller';
 import { ReservationService } from '../src/modules/reservation/reservation.service';
-import { NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { NotFoundException } from '@nestjs/common';
 
 const mockReservationService = () => ({
   cancelReservation: jest.fn(),
@@ -12,8 +11,6 @@ const mockReservationService = () => ({
 describe('ReservationController', () => {
   let controller: ReservationController;
   let service: ReservationService;
-  let req: Request;
-  let res: Response;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,12 +25,6 @@ describe('ReservationController', () => {
 
     controller = module.get<ReservationController>(ReservationController);
     service = module.get<ReservationService>(ReservationService);
-    req = { user: { userId: 1 } } as Request;
-    res = {
-      status: jest.fn().mockReturn(({
-        json: jest.fn().mockReturn(null),
-      })),
-    } as unknown as Response;
   });
 
   it('should be defined', () => {
@@ -43,55 +34,66 @@ describe('ReservationController', () => {
   describe('cancel', () => {
     it('should cancel a reservation', async () => {
       const reservationId = '1';
-      const result = { message: 'Reservation cancelled' };
-      jest.spyOn(service, 'cancelReservation').mockResolvedValue(result);
+      const userId = 1;
+      const cancellationReason = 'Test reason';
+      jest.spyOn(service, 'cancelReservation').mockResolvedValue(undefined);
 
-      await controller.cancelReservation(reservationId, req, res);
-
-      expect(service.cancelReservation).toHaveBeenCalledWith(reservationId, 1);
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(res.status().json).toHaveBeenCalledWith({ message: 'Reservation cancelled successfully', data: result });
+      expect(await controller.cancel(reservationId, userId, cancellationReason)).toBeUndefined();
+      expect(service.cancelReservation).toHaveBeenCalledWith(reservationId, userId, cancellationReason);
     });
 
     it('should handle cancellations outside the allowed time window', async () => {
       const reservationId = '2';
+      const userId = 1;
+      const cancellationReason = 'Test reason';
       const errorMessage = 'Cancellation outside allowed time window';
 
-      jest.spyOn(service, 'cancelReservation').mockRejectedValue(new HttpException(errorMessage, HttpStatus.BAD_REQUEST));
+      jest.spyOn(service, 'cancelReservation').mockRejectedValue(new Error(errorMessage));
 
-      await controller.cancelReservation(reservationId, req, res);
-
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
-      expect(res.status().json).toHaveBeenCalledWith({ message: errorMessage });
+      await expect(controller.cancel(reservationId, userId, cancellationReason)).rejects.toThrowError(errorMessage);
     });
 
     it('should handle invalid reservation IDs', async () => {
       const reservationId = '3';
+      const userId = 1;
+      const cancellationReason = 'Test reason';
       const error = new NotFoundException();
       jest.spyOn(service, 'cancelReservation').mockRejectedValue(error);
 
-      await controller.cancelReservation(reservationId, req, res);
-
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
-      expect(res.status().json).toHaveBeenCalledWith({ message: error.message });
-
+      await expect(controller.cancel(reservationId, userId, cancellationReason)).rejects.toThrowError(error);
     });
 
     it('should handle failed cancellations', async () => {
       const reservationId = '4';
-      const error = new HttpException('Failed to cancel reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+      const userId = 1;
+      const cancellationReason = 'Test reason';
+      const error = new Error('Failed to cancel reservation');
       jest.spyOn(service, 'cancelReservation').mockRejectedValue(error);
 
-      await controller.cancelReservation(reservationId, req, res);
-
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
-      expect(res.status().json).toHaveBeenCalledWith({ message: error.message });
+      await expect(controller.cancel(reservationId, userId, cancellationReason)).rejects.toThrowError(error);
     });
 
+    it('should call cancelReservation with cancellation reason', async () => {
+      const reservationId = '5';
+      const userId = 1;
+      const cancellationReason = 'Another test reason';
+      jest.spyOn(service, 'cancelReservation').mockResolvedValue(undefined);
 
+      await controller.cancel(reservationId, userId, cancellationReason);
 
+      expect(service.cancelReservation).toHaveBeenCalledWith(reservationId, userId, cancellationReason);
+    });
+
+    it('should call cancelReservation without cancellation reason', async () => {
+      const reservationId = '6';
+      const userId = 1;
+      jest.spyOn(service, 'cancelReservation').mockResolvedValue(undefined);
+
+      await controller.cancel(reservationId, userId);
+
+      expect(service.cancelReservation).toHaveBeenCalledWith(reservationId, userId, undefined);
+    });
   });
-
 });
 
 ```

@@ -24,8 +24,8 @@ export class Reservation {
   @Column({ nullable: true })
   cancellationReason: string;
 
-  @Column({ type: 'enum', enum: ['reserved', 'cancelled'], default: 'reserved' })
-  status: 'reserved' | 'cancelled';
+  @Column({ type: 'enum', enum: ['confirmed', 'cancelled'], default: 'confirmed' })
+  status: 'confirmed' | 'cancelled';
 }
 
 ```
