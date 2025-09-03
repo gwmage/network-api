@@ -1,0 +1,1 @@
+export class MatchingStatusDto {\n  status: 'pending' | 'completed' | 'failed';\n  startTime: Date | null;\n  endTime: Date | null;\n  errorMessage: string | null;\n}\n
