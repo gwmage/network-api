@@ -17,15 +17,18 @@ import { User } from './modules/users/entities/user.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10) || 5432,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [User,__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async () => ({
+        type: 'postgres',
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT, 10) || 5432,
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        entities: [User, Notification, NotificationPreferences],  // Explicitly list entities
+        synchronize: true, // Consider setting this to false in production
+      }),
     }),
     AdminModule,
     ApplicationModule,
@@ -34,7 +37,6 @@ import { User } from './modules/users/entities/user.entity';
     CommunityModule,
     MatchingModule,
     NotificationModule,
-    TypeOrmModule.forFeature([NotificationPreferences, Notification]),
     ProfileModule,
     ReservationModule,
   ],
