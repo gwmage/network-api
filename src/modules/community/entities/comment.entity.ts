@@ -8,8 +8,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../auth/entities/user.entity'; // Correct import path
 import { Post } from './post.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity()
 export class Comment {
@@ -37,8 +38,11 @@ export class Comment {
   @OneToMany(() => Comment, (comment) => comment.parentComment)
   replies: Comment[];
 
-  @ManyToOne(() => Comment, (comment) => comment.replies)
+  @ManyToOne(() => Comment, (comment) => comment.replies, { onDelete: 'CASCADE' })
   parentComment: Comment;
+
+  @OneToMany(() => Notification, (notification) => notification.comment)
+  notifications: Notification[];
 }
 
 ```

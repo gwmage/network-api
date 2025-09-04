@@ -1,6 +1,6 @@
 ```typescript
 import { User } from 'src/modules/auth/entities/user.entity';
-import { Comment } from 'src/modules/community/comment/entities/comment.entity';
+import { Comment } from 'src/modules/community/entities/comment.entity'; // updated path
 import {
   Column,
   CreateDateColumn,
@@ -35,10 +35,9 @@ export class Notification {
   @ManyToOne(() => User, (user) => user.notifications)
   recipient: User;
 
-  @ManyToOne(() => Comment, (comment) => comment.notifications, {
-    nullable: true,
-  })
+  @ManyToOne(() => Comment, (comment) => comment.notifications)
   comment: Comment;
+
 
   @Column({
     type: 'enum',
@@ -46,6 +45,7 @@ export class Notification {
     nullable: true,
   })
   type: NotificationType;
+
 
   @Column({ nullable: true })
   content: string;
@@ -66,6 +66,10 @@ export class Notification {
     default: NotificationDeliveryStatus.PENDING,
   })
   deliveryStatus: NotificationDeliveryStatus;
+
+  @Column({ nullable: true })
+  postId: string;
+
 }
 
 ```

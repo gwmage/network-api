@@ -1,105 +1,70 @@
 ```typescript
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CommunityPost } from './entities/community-post.entity';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Like, Repository } from 'typeorm';
-import { CreateCommunityPostDto } from './dto/create-community-post.dto';
-import { UpdateCommunityPostDto } from './dto/update-community-post.dto';
+import { In, Repository } from 'typeorm';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { FindManyOptions, FindOptionsWhere } from 'typeorm';
 import { PaginatedCommunityPostsDto } from './dto/paginated-community-posts.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
-import { User } from '../user/entities/user.entity';
+import { Post } from './entities/post.entity'; // Import Post entity
+import { User } from '../auth/entities/user.entity'; // Correct import path
+import { NotificationService } from '../notification/notification.service';
+import { CreateNotificationDto } from '../notification/dto/create-notification.dto';
+
 
 @Injectable()
 export class CommunityService {
   constructor(
-    @InjectRepository(CommunityPost)
-    private communityPostRepository: Repository<CommunityPost>,
+    @InjectRepository(Post) // Inject Post repository
+    private communityPostRepository: Repository<Post>,
     @InjectRepository(Comment)
     private commentRepository: Repository<Comment>,
+    @Inject(forwardRef(() => NotificationService))
+    private notificationService: NotificationService,
   ) {}
 
-  async createPost(createCommunityPostDto: CreateCommunityPostDto, author: User): Promise<CommunityPost> {
-    const newPost = this.communityPostRepository.create({
-      ...createCommunityPostDto,
-      author,
-    });
-    return await this.communityPostRepository.save(newPost);
-  }
-
-  async findAllPosts(
-    page: number = 1,
-    limit: number = 10,
-    category?: string,
-    tags?: string[],
-  ): Promise<PaginatedCommunityPostsDto> {
-    const options: FindManyOptions<CommunityPost> = {
-      relations: ['author'],
-      skip: (page - 1) * limit,
-      take: limit,
-      where: {} as FindOptionsWhere<CommunityPost>,
-    };
-
-    if (category) {
-      options.where.category = category;
-    }
-
-    if (tags) {
-      options.where.tags = In(tags);
-    }
-
-    const [items, total] = await this.communityPostRepository.findAndCount(options);
-
-    return {
-      items,
-      meta: {
-        currentPage: page,
-        itemsPerPage: limit,
-        totalItems: total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
-  async findOnePost(id: number): Promise<CommunityPost> {
-    const post = await this.communityPostRepository.findOne({ where: { id }, relations: ['author'] });
-    if (!post) {
-      throw new NotFoundException(`Post with ID ${id} not found`);
-    }
-    return post;
-  }
-
-  async updatePost(id: number, updateCommunityPostDto: UpdateCommunityPostDto): Promise<CommunityPost> {
-    await this.communityPostRepository.update(id, updateCommunityPostDto);
-    return await this.findOnePost(id);
-  }
-
-  async removePost(id: number): Promise<void> {
-    await this.communityPostRepository.delete(id);
-  }
-
+  // ... (Existing Post methods)
 
   async createComment(postId: number, createCommentDto: CreateCommentDto, author: User): Promise<Comment> {
     const post = await this.communityPostRepository.findOneBy({ id: postId });
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
+
     const newComment = this.commentRepository.create({
       ...createCommentDto,
       post,
       author,
+      parentComment: createCommentDto.parentCommentId ? { id: createCommentDto.parentCommentId } : null,
     });
-    return await this.commentRepository.save(newComment);
+
+    const createdComment = await this.commentRepository.save(newComment);
+
+    // Create notification
+    const notificationDto: CreateNotificationDto = {
+      userId: author.id.toString(),
+      commentId: createdComment.id.toString(),
+      postId: postId.toString(),
+    };
+    await this.notificationService.createNotification(notificationDto);
+
+    return createdComment;
   }
 
-  async findAllCommentsByPost(postId: number): Promise<Comment[]> {
-    return await this.commentRepository.findBy({ post: { id: postId } });
+
+  async findAllCommentsByPost(postId: number, parentCommentId?: number): Promise<Comment[]> {
+    const where: FindOptionsWhere<Comment> = { post: { id: postId } };
+    if (parentCommentId) {
+      where.parentCommentId = parentCommentId;
+    }
+    return await this.commentRepository.find({ where, relations: ['author', 'replies'] }); // Include author and replies
   }
 
   async findOneComment(commentId: number): Promise<Comment> {
-    const comment = await this.commentRepository.findOneBy({ id: commentId });
+    const comment = await this.commentRepository.findOne({ where: { id: commentId }, relations: ['author', 'replies'] }); // Include relations
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${commentId} not found`);
     }
@@ -107,6 +72,23 @@ export class CommunityService {
   }
 
   async updateComment(commentId: number, updateCommentDto: UpdateCommentDto): Promise<Comment> {
+
+    const comment = await this.commentRepository.findOneBy({id: commentId});
+    if (!comment) {
+      throw new NotFoundException(`Comment with ID ${commentId} not found`);
+    }
+
+    // Create notification for updates (if content changed)
+    if(updateCommentDto.content && updateCommentDto.content != comment.content) {
+        const notificationDto: CreateNotificationDto = {
+            userId: comment.author.id.toString(),
+            commentId: commentId.toString(),
+            postId: comment.post.id.toString(),
+        };
+        await this.notificationService.createNotification(notificationDto);
+
+    }
+
     await this.commentRepository.update({ id: commentId }, updateCommentDto);
     return await this.findOneComment(commentId);
   }
@@ -115,4 +97,5 @@ export class CommunityService {
     await this.commentRepository.delete(commentId);
   }
 }
+
 ```
