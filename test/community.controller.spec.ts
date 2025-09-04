@@ -1,5 +1,4 @@
 ```typescript
-// Placeholder for tests (Implementation needed)
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommunityController } from '../src/modules/community/community.controller';
 import { CommunityService } from '../src/modules/community/community.service';
@@ -8,11 +7,14 @@ import { Post } from '../src/modules/community/entities/post.entity';
 import { Comment } from '../src/modules/community/entities/comment.entity';
 import { User } from '../src/modules/auth/entities/user.entity';
 import { Repository } from 'typeorm';
+import { CreatePostDto } from '../src/modules/community/dto/create-post.dto';
+import { UpdatePostDto } from '../src/modules/community/dto/update-post.dto';
 import { CreateCommentDto } from 'src/modules/community/dto/create-comment.dto';
 import { UpdateCommentDto } from 'src/modules/community/dto/update-comment.dto';
 import { NotFoundException } from '@nestjs/common';
 import { NotificationService } from 'src/modules/notification/notification.service';
-import { Notification } from 'src/modules/notification/entities/notification.entity';
+import { Category } from 'src/modules/community/entities/category.entity';
+import { Tag } from 'src/modules/community/entities/tag.entity';
 
 
 
@@ -22,8 +24,8 @@ describe('CommunityController', () => {
   let service: CommunityService;
   let postRepository: Repository<Post>;
   let commentRepository: Repository<Comment>;
-  let notificationService: NotificationService;
-
+  let categoryRepository: Repository<Category>;
+  let tagRepository: Repository<Tag>;
 
 
   beforeEach(async () => {
@@ -40,6 +42,14 @@ describe('CommunityController', () => {
           useClass: Repository,
         },
         {
+          provide: getRepositoryToken(Category),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Tag),
+          useClass: Repository,
+        },
+        {
           provide: NotificationService,
           useValue: {
             createNotification: jest.fn(),
@@ -53,14 +63,99 @@ describe('CommunityController', () => {
     service = module.get<CommunityService>(CommunityService);
     postRepository = module.get<Repository<Post>>(getRepositoryToken(Post));
     commentRepository = module.get<Repository<Comment>>(getRepositoryToken(Comment));
-    notificationService = module.get<NotificationService>(NotificationService)
-
+    categoryRepository = module.get<Repository<Category>>(getRepositoryToken(Category));
+    tagRepository = module.get<Repository<Tag>>(getRepositoryToken(Tag));
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
+  describe('createPost', () => {
+    it('should create a post', async () => {
+      const createPostDto: CreatePostDto = { title: 'Test Title', content: 'Test Content', categoryIds: [1, 2], tagIds: [1, 2] };
+      const mockUser: User = { id: 1, username: 'testuser', email: 'test@example.com', password: 'password', posts: [], comments: [] };
+      const mockPost: Post = { id: 1, ...createPostDto, author: mockUser, createdAt: new Date(), updatedAt: new Date(), comments: [], commentCount: 0, categories: [], tags: [] };
+      jest.spyOn(service, 'createPost').mockResolvedValue(mockPost);
+      const result = await controller.createPost(createPostDto, mockUser);
+      expect(result).toEqual(mockPost);
+      expect(service.createPost).toHaveBeenCalledWith(createPostDto, mockUser);
+    });
+  });
+
+  describe('findAllPosts', () => {
+    it('should return paginated posts with filtering and search', async () => {
+      const page = 1;
+      const pageSize = 10;
+      const categories = [1, 2];
+      const tags = [1, 2];
+      const search = 'test';
+      const mockPosts: Post[] = [{ id: 1, title: 'Test Title', content: 'Test Content', author: {} as User, createdAt: new Date(), updatedAt: new Date(), comments: [], commentCount: 0, categories: [], tags: [] }];
+      const totalCount = mockPosts.length;
+
+      jest.spyOn(service, 'findAllPosts').mockResolvedValue({ posts: mockPosts, totalCount });
+
+      const result = await controller.findAllPosts(page, pageSize, categories, tags, search);
+
+      expect(result).toEqual({ posts: mockPosts, totalCount });
+      expect(service.findAllPosts).toHaveBeenCalledWith(page, pageSize, categories, tags, search);
+
+
+    });
+  });
+
+  describe('findOnePost', () => {
+    it('should find a post by ID', async () => {
+      const id = 1;
+      const mockPost: Post = { id, title: 'Test Title', content: 'Test Content', author: {} as User, createdAt: new Date(), updatedAt: new Date(), comments: [], commentCount: 0, categories: [], tags: [] };
+      jest.spyOn(service, 'findOnePost').mockResolvedValue(mockPost);
+      const result = await controller.findOnePost(id);
+      expect(result).toEqual(mockPost);
+      expect(service.findOnePost).toHaveBeenCalledWith(id);
+
+    });
+  });
+
+
+  describe('updatePost', () => {
+    it('should update a post', async () => {
+      const id = 1;
+      const updatePostDto: UpdatePostDto = { title: 'Updated Title', content: 'Updated Content', categoryIds: [2,3], tagIds: [2,3] };
+      const mockUser: User = { id: 1, username: 'testuser', email: 'test@example.com', password: 'password', posts: [], comments: [] };
+
+      const mockPost: Post = { id, ...updatePostDto, author: mockUser, createdAt: new Date(), updatedAt: new Date(), comments: [], commentCount: 0, categories: [], tags: [] };
+
+
+      jest.spyOn(service, 'updatePost').mockResolvedValue(mockPost);
+
+      const result = await controller.updatePost(id, updatePostDto, mockUser);
+      expect(result).toEqual(mockPost);
+      expect(service.updatePost).toHaveBeenCalledWith(id, updatePostDto, mockUser);
+
+
+    });
+
+  });
+
+
+  describe('removePost', () => {
+    it('should remove a post', async () => {
+
+      const id = 1;
+
+      const mockUser: User = { id: 1, username: 'testuser', email: 'test@example.com', password: 'password', posts: [], comments: [] };
+
+      jest.spyOn(service, 'removePost').mockResolvedValue(undefined);
+
+
+      const result = await controller.removePost(id, mockUser);
+
+
+      expect(result).toBeUndefined();
+      expect(service.removePost).toHaveBeenCalledWith(id, mockUser);
+
+    });
+  });
 
   describe('createComment', () => {
     it('should create a comment', async () => {
@@ -68,7 +163,7 @@ describe('CommunityController', () => {
       const createCommentDto: CreateCommentDto = {
         content: 'Test comment',
         parentCommentId: null,
-        itemId: '1'
+
       };
 
       const mockUser: User = { id: 1, username: 'testuser', email: 'test@example.com', password: 'password', posts: [], comments: [] };

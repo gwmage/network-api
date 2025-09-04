@@ -23,7 +23,6 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/entities/user.entity';
-import { Pagination } from 'nestjs-typeorm-paginate';
 import { Post as PostEntity } from './entities/post.entity';
 
 
@@ -85,7 +84,7 @@ export class CommunityController {
   @Get('posts/:postId/comments')
   findAllComments(
     @Param('postId', ParseIntPipe) postId: number,
-    @Query('parentCommentId', ParseIntPipe) parentCommentId?: number
+    @Query('parentCommentId', ParseIntPipe, {optional: true}) parentCommentId?: number
   ) {
     return this.communityService.findAllCommentsByPost(postId, parentCommentId);
   }

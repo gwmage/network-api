@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity'; // Correct import path
+import { User } from '../../auth/entities/user.entity';
 import { Post } from './post.entity';
 import { Notification } from '../../notification/entities/notification.entity';
 
