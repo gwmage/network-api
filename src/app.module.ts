@@ -12,6 +12,7 @@ import { NotificationPreferences } from './modules/notification/entities/notific
 import { Notification } from './modules/notification/entities/notification.entity';
 import { ProfileModule } from './modules/profile/profile.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { User } from './modules/users/entities/user.entity'; // Import User entity
 
 @Module({
   imports: [
@@ -19,11 +20,11 @@ import { ReservationModule } from './modules/reservation/reservation.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10) || 5432, // Use || 5432 instead of ?? 5432
+      port: parseInt(process.env.DB_PORT, 10) || 5432,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [User, __dirname + '/**/*.entity{.ts,.js}'], // Add User entity explicitly
       synchronize: true,
     }),
     AdminModule,
@@ -33,7 +34,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
     CommunityModule,
     MatchingModule,
     NotificationModule,
-    TypeOrmModule.forFeature([NotificationPreferences, Notification]), // Include NotificationPreferences entity
+    TypeOrmModule.forFeature([NotificationPreferences, Notification]),
     ProfileModule,
     ReservationModule,
   ],
