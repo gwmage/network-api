@@ -1,56 +1,49 @@
-## API Endpoints for Matching
+## Notification Preferences API
 
-**1. Retrieve User Data:**
+This API allows users to manage their notification preferences.
 
-- **Endpoint:** `/matching/user-data`
-- **Method:** GET
-- **Query Parameters:**
-    - `userIds` (optional):  A comma-separated list of user IDs. If not provided, data for all users will be returned.
-- **Response:** An array of `UserDataDto` objects. Each object contains the following:
-    - `id`: User ID
-    - `email`: User's email address
-    - `name`: User's full name
-    - `phoneNumber`: User's phone number
-    - `address`: User's street address
-    - `city`: User's city
-    - `state`: User's state
-    - `zipCode`: User's zip code
-    - `region`: User's region
-    - `preferences`: An array of user preferences
-    - `interests`: An array of user interests
-- **Example:**
-    ```bash
-    GET /matching/user-data?userIds=1,2,3
-    ```
+**1. Update Notification Preferences (PUT /notification/preferences/:userId)**
 
-**2. Store Matching Results:**
+Updates the notification preferences for a given user.
 
-- **Endpoint:** `/matching/results`
-- **Method:** POST
-- **Request Body:** `MatchingResultsDto` object
-    - `groups`: Array of `MatchingGroupDto` objects.
-        - `groupId`: Unique identifier for the group.
-        - `users`: Array of `User` objects within the group.
-    - `notificationId`: Notification ID for the matching results.
-- **Authorization:** Admin role required (JWT authentication).
-- **Example:**
-    ```bash
-    POST /matching/results
-    {
-      "groups": [ /* ... matching group data */ ],
-      "notificationId": "some-uuid"
-    }
-    ```
+* **Request:**
+    * `userId` (path parameter): The ID of the user.
+    * `body`: `NotificationPreferenceDto`
+        ```json
+        {
+          "pushNotificationEnabled": true,
+          "emailNotificationEnabled": false,
+          "notificationEvents": ["MATCHING_RESULTS", "RESERVATION_INFORMATION"],
+          "notificationMethods": ["push", "email"],
+          "notificationStartTime": "09:00",
+          "notificationEndTime": "17:00"
+        }
+        ```
+* **Response:**
+    * 200 OK
+* **Error Codes:**
+    * 400 Bad Request: Invalid input data.
+    * 404 Not Found: User not found.
 
 
-**3. Retrieve Matching Results:**
+**2. Retrieve Notification Preferences (GET /notification/preferences/:userId)**
 
-- **Endpoint:** `/matching/results`
-- **Method:** GET
-- **Query Parameters:**
-    - `userId` (optional): Filters results to only include groups containing this user ID.
-- **Response:** A `MatchingResultsDto` object.
-- **Example:**
-    ```bash
-    GET /matching/results?userId=1
-    ```
+Retrieves the notification preferences for a given user.
+
+* **Request:**
+    * `userId` (path parameter): The ID of the user.
+* **Response:**
+    * 200 OK: `NotificationPreferenceDto`
+        ```json
+        {
+          "pushNotificationEnabled": true,
+          "emailNotificationEnabled": false,
+          "notificationEvents": ["MATCHING_RESULTS", "RESERVATION_INFORMATION"],
+          "notificationMethods": ["push", "email"],
+          "notificationStartTime": "09:00",
+          "notificationEndTime": "17:00"
+        }
+        ```
+    * 204 No Content: User has no notification preferences set.
+* **Error Codes:**
+    * 404 Not Found: User not found.
