@@ -32,4 +32,9 @@ export class MatchingController {
   updateMatchingWeights(@Body() weights: MatchingWeightsDto): void {
     this.matchingService.updateMatchingWeights(weights);
   }
+
+  @Post('performance-test')
+  async runPerformanceTests(): Promise<void> {
+    return this.matchingService.runPerformanceTests();
+  }
 }

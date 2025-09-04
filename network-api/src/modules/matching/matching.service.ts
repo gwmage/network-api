@@ -10,6 +10,7 @@ import { MatchingResultsDto } from './dto/matching-results.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { UserDataDto } from './dto/user-data.dto';
 import { MatchingWeightsDto } from './dto/matching-weights.dto';
+import { writeFileSync } from 'fs';
 
 @Injectable()
 export class MatchingService {
@@ -89,7 +90,9 @@ export class MatchingService {
     this.matchingWeights = weights;
   }
 
+
   private groupUsers(users: User[]): MatchingGroupDto[] {
+    const start = Date.now();
     const groups: MatchingGroupDto[] = [];
     const groupSize = 5;
 
@@ -97,6 +100,23 @@ export class MatchingService {
       groups.push({ groupId: uuidv4(), users: users.slice(i, i + groupSize) });
     }
 
+    const end = Date.now();
+    this.logger.log(`groupUsers took ${end - start}ms for ${users.length} users`);
     return groups;
+  }
+
+  async runPerformanceTests(): Promise<void> {
+      const userCounts = [10, 100, 1000, 5000, 10000];
+      const results = [];
+
+      for (const userCount of userCounts) {
+          const users = await this.userRepository.find({ take: userCount });
+          const start = Date.now();
+          this.groupUsers(users);
+          const end = Date.now();
+          results.push({ userCount, time: end - start });
+      }
+      writeFileSync('performance-results.json', JSON.stringify(results, null, 2));
+
   }
 }
