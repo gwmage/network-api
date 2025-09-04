@@ -1,4 +1,3 @@
-```typescript
 import { Controller, Post, Body, Get, Param, Query, Put, UseGuards, UseInterceptors } from '@nestjs/common';
 import { MatchingService } from './matching.service';
 import { UserMatchingInputDto } from './dto/user-matching-input.dto';
@@ -12,6 +11,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
 import { MatchingCriteriaDto } from './dto/matching-criteria.dto';
 import { MatchingStatisticsDto } from './dto/matching-statistics.dto';
+import { MatchExplanation } from './entities/match-explanation.entity';
 
 
 @Controller('matching')
@@ -26,7 +26,7 @@ export class MatchingController {
     return this.matchingService.generateMatchingResults(input);
   }
 
-  @Post('find')
+  @Post('match') // New endpoint for matching based on user data
   async findMatches(@Body() userData: UserDataDto[]): Promise<MatchingGroupDto[]> {
     return this.matchingService.findMatches(userData);
   }
@@ -71,10 +71,19 @@ export class MatchingController {
     return this.matchingService.runPerformanceTests();
   }
 
+  @Get('progress')
+  async getMatchingProgress(): Promise<{ status: string; usersProcessed: number }> {
+    return this.matchingService.getMatchingProgress();
+  }
+
+  @Get('results/:matchId/explanations')
+  async getMatchExplanations(@Param('matchId') matchId: string): Promise<MatchExplanation[]> {
+    return this.matchingService.getMatchExplanations(matchId);
+  }
+
 
   @Get('statistics')
   async getMatchingStatistics(): Promise<MatchingStatisticsDto> {
     return this.matchingService.getMatchingStatistics();
   }
 }
-```
