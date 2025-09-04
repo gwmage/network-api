@@ -8,6 +8,7 @@ This module implements the AI-based matching algorithm for the network API.
 * **GET /matching/results:** Returns the currently matched user groups.  Optionally filter by `userId` query parameter.
 * **POST /matching/find:** Accepts an array of `UserDataDto` objects and returns matched groups based on the provided user data.
 * **PUT /matching/weights:** Accepts a `MatchingWeightsDto` object to adjust the weighting parameters for the matching algorithm.
+* **POST /matching/performance-test:** Runs performance tests on the matching algorithm and saves the results to `performance-results.json`.
 
 ### Data Models
 
@@ -25,4 +26,10 @@ The matching algorithm currently uses a simple grouping mechanism, dividing user
 
 The matching algorithm is scheduled to run automatically once a week (every Sunday at 00:00) using a cron job.  This is implemented in the `ScheduleService` and calls the `runMatching` function in the `MatchingService`.
 
----[END_OF_FILES]---
+### Performance Testing and Optimization
+
+Performance testing is conducted using a script that simulates various user loads and weighting configurations. The results are saved in `performance-results.json`.
+
+Initial tests revealed that the `groupUsers` function is the primary bottleneck.  Optimization strategies will focus on this area.  Potential strategies include database indexing, caching, or algorithmic refinements.
+
+Further documentation of specific results and optimization strategies will be added as they are implemented.
