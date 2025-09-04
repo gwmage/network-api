@@ -13,11 +13,15 @@ import { UserDataDto } from './dto/user-data.dto';
 import { MatchingWeightsDto } from './dto/matching-weights.dto';
 import { writeFileSync } from 'fs';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { MatchingCriteriaDto } from './dto/matching-criteria.dto';
+import { MatchingStatisticsDto } from './dto/matching-statistics.dto';
+
 
 @Injectable()
 export class MatchingService {
   private readonly logger = new Logger(MatchingService.name);
   private matchingWeights: MatchingWeightsDto = { region: 1, preferences: 1, interests: 1 };
+  private matchingCriteria: MatchingCriteriaDto = {};
 
   constructor(
     @InjectRepository(MatchingGroup)
@@ -120,39 +124,48 @@ export class MatchingService {
     if (userId) {
       groups = groups.filter(group => group.users.some(user => user.id === userId));
     }
+
+    // Apply matching criteria filtering
+    if (this.matchingCriteria) {
+      groups = groups.filter(group => this.filterGroup(group, this.matchingCriteria));
+    }
+
+
     return {
       groups: groups.map(group => ({ groupId: group.groupId, users: group.users })),
       notificationId: undefined, // You might want to generate a notification ID here if applicable.
     };
   }
 
+  async updateMatch(matchId: string, updates: Partial<MatchingGroupDto>): Promise<MatchingGroupDto> {
+    const match = await this.matchingGroupRepository.findOne({ where: { groupId: matchId }, relations: ['users'] });
+    if (!match) {
+      throw new Error(`Match with ID ${matchId} not found.`);
+    }
+
+    Object.assign(match, updates);
+    await this.matchingGroupRepository.save(match);
+    return { groupId: match.groupId, users: match.users };
+  }
+
+
   updateMatchingWeights(weights: MatchingWeightsDto) {
     this.matchingWeights = weights;
+  }
+
+  updateMatchingCriteria(criteria: MatchingCriteriaDto) {
+    this.matchingCriteria = criteria;
   }
 
 
   private groupUsers(users: User[]): MatchingGroupDto[] {
     const start = Date.now();
     const groups: MatchingGroupDto[] = [];
-    const groupSize = 5;
+    const groupSize = this.matchingCriteria.groupSize || 5;
 
-    // Sort users based on weighted factors
-    users.sort((a, b) => {
-      let scoreA = 0;
-      let scoreB = 0;
 
-      if (a.region && b.region) {
-        scoreA += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
-        scoreB += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
-      }
-      a.preferences?.forEach(pref => b.preferences?.includes(pref) && (scoreA += this.matchingWeights.preferences));
-      b.preferences?.forEach(pref => a.preferences?.includes(pref) && (scoreB += this.matchingWeights.preferences));
-      a.interests?.forEach(interest => b.interests?.includes(interest) && (scoreA += this.matchingWeights.interests));
-      b.interests?.forEach(interest => a.interests?.includes(interest) && (scoreB += this.matchingWeights.interests));
-
-      return scoreB - scoreA; // Sort descending
-    });
-
+    // Sort users based on weighted factors and criteria
+    users.sort((a, b) => this.compareUsers(a, b));
 
     for (let i = 0; i < users.length; i += groupSize) {
       const groupUsers = users.slice(i, i + groupSize);
@@ -184,6 +197,46 @@ export class MatchingService {
         this.logger.error(`Failed to write performance test results: ${error}`);
       }
   }
-}
 
+
+  private compareUsers(a: User, b: User): number {
+    let scoreA = 0;
+    let scoreB = 0;
+
+    if (a.region && b.region) {
+      scoreA += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
+      scoreB += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
+    }
+    a.preferences?.forEach(pref => b.preferences?.includes(pref) && (scoreA += this.matchingWeights.preferences));
+    b.preferences?.forEach(pref => a.preferences?.includes(pref) && (scoreB += this.matchingWeights.preferences));
+    a.interests?.forEach(interest => b.interests?.includes(interest) && (scoreA += this.matchingWeights.interests));
+    b.interests?.forEach(interest => a.interests?.includes(interest) && (scoreB += this.matchingWeights.interests));
+
+    return scoreB - scoreA; // Sort descending
+  }
+
+
+  private filterGroup(group: MatchingGroup, criteria: MatchingCriteriaDto): boolean {
+    return group.users.every(user => {
+      if (criteria.region && user.region !== criteria.region) return false;
+      if (criteria.preferences && !criteria.preferences.every(pref => user.preferences?.includes(pref))) return false;
+      if (criteria.interests && !criteria.interests.every(interest => user.interests?.includes(interest))) return false;
+      return true;
+    });
+  }
+
+
+
+  async getMatchingStatistics(): Promise<MatchingStatisticsDto> {
+    const groups = await this.matchingGroupRepository.find({ relations: ['users'] });
+    const totalGroups = groups.length;
+    const totalUsers = groups.reduce((sum, group) => sum + group.users.length, 0);
+    const averageGroupSize = totalGroups > 0 ? totalUsers / totalGroups : 0;
+
+    return {
+      totalGroups,
+      averageGroupSize,
+    };
+  }
+}
 ```
