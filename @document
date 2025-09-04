@@ -1,10 +1,126 @@
-The `User` entity has been updated to include the following properties:
+## Matching Result Generation Endpoints
 
-*   `region`: string (e.g., "US", "Europe")
-*   `preferences`: string[] (e.g., ["outdoor activities", "online gaming"])
-*   `interests`: string[] (e.g., ["technology", "travel"])
+**POST /matching/generate**
 
-These properties will be used by the matching algorithm to group users with similar characteristics.  The current implementation of the matching algorithm is a placeholder that groups users into groups of 5 without considering their region, preferences, or interests.  A future update will implement the weighted matching logic based on these properties.
+Generates matching results based on provided user IDs or all users if no IDs are specified.
+
+* **Request Body:**
+```json
+{
+  "userIds": [1, 2, 3] // Optional array of user IDs
+}
+```
+
+* **Response:**
+```json
+{
+  "groups": [
+    {
+      "users": [
+        {
+          "id": 1,
+          "email": "user1@example.com",
+          // ... other user properties
+        },
+        // ... other users in the group
+      ]
+    },
+    // ... other groups
+  ],
+  "notificationId": "uuid-v4-generated-id"
+}
+```
 
 
----[END_OF_FILES]---
+**GET /matching/results**
+
+Retrieves matching results.  Can be filtered by userId.
+
+* **Query Parameters:**
+  * `userId` (optional): Filter results to include only groups containing this user ID.
+
+* **Response:**
+```json
+{
+  "groups": [
+    {
+      "users": [
+        {
+          "id": 1,
+          "email": "user1@example.com",
+          // ... other user properties
+        },
+        // ... other users in the group
+      ]
+    },
+    // ... other groups
+  ]
+}
+```
+
+
+## Notification Management Endpoints
+
+**PUT /notification/preferences/:userId**
+
+Saves notification preferences for a user.
+
+* **Path Parameters:**
+  * `userId`: The ID of the user.
+
+* **Request Body:**
+```json
+{
+  "pushNotificationEnabled": true,
+  "emailNotificationEnabled": false
+}
+```
+
+* **Response:** `200 OK`
+
+
+
+**GET /notification/preferences/:userId**
+
+Retrieves notification preferences for a user.
+
+* **Path Parameters:**
+  * `userId`: The ID of the user.
+
+* **Response:**
+```json
+{
+  "pushNotificationEnabled": true,
+  "emailNotificationEnabled": false
+}
+```
+
+
+**POST /notification/send**
+
+This endpoint is intended to be called internally or by a scheduler to initiate the notification sending process based on matching results and user preferences. It is not meant for direct client interaction.
+
+
+**GET /notification/status**
+
+Retrieves notification delivery status.
+
+* **Query Parameters:**
+  * `notificationId` (optional): Filter by notification ID.
+  * `userId` (optional): Filter by user ID.
+
+
+* **Response:**
+```json
+[
+  {
+    "id": 1,
+    "notificationId": "uuid-v4-generated-id",
+    "user": { /* user details */},
+    "deliveryMethod": "PUSH", 
+    "status": "DELIVERED",
+    "timestamp": "ISO8601 timestamp"
+  },
+  // ... other notification status entries
+]
+```
