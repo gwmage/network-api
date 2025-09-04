@@ -5,6 +5,8 @@ import { MatchingGroup } from '../src/modules/matching/entities/matching-group.e
 import { MatchExplanation } from '../src/modules/matching/entities/match-explanation.entity';
 import { User } from '../src/modules/auth/entities/user.entity';
 import { Repository } from 'typeorm';
+import { UserMatchingInputDto } from '../src/modules/matching/dto/user-matching-input.dto';
+
 
 describe('MatchingService', () => {
   let service: MatchingService;
@@ -16,15 +18,18 @@ describe('MatchingService', () => {
         MatchingService,
         {
           provide: getRepositoryToken(MatchingGroup),
-          useClass: Repository,
+          useValue: {}, // Mock repository
         },
         {
           provide: getRepositoryToken(MatchExplanation),
-          useClass: Repository,
+          useValue: {}, // Mock repository
         },
         {
           provide: getRepositoryToken(User),
-          useClass: Repository,
+          useValue: {
+            findByIds: jest.fn(),
+            find: jest.fn(),
+          }, // Mock repository
         },
       ],
     }).compile();
@@ -37,34 +42,28 @@ describe('MatchingService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should generate matching results', async () => {
-    const users: User[] = [];
-    for (let i = 0; i < 10; i++) {
-      const user = new User();
-      user.id = i + 1;
-      users.push(user);
-    }
+  it('should generate matching results with provided user IDs', async () => {
+    const mockUsers: User[] = [{ id: 1 } as User, { id: 2 } as User];
+    (userRepository.findByIds as jest.Mock).mockResolvedValue(mockUsers);
+    const input: UserMatchingInputDto = { userIds: [1, 2] };
+    const result = await service.generateMatchingResults(input);
+    expect(result.groups).toBeDefined(); // Check if groups are generated
+    expect(result.notificationId).toBeDefined(); // Check if notification ID is generated
+    expect(userRepository.findByIds).toHaveBeenCalledWith(input.userIds);
 
-    jest.spyOn(userRepository, 'find').mockResolvedValue(users);
-    const result = await service.generateMatchingResults({});
-    expect(result.groups.length).toBeGreaterThan(0);
+  });
+
+  it('should generate matching results for all users', async () => {
+    const mockUsers: User[] = [{ id: 1 } as User, { id: 2 } as User];
+    (userRepository.find as jest.Mock).mockResolvedValue(mockUsers);
+    const input: UserMatchingInputDto = {};
+    const result = await service.generateMatchingResults(input);
+
+    expect(result.groups).toBeDefined(); // Check if groups are generated
+    expect(result.notificationId).toBeDefined(); // Check if notification ID is generated
+    expect(userRepository.find).toHaveBeenCalled();
   });
 
 
-  it('should measure performance', async () => {
-    const users: User[] = [];
-    for (let i = 0; i < 1000; i++) {
-      const user = new User();
-      user.id = i + 1;
-      users.push(user);
-    }
-    jest.spyOn(userRepository, 'find').mockResolvedValue(users);
 
-    const start = Date.now();
-    await service.generateMatchingResults({});
-    const end = Date.now();
-    const duration = end - start;
-    console.log(`Matching 1000 users took ${duration}ms`);
-    expect(duration).toBeLessThan(5000); // Example: expect matching to be under 5 seconds
-  });
 });

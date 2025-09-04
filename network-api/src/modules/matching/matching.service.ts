@@ -7,6 +7,7 @@ import { MatchingGroup } from './entities/matching-group.entity';
 import { MatchExplanation } from './entities/match-explanation.entity';
 import { User } from '../auth/entities/user.entity';
 import { MatchingResultsDto } from './dto/matching-results.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class MatchingService {
@@ -33,10 +34,11 @@ export class MatchingService {
     }
 
     const groups = this.groupUsers(users);
+    const notificationId = uuidv4();
     const end = Date.now();
     this.logger.log(`Matching took ${end - start}ms`);
 
-    const results: MatchingResultsDto = { groups };
+    const results: MatchingResultsDto = { groups, notificationId };
 
     return results;
   }
@@ -66,7 +68,7 @@ export class MatchingService {
     if (userId) {
       groups = groups.filter(group => group.users.some(user => user.id === userId));
     }
-    return { groups: groups.map(group => ({ users: group.users })) }; // Adjust mapping as needed
+    return { groups: groups.map(group => ({ users: group.users })), notificationId: undefined }; // Adjust mapping as needed
   }
 
 

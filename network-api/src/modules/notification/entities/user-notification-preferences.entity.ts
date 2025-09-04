@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Index } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 
 @Entity()
@@ -7,6 +7,7 @@ export class UserNotificationPreferences {
   id: number;
 
   @ManyToOne(() => User, (user) => user.notificationPreferences)
+  @Index()
   user: User;
 
   @Column({ default: true })
