@@ -6,3 +6,6 @@ cmds = ["npm run build"]
 
 [phases.start]
 cmds = ["npm run start:prod"]
+
+[app]
+  engines = { node = "16.x" }
