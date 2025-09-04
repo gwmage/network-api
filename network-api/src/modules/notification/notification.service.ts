@@ -1,3 +1,4 @@
+```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -46,7 +47,7 @@ export class NotificationService {
     this.logger.log(`Sending notifications for ${notificationId}`);
     for (const userId of userIds) {
       const preferences = await this.retrieveUserNotificationPreferences(userId);
-      if (preferences.pushNotificationEnabled) {
+      if (preferences && preferences.pushNotificationEnabled) { // Check if preferences exist
         try {
           // Send push notification using Firebase
           // await this.firebaseMessaging.send({ /* Push notification payload */ });
@@ -57,7 +58,7 @@ export class NotificationService {
         }
       }
 
-      if (preferences.emailNotificationEnabled) {
+      if (preferences && preferences.emailNotificationEnabled) { // Check if preferences exist
         try {
           // Send email notification using Nodemailer
           // await this.emailTransporter.sendMail({ /* Email payload */ });
@@ -93,3 +94,4 @@ export class NotificationService {
     return query.getMany();
   }
 }
+```

@@ -1,8 +1,9 @@
+```typescript
 import { CronExpression } from '@nestjs/schedule';
 
 export const scheduleConfig = [
     {
-        cronTime: CronExpression.EVERY_WEEK, // Run every week (Sunday at midnight)
+        cronTime: CronExpression.EVERY_SUNDAY_AT_MIDNIGHT,
         task: 'matching',
         options: {
             priority: 1, // Adjust priority if needed
@@ -10,3 +11,4 @@ export const scheduleConfig = [
     },
     // Other scheduled tasks can be added here
 ];
+```
