@@ -18,9 +18,12 @@ import { Application } from './modules/application/entities/application.entity';
 import { NotificationModule } from './modules/notification/notification.module'; // Import NotificationModule
 import { UserNotificationPreferences } from './modules/notification/entities/user-notification-preferences.entity';
 import { NotificationDeliveryStatus } from './modules/notification/entities/notification-delivery-status.entity';
+import { ScheduleModule } from '@nestjs/schedule';
+
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     // ... other imports
     NotificationModule, // Add NotificationModule
   ],

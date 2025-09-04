@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserDataDto } from './dto/user-data.dto';
 import { MatchingWeightsDto } from './dto/matching-weights.dto';
 import { writeFileSync } from 'fs';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class MatchingService {
@@ -54,7 +55,31 @@ export class MatchingService {
     return this.groupUsers(users);
   }
 
+  async getUserData(userIds?: number[]): Promise<UserDataDto[]> {
+    let users: User[];
+    if (userIds) {
+      users = await this.userRepository.findByIds(userIds);
+    } else {
+      users = await this.userRepository.find();
+    }
 
+    return users.map(user => ({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
+      city: user.city,
+      state: user.state,
+      zipCode: user.zipCode,
+      region: user.region,
+      preferences: user.preferences,
+      interests: user.interests,
+    }));
+  }
+
+
+  @Cron(CronExpression.EVERY_WEEK)
   async runMatching(): Promise<void> {
     this.logger.log('Running weekly matching...');
     const users = await this.userRepository.find();
@@ -73,6 +98,19 @@ export class MatchingService {
     this.logger.log('Matching completed and saved.');
   }
 
+  async storeMatchingResults(results: MatchingResultsDto): Promise<void> {
+    await this.matchingGroupRepository.clear(); // Clear existing groups
+    const matchingGroups = results.groups.map(group => {
+      const matchingGroup = new MatchingGroup();
+      matchingGroup.users = group.users;
+      matchingGroup.groupId = group.groupId;
+      return matchingGroup;
+    });
+    await this.matchingGroupRepository.save(matchingGroups);
+  }
+
+
+
   async retrieveMatchingResults(userId?: number): Promise<MatchingResultsDto> {
     this.logger.log('Retrieving matching results...');
     let groups = await this.matchingGroupRepository.find({ relations: ['users'] });
@@ -82,7 +120,7 @@ export class MatchingService {
     }
     return {
       groups: groups.map(group => ({ groupId: group.groupId, users: group.users })),
-      notificationId: undefined,
+      notificationId: undefined, // You might want to generate a notification ID here if applicable.
     };
   }
 
@@ -96,8 +134,27 @@ export class MatchingService {
     const groups: MatchingGroupDto[] = [];
     const groupSize = 5;
 
+    // Sort users based on weighted factors
+    users.sort((a, b) => {
+      let scoreA = 0;
+      let scoreB = 0;
+
+      if (a.region && b.region) {
+        scoreA += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
+        scoreB += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
+      }
+      a.preferences?.forEach(pref => b.preferences?.includes(pref) && (scoreA += this.matchingWeights.preferences));
+      b.preferences?.forEach(pref => a.preferences?.includes(pref) && (scoreB += this.matchingWeights.preferences));
+      a.interests?.forEach(interest => b.interests?.includes(interest) && (scoreA += this.matchingWeights.interests));
+      b.interests?.forEach(interest => a.interests?.includes(interest) && (scoreB += this.matchingWeights.interests));
+
+      return scoreB - scoreA; // Sort descending
+    });
+
+
     for (let i = 0; i < users.length; i += groupSize) {
-      groups.push({ groupId: uuidv4(), users: users.slice(i, i + groupSize) });
+      const groupUsers = users.slice(i, i + groupSize);
+      groups.push({ groupId: uuidv4(), users: groupUsers });
     }
 
     const end = Date.now();
@@ -115,8 +172,14 @@ export class MatchingService {
           this.groupUsers(users);
           const end = Date.now();
           results.push({ userCount, time: end - start });
+          this.logger.log(`Performance test for ${userCount} users took ${end - start}ms`);
       }
-      writeFileSync('performance-results.json', JSON.stringify(results, null, 2));
 
+      try {
+        writeFileSync('performance-results.json', JSON.stringify(results, null, 2));
+        this.logger.log('Performance test results written to performance-results.json');
+      } catch (error) {
+        this.logger.error(`Failed to write performance test results: ${error}`);
+      }
   }
 }
