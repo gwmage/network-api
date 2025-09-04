@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Body, Controller, Post, HttpException, HttpStatus, Logger, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -10,8 +10,17 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
-    // ... existing code ...
+  @UsePipes(ValidationPipe)
+  async register(@Body() registerDto: RegisterDto): Promise<{ message: string }> {
+    try {
+      return await this.authService.register(registerDto);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error('Registration failed', error);
+      throw new HttpException('Registration failed', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Post('login')
