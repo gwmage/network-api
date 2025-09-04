@@ -1,22 +1,8 @@
-import { IsArray, IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsArray, IsNumber, IsOptional } from 'class-validator';
 
 export class UserMatchingInputDto {
   @IsOptional()
+  @IsArray()
   @IsNumber({}, { each: true })
   userIds?: number[];
-
-  @IsOptional()
-  @IsNotEmpty()
-  @IsString()
-  region?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  preferences?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  interests?: string[];
 }

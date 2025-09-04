@@ -1,4 +1,3 @@
-```typescript
 import { CronExpression } from '@nestjs/schedule';
 
 export const scheduleConfig = [
@@ -11,4 +10,3 @@ export const scheduleConfig = [
     },
     // Other scheduled tasks can be added here
 ];
-```

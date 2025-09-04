@@ -1,4 +1,3 @@
-```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,13 +14,16 @@ import { writeFileSync } from 'fs';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { MatchingCriteriaDto } from './dto/matching-criteria.dto';
 import { MatchingStatisticsDto } from './dto/matching-statistics.dto';
-
+import { ConfigService } from '@nestjs/config';
+import * as winston from 'winston';
 
 @Injectable()
 export class MatchingService {
   private readonly logger = new Logger(MatchingService.name);
-  private matchingWeights: MatchingWeightsDto = { region: 1, preferences: 1, interests: 1 };
+  private matchingWeights: MatchingWeightsDto;
   private matchingCriteria: MatchingCriteriaDto = {};
+  private winstonLogger: winston.Logger;
+
 
   constructor(
     @InjectRepository(MatchingGroup)
@@ -30,10 +32,26 @@ export class MatchingService {
     private matchExplanationRepository: Repository<MatchExplanation>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.matchingWeights = {
+      region: +this.configService.get<number>('MATCHING_WEIGHT_REGION') || 1,
+      preferences: +this.configService.get<number>('MATCHING_WEIGHT_PREFERENCES') || 1,
+      interests: +this.configService.get<number>('MATCHING_WEIGHT_INTERESTS') || 1,
+    };
+
+    this.winstonLogger = winston.createLogger({
+      level: 'info', // Adjust log level as needed
+      format: winston.format.json(),
+      transports: [
+        new winston.transports.Console(), // Log to console
+        // Add other transports like file or database logging as needed
+      ],
+    });
+  }
 
   async generateMatchingResults(input: UserMatchingInputDto): Promise<MatchingResultsDto> {
-    this.logger.log('Generating matching results...');
+    this.winstonLogger.info('Generating matching results...');
     const start = Date.now();
 
     let users: User[] = [];
@@ -46,7 +64,7 @@ export class MatchingService {
     const groups = this.groupUsers(users);
     const notificationId = uuidv4();
     const end = Date.now();
-    this.logger.log(`Matching took ${end - start}ms`);
+    this.winstonLogger.info(`Matching took ${end - start}ms`);
 
     const results: MatchingResultsDto = { groups, notificationId };
 
@@ -86,7 +104,7 @@ export class MatchingService {
 
   @Cron(CronExpression.EVERY_SUNDAY_AT_MIDNIGHT)
   async runMatching(): Promise<void> {
-    this.logger.log('Running weekly matching...');
+    this.winstonLogger.info('Running weekly matching...');
     const users = await this.userRepository.find();
     const groups = this.groupUsers(users);
     const notificationId = uuidv4();
@@ -97,11 +115,12 @@ export class MatchingService {
       const matchingGroup = new MatchingGroup();
       matchingGroup.users = group.users;
       matchingGroup.groupId = group.groupId;
+      matchingGroup.notificationId = notificationId; // Store notificationId
       return matchingGroup;
     });
 
     await this.matchingGroupRepository.save(matchingGroups);
-    this.logger.log('Matching completed and saved.');
+    this.winstonLogger.info('Matching completed and saved.');
   }
 
   async storeMatchingResults(results: MatchingResultsDto): Promise<void> {
@@ -110,6 +129,7 @@ export class MatchingService {
       const matchingGroup = new MatchingGroup();
       matchingGroup.users = group.users;
       matchingGroup.groupId = group.groupId;
+      matchingGroup.notificationId = results.notificationId; // Store notificationId
       return matchingGroup;
     });
     await this.matchingGroupRepository.save(matchingGroups);
@@ -133,9 +153,14 @@ export class MatchingService {
 
     return {
       groups: groups.map(group => ({ groupId: group.groupId, users: group.users })),
-      notificationId: undefined, // You might want to generate a notification ID here if applicable.
+      notificationId: groups.length > 0 ? groups[0].notificationId : undefined,
     };
   }
+
+  async getMatchExplanations(matchId: string): Promise<MatchExplanation[]> {
+    return this.matchExplanationRepository.find({ where: { groupId: matchId } });
+  }
+
 
   async updateMatch(matchId: string, updates: Partial<MatchingGroupDto>): Promise<MatchingGroupDto> {
     const match = await this.matchingGroupRepository.findOne({ where: { groupId: matchId }, relations: ['users'] });
@@ -163,7 +188,6 @@ export class MatchingService {
     const groups: MatchingGroupDto[] = [];
     const groupSize = this.matchingCriteria.groupSize || 5;
 
-
     // Sort users based on weighted factors and criteria
     users.sort((a, b) => this.compareUsers(a, b));
 
@@ -173,7 +197,7 @@ export class MatchingService {
     }
 
     const end = Date.now();
-    this.logger.log(`groupUsers took ${end - start}ms for ${users.length} users`);
+    this.winstonLogger.info(`groupUsers took ${end - start}ms for ${users.length} users`);
     return groups;
   }
 
@@ -187,14 +211,14 @@ export class MatchingService {
           this.groupUsers(users);
           const end = Date.now();
           results.push({ userCount, time: end - start });
-          this.logger.log(`Performance test for ${userCount} users took ${end - start}ms`);
+          this.winstonLogger.info(`Performance test for ${userCount} users took ${end - start}ms`);
       }
 
       try {
         writeFileSync('performance-results.json', JSON.stringify(results, null, 2));
-        this.logger.log('Performance test results written to performance-results.json');
+        this.winstonLogger.info('Performance test results written to performance-results.json');
       } catch (error) {
-        this.logger.error(`Failed to write performance test results: ${error}`);
+        this.winstonLogger.error(`Failed to write performance test results: ${error}`);
       }
   }
 
@@ -207,10 +231,17 @@ export class MatchingService {
       scoreA += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
       scoreB += (a.region === b.region ? 1 : 0) * this.matchingWeights.region;
     }
-    a.preferences?.forEach(pref => b.preferences?.includes(pref) && (scoreA += this.matchingWeights.preferences));
-    b.preferences?.forEach(pref => a.preferences?.includes(pref) && (scoreB += this.matchingWeights.preferences));
-    a.interests?.forEach(interest => b.interests?.includes(interest) && (scoreA += this.matchingWeights.interests));
-    b.interests?.forEach(interest => a.interests?.includes(interest) && (scoreB += this.matchingWeights.interests));
+
+    // Use intersection to calculate common elements between arrays (preferences and interests)
+    const commonPreferences = a.preferences && b.preferences ? a.preferences.filter(pref => b.preferences.includes(pref)).length : 0;
+    scoreA += commonPreferences * this.matchingWeights.preferences;
+    scoreB += commonPreferences * this.matchingWeights.preferences;
+
+
+    const commonInterests = a.interests && b.interests ? a.interests.filter(interest => b.interests.includes(interest)).length : 0;
+    scoreA += commonInterests * this.matchingWeights.interests;
+    scoreB += commonInterests * this.matchingWeights.interests;
+
 
     return scoreB - scoreA; // Sort descending
   }
@@ -221,8 +252,20 @@ export class MatchingService {
       if (criteria.region && user.region !== criteria.region) return false;
       if (criteria.preferences && !criteria.preferences.every(pref => user.preferences?.includes(pref))) return false;
       if (criteria.interests && !criteria.interests.every(interest => user.interests?.includes(interest))) return false;
+
       return true;
     });
+  }
+
+
+  async getMatchingProgress(): Promise<{ status: string, usersProcessed: number }> {
+    // Implement logic to track matching progress.
+    // For example, check if results are available in the database.
+    const results = await this.matchingGroupRepository.count();
+    return {
+      status: results > 0 ? 'completed' : 'pending', // or 'failed' based on your logic
+      usersProcessed: results > 0 ? (await this.matchingGroupRepository.createQueryBuilder('mg').leftJoinAndSelect('mg.users', 'user').getMany()).reduce((count, group) => count + group.users.length, 0) : 0,
+    };
   }
 
 
@@ -239,4 +282,3 @@ export class MatchingService {
     };
   }
 }
-```
