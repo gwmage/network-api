@@ -10,7 +10,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { FindAllCommentsDto } from './dto/findAllComments.dto';
+
 
 
 @Injectable()
@@ -74,22 +74,6 @@ export class CommunityRepository {
     return this.commentRepository.save(comment);
   }
 
-  async findAllComments(options: FindAllCommentsDto): Promise<[Comment[], number]> {
-    const { page, limit, postId } = options;
-    const queryBuilder = this.commentRepository.createQueryBuilder('comment');
-
-
-    if (postId) {
-      queryBuilder.where('comment.postId = :postId', { postId });
-    }
-
-    return queryBuilder
-    .leftJoinAndSelect('comment.author', 'author')
-    .orderBy('comment.createdAt', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-  }
 
   async findOneComment(id: number): Promise<Comment> {
     return this.commentRepository.findOne({ where: { id }, relations: ['author'] });
