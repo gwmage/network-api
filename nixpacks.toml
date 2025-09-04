@@ -2,7 +2,7 @@
 cmds = ["npm install --omit=dev", "npm install --only=prod"]
 
 [phases.build]
-cmds = ["npm run build"]
+cmds = []
 
 [phases.start]
 cmds = ["npm run start:prod"]
