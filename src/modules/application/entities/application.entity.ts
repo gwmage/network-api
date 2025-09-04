@@ -1,5 +1,5 @@
 ```typescript
-import { User } from 'src/modules/auth/entities/user.entity';
+import { User } from 'src/modules/user/entities/user.entity'; // Updated import path
 import {
   Column,
   CreateDateColumn,
