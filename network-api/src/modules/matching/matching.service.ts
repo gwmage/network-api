@@ -8,10 +8,13 @@ import { MatchExplanation } from './entities/match-explanation.entity';
 import { User } from '../auth/entities/user.entity';
 import { MatchingResultsDto } from './dto/matching-results.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { UserDataDto } from './dto/user-data.dto';
+import { MatchingWeightsDto } from './dto/matching-weights.dto';
 
 @Injectable()
 export class MatchingService {
   private readonly logger = new Logger(MatchingService.name);
+  private matchingWeights: MatchingWeightsDto = { region: 1, preferences: 1, interests: 1 };
 
   constructor(
     @InjectRepository(MatchingGroup)
@@ -43,6 +46,13 @@ export class MatchingService {
     return results;
   }
 
+  async findMatches(userData: UserDataDto[]): Promise<MatchingGroupDto[]> {
+    const users = await this.userRepository.find({
+      where: userData.map(u => ({ region: u.region, preferences: u.preferences, interests: u.interests })),
+    });
+    return this.groupUsers(users);
+  }
+
 
   async runMatching(): Promise<void> {
     this.logger.log('Running weekly matching...');
@@ -53,7 +63,8 @@ export class MatchingService {
     await this.matchingGroupRepository.clear();
     const matchingGroups = groups.map(group => {
       const matchingGroup = new MatchingGroup();
-      matchingGroup.users = group;
+      matchingGroup.users = group.users;
+      matchingGroup.groupId = group.groupId;
       return matchingGroup;
     });
 
@@ -68,17 +79,22 @@ export class MatchingService {
     if (userId) {
       groups = groups.filter(group => group.users.some(user => user.id === userId));
     }
-    return { groups: groups.map(group => ({ users: group.users })), notificationId: undefined }; // Adjust mapping as needed
+    return {
+      groups: groups.map(group => ({ groupId: group.groupId, users: group.users })),
+      notificationId: undefined,
+    };
   }
 
+  updateMatchingWeights(weights: MatchingWeightsDto) {
+    this.matchingWeights = weights;
+  }
 
   private groupUsers(users: User[]): MatchingGroupDto[] {
-    // Placeholder implementation - replace with actual matching logic
     const groups: MatchingGroupDto[] = [];
     const groupSize = 5;
 
     for (let i = 0; i < users.length; i += groupSize) {
-      groups.push({ users: users.slice(i, i + groupSize) });
+      groups.push({ groupId: uuidv4(), users: users.slice(i, i + groupSize) });
     }
 
     return groups;
