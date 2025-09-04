@@ -4,6 +4,9 @@
   "description": "Nestjs backend server",
   "author": "",
   "private": true,
+  "engines": {
+    "node": "16.x"
+  },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
