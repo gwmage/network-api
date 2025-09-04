@@ -1,49 +1,31 @@
-## Notification Preferences API
+```
+## Reservation Cancellation
 
-This API allows users to manage their notification preferences.
+**Endpoint:** DELETE /reservations/:id/cancel
 
-**1. Update Notification Preferences (PUT /notification/preferences/:userId)**
+**Description:** Cancels a reservation.
 
-Updates the notification preferences for a given user.
+**Parameters:**
 
-* **Request:**
-    * `userId` (path parameter): The ID of the user.
-    * `body`: `NotificationPreferenceDto`
-        ```json
-        {
-          "pushNotificationEnabled": true,
-          "emailNotificationEnabled": false,
-          "notificationEvents": ["MATCHING_RESULTS", "RESERVATION_INFORMATION"],
-          "notificationMethods": ["push", "email"],
-          "notificationStartTime": "09:00",
-          "notificationEndTime": "17:00"
-        }
-        ```
-* **Response:**
-    * 200 OK
-* **Error Codes:**
-    * 400 Bad Request: Invalid input data.
-    * 404 Not Found: User not found.
+* `id` (path): The ID of the reservation to cancel.
+* `cancellationReason` (body, optional): The reason for cancellation.
 
+**Request Body Example:**
 
-**2. Retrieve Notification Preferences (GET /notification/preferences/:userId)**
+```json
+{
+  "cancellationReason": "No longer needed"
+}
+```
 
-Retrieves the notification preferences for a given user.
+**Response:**
 
-* **Request:**
-    * `userId` (path parameter): The ID of the user.
-* **Response:**
-    * 200 OK: `NotificationPreferenceDto`
-        ```json
-        {
-          "pushNotificationEnabled": true,
-          "emailNotificationEnabled": false,
-          "notificationEvents": ["MATCHING_RESULTS", "RESERVATION_INFORMATION"],
-          "notificationMethods": ["push", "email"],
-          "notificationStartTime": "09:00",
-          "notificationEndTime": "17:00"
-        }
-        ```
-    * 204 No Content: User has no notification preferences set.
-* **Error Codes:**
-    * 404 Not Found: User not found.
+* 200 OK: Returns the updated reservation object.
+* 400 Bad Request: If the reservation ID is invalid or cancellation is not allowed within 24 hours of the start time.
+* 404 Not Found: If the reservation is not found.
+
+**Authorization:** Requires a valid JWT token.
+
+```
+
+---[END_OF_FILES]---
