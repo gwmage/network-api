@@ -1,4 +1,4 @@
-"import { Body, Controller, Post, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Body, Controller, Post, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -41,4 +41,4 @@ export class AuthController {
           throw new HttpException('Failed to initiate password recovery', HttpStatus.INTERNAL_SERVER_ERROR);
       }
   }
-}"
+}

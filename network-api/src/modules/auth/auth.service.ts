@@ -1,4 +1,4 @@
-"import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { UserRepository } from './user.repository';
 import * as bcrypt from 'bcrypt';
@@ -63,4 +63,4 @@ export class AuthService {
         throw new HttpException('Failed to send reset email', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-}"
+}
