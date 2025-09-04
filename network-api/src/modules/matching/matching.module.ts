@@ -1,4 +1,5 @@
-"import { Module } from '@nestjs/common';
+```typescript
+import { Module } from '@nestjs/common';
 import { MatchingService } from './matching.service';
 import { MatchingController } from './matching.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,4 +12,5 @@ import { User } from '../auth/entities/user.entity';
   controllers: [MatchingController],
   providers: [MatchingService],
 })
-export class MatchingModule {}"
+export class MatchingModule {}
+```

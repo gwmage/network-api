@@ -10,6 +10,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
+import { MatchingCriteriaDto } from './dto/matching-criteria.dto';
+import { MatchingStatisticsDto } from './dto/matching-statistics.dto';
 
 
 @Controller('matching')
@@ -48,14 +50,31 @@ export class MatchingController {
     return this.matchingService.retrieveMatchingResults(userId);
   }
 
+  @Put('results/:matchId')
+  async updateMatch(@Param('matchId') matchId: string, @Body() updates: Partial<MatchingGroupDto>): Promise<MatchingGroupDto> {
+    return this.matchingService.updateMatch(matchId, updates);
+  }
+
   @Put('weights')
   updateMatchingWeights(@Body() weights: MatchingWeightsDto): void {
     this.matchingService.updateMatchingWeights(weights);
   }
 
+
+  @Put('criteria')
+  updateMatchingCriteria(@Body() criteria: MatchingCriteriaDto): void {
+    this.matchingService.updateMatchingCriteria(criteria);
+  }
+
   @Post('performance-test')
   async runPerformanceTests(): Promise<void> {
     return this.matchingService.runPerformanceTests();
+  }
+
+
+  @Get('statistics')
+  async getMatchingStatistics(): Promise<MatchingStatisticsDto> {
+    return this.matchingService.getMatchingStatistics();
   }
 }
 ```
