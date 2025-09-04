@@ -1,10 +1,7 @@
-"import { IsArray, IsNotEmpty, IsNumber } from 'class-validator';
+import { UserDataDto } from './user-data.dto';
+import { User } from '../../auth/entities/user.entity';
 
 export class MatchingGroupDto {
-  @IsArray()
-  @IsNotEmpty()
-  @IsNumber({}, { each: true })
-  userIds: number[];
-
-  // Add other relevant group info as needed
-}"
+  groupId: string;
+  users: User[];
+}

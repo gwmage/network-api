@@ -1,10 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { User } from '../../auth/entities/user.entity';
 
 @Entity()
 export class MatchingGroup {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  groupId: string;
 
   @ManyToMany(() => User)
   @JoinTable()
