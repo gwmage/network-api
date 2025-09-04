@@ -1,4 +1,4 @@
-"import { Cron, Timeout } from '@nestjs/schedule';
+import { Cron, Timeout } from '@nestjs/schedule';
 import { Injectable, Logger } from '@nestjs/common';
 import { MatchingService } from '../network-api/src/modules/matching/matching.service'; // Adjust path as needed
 
@@ -18,4 +18,4 @@ export class ScheduleService {
       this.logger.error(`Error running matching algorithm: ${error}`);
     }
   }
-}"
+}

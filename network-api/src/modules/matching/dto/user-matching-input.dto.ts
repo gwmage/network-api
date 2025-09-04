@@ -1,15 +1,22 @@
-"import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class UserMatchingInputDto {
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  userIds?: number[];
+
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
-  region: string;
+  region?: string;
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  preferences: string[];
+  preferences?: string[];
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  interests: string[];
-}"
+  interests?: string[];
+}

@@ -1,55 +1,10 @@
-```
-/**
- * @api {post} /auth/register Register a new user
- * @apiName RegisterUser
- * @apiGroup Authentication
- *
- * @apiBody {String} email User's email address. (required, unique)
- * @apiBody {String} password User's password. (required, min 8 characters, at least one uppercase, one lowercase, one number, and one special character)
- * @apiBody {String} name User's full name. (required, alphabets and spaces only)
- * @apiBody {String} phoneNumber User's phone number. (required, valid phone number format)
- *
- * @apiSuccess {String} message Success message.
- *
- * @apiError (400) ValidationError Invalid request body.
- * @apiError (409) ConflictError Email already exists.
- * @apiError (500) InternalServerError Internal server error.
- *
- * @apiSuccessExample {json} Success-Response:
- *     HTTP/1.1 201 Created
- *     {
- *       "message": "Registration successful"
- *     }
- *
- * @apiErrorExample {json} Validation-Error-Response:
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "statusCode": 400,
- *       "message": [
- *         "Email is required",
- *         "Password is required",
- *         "Name is required",
- *         "Phone number is required"
- *       ],
- *       "error": "Bad Request"
- *     }
- *
- *  @apiErrorExample {json} Email-Conflict-Response:
- *     HTTP/1.1 409 Conflict
- *     {
- *       "statusCode": 409,
- *       "message": "Email already exists",
- *       "error": "Conflict"
- *     }
- *
- *  @apiErrorExample {json} Internal-Server-Error-Response:
- *     HTTP/1.1 500 Internal Server Error
- *     {
- *       "statusCode": 500,
- *       "message": "Registration failed",
- *       "error": "Internal Server Error"
- *     }
- */
-```
+The `User` entity has been updated to include the following properties:
+
+*   `region`: string (e.g., "US", "Europe")
+*   `preferences`: string[] (e.g., ["outdoor activities", "online gaming"])
+*   `interests`: string[] (e.g., ["technology", "travel"])
+
+These properties will be used by the matching algorithm to group users with similar characteristics.  The current implementation of the matching algorithm is a placeholder that groups users into groups of 5 without considering their region, preferences, or interests.  A future update will implement the weighted matching logic based on these properties.
+
 
 ---[END_OF_FILES]---

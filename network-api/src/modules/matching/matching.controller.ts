@@ -6,7 +6,7 @@ import { MatchingResultsDto } from './dto/matching-results.dto';
 
 @Controller('matching')
 export class MatchingController {
-  // ... existing code ...
+  constructor(private readonly matchingService: MatchingService) {}
 
   @Post('generate')
   async generateMatchingResults(

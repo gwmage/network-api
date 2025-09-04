@@ -17,6 +17,15 @@ export class User {
   @Column()
   phoneNumber: string;
 
+  @Column()
+  region: string;
+
+  @Column('simple-array')
+  preferences: string[];
+
+  @Column('simple-array')
+  interests: string[];
+
   @Column({ nullable: true })
   resetToken: string;
 
