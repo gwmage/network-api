@@ -1,4 +1,4 @@
-import { Controller, Put, Body, Param, Get, Post } from '@nestjs/common';
+import { Controller, Put, Body, Param, Get, Post, Query } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { NotificationPreferenceDto } from './dto/notification-preference.dto';
 import { NotificationDeliveryStatus } from './entities/notification-delivery-status.entity';
@@ -21,8 +21,11 @@ export class NotificationController {
   }
 
   @Post('send')
-  async manageNotificationDelivery(): Promise<void> {
-    return this.notificationService.manageNotificationDelivery()
+  async manageNotificationDelivery(
+    @Query('notificationId') notificationId: string,
+    @Query('userIds') userIds: number[],
+  ): Promise<void> {
+    return this.notificationService.manageNotificationDelivery(notificationId, userIds);
   }
 
   @Get('status')

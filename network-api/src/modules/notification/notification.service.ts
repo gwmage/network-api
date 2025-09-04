@@ -1,4 +1,3 @@
-```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -40,7 +39,7 @@ export class NotificationService {
 
   async retrieveUserNotificationPreferences(userId: number): Promise<NotificationPreferenceDto> {
     const userPrefs = await this.userNotificationPreferencesRepository.findOne({ where: { user: { id: userId } } });
-    return userPrefs ? { pushNotificationEnabled: userPrefs.pushNotificationEnabled, emailNotificationEnabled: userPrefs.emailNotificationEnabled } : null;
+    return userPrefs ? userPrefs : null; // Return the entire entity if found
   }
 
   async manageNotificationDelivery(notificationId: string, userIds: number[]): Promise<void> {
@@ -94,4 +93,3 @@ export class NotificationService {
     return query.getMany();
   }
 }
-```
