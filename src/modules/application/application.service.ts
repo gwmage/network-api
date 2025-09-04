@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { User } from '../user/entities/user.entity';
+import { GetApplicationsDto } from './dto/get-applications.dto';
 
 @Injectable()
 export class ApplicationService {
@@ -16,22 +17,16 @@ export class ApplicationService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async getApplication(getApplicationDto: GetApplicationDto, user: User): Promise<{ applications: Application[], totalCount: number }> {
-    const { page, pageSize, sortField, sortOrder, filter } = getApplicationDto;
+  async getApplications(getApplicationsDto: GetApplicationsDto, user: User): Promise<{ applications: Application[], totalCount: number }> {
+    const { page, pageSize, sortField, sortOrder, search } = getApplicationsDto;
 
     const query = this.applicationRepository.createQueryBuilder('application');
 
     // Filter by user ID from the token
     query.andWhere('application.userId = :userId', { userId: user.id });
 
-    if (filter) {
-      if (filter.name) {
-        query.andWhere('application.name LIKE :name', { name: `%${filter.name}%` });
-      }
-      if (filter.status) {
-        query.andWhere('application.status = :status', { status: filter.status });
-      }
-      // Add other filter conditions as needed
+    if (search) {
+      query.andWhere('application.title LIKE :search', { search: `%${search}%` });
     }
 
     if (sortField && sortOrder) {
@@ -49,7 +44,6 @@ export class ApplicationService {
     return { applications, totalCount };
   }
 
-
   async createApplication(createApplicationDto: CreateApplicationDto, user:User): Promise<Application> {
     const newApplication = this.applicationRepository.create({
       ...createApplicationDto,
@@ -57,7 +51,6 @@ export class ApplicationService {
     });
     return await this.applicationRepository.save(newApplication);
   }
-
 
 }
 ```

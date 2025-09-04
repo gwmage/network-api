@@ -1,3 +1,4 @@
+```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
@@ -8,11 +9,12 @@ export class ApplicationInfoDto {
 
   @ApiProperty()
   @IsString()
-  name: string;
+  title: string; // Changed from 'name' to 'title' to match entity
 
   @ApiProperty()
   @IsString()
-  status: string;
+  content: string;
+
 
   @ApiProperty()
   @IsOptional()
@@ -41,3 +43,4 @@ export class GetApplicationInfoListRequestDto {
   @IsNumber()
   limit?: number;
 }
+```

@@ -1,31 +1,51 @@
 ```
-## Reservation Cancellation
-
-**Endpoint:** DELETE /reservations/:id/cancel
-
-**Description:** Cancels a reservation.
-
-**Parameters:**
-
-* `id` (path): The ID of the reservation to cancel.
-* `cancellationReason` (body, optional): The reason for cancellation.
-
-**Request Body Example:**
-
-```json
-{
-  "cancellationReason": "No longer needed"
-}
+/**
+ * @swagger
+ * /application:
+ *   get:
+ *     summary: Get Applications
+ *     description: 신청 정보 조회 기능 개발. Retrieves applications with pagination, filtering, and sorting.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination.
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *         description: Page size for pagination.
+ *       - in: query
+ *         name: sortField
+ *         schema:
+ *           type: string
+ *         description: Field to sort by (e.g., title, createdAt).
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *         description: Sort order.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search keyword for application title.
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [json, csv]
+ *         description: Response format. Defaults to json.
+ *     responses:
+ *       '200':
+ *         description: Successful retrieval of applications.
+ *       '401':
+ *         description: Unauthorized.
+ *       '500':
+ *         description: Internal server error.
+ */
 ```
-
-**Response:**
-
-* 200 OK: Returns the updated reservation object.
-* 400 Bad Request: If the reservation ID is invalid or cancellation is not allowed within 24 hours of the start time.
-* 404 Not Found: If the reservation is not found.
-
-**Authorization:** Requires a valid JWT token.
-
-```
-
----[END_OF_FILES]---
