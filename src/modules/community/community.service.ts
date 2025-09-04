@@ -1,32 +1,124 @@
 ```typescript
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, FindOptionsWhere, Like } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { FindManyOptions, FindOptionsWhere } from 'typeorm';
-import { PaginatedCommunityPostsDto } from './dto/paginated-community-posts.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from './entities/comment.entity';
-import { Post } from './entities/post.entity'; // Import Post entity
-import { User } from '../auth/entities/user.entity'; // Correct import path
+import { Post } from './entities/post.entity';
+import { User } from '../auth/entities/user.entity';
 import { NotificationService } from '../notification/notification.service';
 import { CreateNotificationDto } from '../notification/dto/create-notification.dto';
+import { Category } from './entities/category.entity';
+import { Tag } from './entities/tag.entity';
 
 
 @Injectable()
 export class CommunityService {
   constructor(
-    @InjectRepository(Post) // Inject Post repository
+    @InjectRepository(Post)
     private communityPostRepository: Repository<Post>,
     @InjectRepository(Comment)
     private commentRepository: Repository<Comment>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+    @InjectRepository(Tag)
+    private tagRepository: Repository<Tag>,
     @Inject(forwardRef(() => NotificationService))
     private notificationService: NotificationService,
   ) {}
 
-  // ... (Existing Post methods)
+
+  async createPost(createPostDto: CreatePostDto, user: User): Promise<Post> {
+    const { categoryIds, tagIds, ...postData } = createPostDto;
+    const newPost = this.communityPostRepository.create({
+      ...postData,
+      author: user,
+    });
+
+    if (categoryIds) {
+      newPost.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
+    }
+
+    if (tagIds) {
+      newPost.tags = await this.tagRepository.findBy({ id: In(tagIds) });
+    }
+
+    return await this.communityPostRepository.save(newPost);
+  }
+
+
+  async findAllPosts(
+    page: number,
+    pageSize: number,
+    categories?: number[],
+    tags?: number[],
+    search?: string,
+  ): Promise<{ posts: Post[]; totalCount: number }> {
+    const queryBuilder = this.communityPostRepository.createQueryBuilder('post');
+
+    if (categories) {
+      queryBuilder.leftJoinAndSelect('post.categories', 'category').where('category.id IN (:...categories)', { categories });
+    }
+
+    if (tags) {
+      queryBuilder.leftJoinAndSelect('post.tags', 'tag').where('tag.id IN (:...tags)', { tags });
+    }
+
+    if (search) {
+      queryBuilder.andWhere('post.title LIKE :search OR post.content LIKE :search', { search: `%${search}%` });
+    }
+
+    queryBuilder.leftJoinAndSelect('post.author', 'author');
+    queryBuilder.orderBy('post.createdAt', 'DESC');
+
+    const totalCount = await queryBuilder.getCount();
+    const posts = await queryBuilder.skip((page - 1) * pageSize).take(pageSize).getMany();
+    return { posts, totalCount };
+
+
+  }
+
+  async findOnePost(id: number): Promise<Post> {
+    const post = await this.communityPostRepository.findOne({ where: { id }, relations: ['author', 'categories', 'tags', 'comments'] });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
+  }
+
+  async updatePost(id: number, updatePostDto: UpdatePostDto, user: User): Promise<Post> {
+    const { categoryIds, tagIds, ...postData } = updatePostDto;
+
+    const post = await this.communityPostRepository.findOne({ where: { id, author: { id: user.id } }, relations: ['author', 'categories', 'tags'] });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found or you don't have permission to update it.`);
+    }
+
+    Object.assign(post, postData);
+    if (categoryIds) {
+        post.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
+    }
+    if (tagIds) {
+        post.tags = await this.tagRepository.findBy({ id: In(tagIds) });
+    }
+    return await this.communityPostRepository.save(post);
+
+  }
+
+  async removePost(id: number, user: User): Promise<void> {
+    const post = await this.communityPostRepository.findOne({ where: { id, author: { id: user.id } } });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found or you don't have permission to delete it.`);
+    }
+
+    await this.communityPostRepository.delete(id);
+  }
+
+
+
 
   async createComment(postId: number, createCommentDto: CreateCommentDto, author: User): Promise<Comment> {
     const post = await this.communityPostRepository.findOneBy({ id: postId });
@@ -60,11 +152,11 @@ export class CommunityService {
     if (parentCommentId) {
       where.parentCommentId = parentCommentId;
     }
-    return await this.commentRepository.find({ where, relations: ['author', 'replies'] }); // Include author and replies
+    return await this.commentRepository.find({ where, relations: ['author', 'replies'] });
   }
 
   async findOneComment(commentId: number): Promise<Comment> {
-    const comment = await this.commentRepository.findOne({ where: { id: commentId }, relations: ['author', 'replies'] }); // Include relations
+    const comment = await this.commentRepository.findOne({ where: { id: commentId }, relations: ['author', 'replies'] });
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${commentId} not found`);
     }

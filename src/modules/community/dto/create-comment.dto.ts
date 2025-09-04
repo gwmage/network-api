@@ -9,10 +9,6 @@ export class CreateCommentDto {
   @IsOptional()
   @IsNumber()
   parentCommentId?: number;
-
-  @IsNotEmpty()
-  @IsString()
-  itemId: string; // Assuming this is for the related item (post, etc.)
 }
 
 ```
