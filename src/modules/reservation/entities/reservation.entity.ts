@@ -1,4 +1,3 @@
-```typescript
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
@@ -27,5 +26,3 @@ export class Reservation {
   @Column({ type: 'enum', enum: ['confirmed', 'cancelled'], default: 'confirmed' })
   status: 'confirmed' | 'cancelled';
 }
-
-```
