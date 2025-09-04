@@ -1,46 +1,88 @@
-// Implement tests here (this is a placeholder as test implementation is outside the scope of this example)
-
----[@document]---
-```
-POST /auth/register
-
-Registers a new user.
-
-Request Body:
-```json
-{
-  "email": "user@example.com",
-  "password": "StrongPassword123!",
-  "name": "User Name",
-  "phoneNumber": "+15551234567",
-  "address": "123 Main St",
-  "city": "Anytown",
-  "state": "CA",
-  "zipCode": "90210"
-}
-```
-
-Validation Rules:
-- Email: Must be a valid email address and unique in the database.
-- Password: Must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.
-- Name: Must contain only letters and spaces.
-- Phone Number: Must be a valid phone number format.
-- Address, City, State, Zip Code: Required fields.
-- Zip Code: Must be a valid US zip code format (5 digits or 5 digits followed by a hyphen and 4 digits).
+import { Test, TestingModule } from '@nestjs/testing';
+import { AuthController } from '../src/modules/auth/auth.controller';
+import { AuthService } from '../src/modules/auth/auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from '../src/modules/auth/entities/user.entity';
+import { UserRepository } from '../src/modules/auth/user.repository';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 
-Response:
-- 201 Created: Registration successful. Returns a JSON object with a success message.
-```json
-{
-  "message": "Registration successful"
-}
-```
-- 400 Bad Request: Validation error. Returns a JSON object with detailed error messages.
-- 409 Conflict: Email already exists.
-- 500 Internal Server Error: Database error or other server-side error.
+describe('AuthController', () => {
+  let controller: AuthController;
+  let service: AuthService;
 
-```
-```
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot(),
+        JwtModule.register({
+          secret: 'test_secret', // Replace with a real secret for production
+          signOptions: { expiresIn: '1d' },
+        }),
+        MailerModule.forRoot({
+          transport: {
+            host: 'smtp.example.com', // Replace with your SMTP host
+            port: 587, // Replace with your SMTP port
+            secure: false, // Set to true if using SSL
+            auth: {
+              user: 'user@example.com', // Replace with your SMTP username
+              pass: 'password', // Replace with your SMTP password
+            },
+          },
+          defaults: {
+            from: '"No Reply" <noreply@example.com>', // Replace with your default sender email
+          },
+         }),
+      ],
+      controllers: [AuthController],
+      providers: [
+        AuthService,
+        UserRepository,
+        {
+          provide: getRepositoryToken(User),
+          useValue: {}, // Mock the repository
+        },
 
----[END_OF_FILES]---
+
+      ],
+    }).compile();
+
+    controller = module.get<AuthController>(AuthController);
+    service = module.get<AuthService>(AuthService);
+
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+
+  // Add more tests for login, register, forgot password etc. here.  See examples below.
+  describe('login', () => {
+    it('should return an access token on successful login', async () => {
+      const mockLoginDto = { email: 'test@example.com', password: 'TestPassword123$' };
+      const mockUser = { id: 1, name: 'Test User', email: 'test@example.com' };
+      const mockAccessToken = 'mock_access_token';
+
+      jest.spyOn(service, 'login').mockResolvedValue({ accessToken: mockAccessToken, user: mockUser });
+
+
+      const result = await controller.login(mockLoginDto);
+
+      expect(result.accessToken).toBe(mockAccessToken);
+      expect(result.user).toEqual(mockUser);
+
+    });
+
+
+    it('should throw an Unauthorized exception for invalid credentials', async () => {
+
+        const mockLoginDto = { email: 'test@example.com', password: 'wrong_password' };
+        jest.spyOn(service, 'login').mockRejectedValue(new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED));
+
+
+        await expect(controller.login(mockLoginDto)).rejects.toThrow(HttpException);
+    });
+  });
+});
