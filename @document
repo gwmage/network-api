@@ -1,1 +1,71 @@
-// Document the new cancellation API endpoint here
+## Authentication API Endpoints
+
+This document describes the API endpoints for user authentication.
+
+### 1. Login
+
+**Endpoint:** `/auth/login`
+**Method:** POST
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**Response (Success - 200 OK):**
+
+```json
+{
+  "accessToken": "your_jwt_token",
+  "user": {
+    "id": 123,
+    "name": "John Doe",
+    "email": "user@example.com"
+  }
+}
+```
+
+**Response (Failure - 401 Unauthorized):**
+
+```json
+{
+  "statusCode": 401,
+  "message": "Invalid credentials" // Or other specific error message
+}
+```
+
+
+### 2. Forgot Password
+
+**Endpoint:** `/auth/forgot-password`
+**Method:** POST
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Response (Success - 200 OK):**
+
+```json
+{
+  "message": "Password reset email sent"
+}
+```
+
+**Response (Failure - 404 Not Found):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Email not found"
+}
+
+```
+
+---[END_OF_FILES]---
