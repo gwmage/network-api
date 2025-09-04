@@ -1,3 +1,4 @@
+```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -79,11 +80,12 @@ export class MatchingService {
   }
 
 
-  @Cron(CronExpression.EVERY_WEEK)
+  @Cron(CronExpression.EVERY_SUNDAY_AT_MIDNIGHT)
   async runMatching(): Promise<void> {
     this.logger.log('Running weekly matching...');
     const users = await this.userRepository.find();
     const groups = this.groupUsers(users);
+    const notificationId = uuidv4();
 
     // Save the groups to the database.  Clear out old groups first.
     await this.matchingGroupRepository.clear();
@@ -183,3 +185,5 @@ export class MatchingService {
       }
   }
 }
+
+```

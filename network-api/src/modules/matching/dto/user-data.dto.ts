@@ -1,5 +1,4 @@
-import { IsArray, IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
-
+```typescript
 export class UserDataDto {
   id: number;
   email: string;
@@ -9,16 +8,8 @@ export class UserDataDto {
   city: string;
   state: string;
   zipCode: string;
-
-  @IsNotEmpty()
-  @IsString()
   region: string;
-
-  @IsArray()
-  @IsString({ each: true })
   preferences: string[];
-
-  @IsArray()
-  @IsString({ each: true })
   interests: string[];
 }
+```
