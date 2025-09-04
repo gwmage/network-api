@@ -1,5 +1,5 @@
 ```typescript
-import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateCommentDto {
   @IsNotEmpty()
@@ -7,12 +7,12 @@ export class CreateCommentDto {
   content: string;
 
   @IsOptional()
-  @IsString()
-  parentCommentId?: string;
+  @IsNumber()
+  parentCommentId?: number;
 
   @IsNotEmpty()
   @IsString()
-  itemId: string;
+  itemId: string; // Assuming this is for the related item (post, etc.)
 }
 
 ```

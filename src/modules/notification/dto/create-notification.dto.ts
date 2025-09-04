@@ -1,11 +1,17 @@
-import { IsString } from 'class-validator';
+```typescript
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateNotificationDto {
+  @IsNotEmpty()
   @IsString()
   userId: string;
 
+  @IsNotEmpty()
   @IsString()
-  message: string;
+  commentId: string;
 
-  // ... other DTO properties
+  @IsNotEmpty()
+  @IsString()
+  postId: string;
 }
+```
