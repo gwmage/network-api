@@ -2,6 +2,7 @@ import { Body, Controller, HttpException, HttpStatus, Logger, Post } from '@nest
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto): Promise<{ accessToken: string, user: Partial<any> }> {
       return this.authService.login(loginDto);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() passwordRecoveryDto: PasswordRecoveryDto): Promise<{ message: string }> {
+    return this.authService.initiatePasswordRecovery(passwordRecoveryDto);
   }
 
 
