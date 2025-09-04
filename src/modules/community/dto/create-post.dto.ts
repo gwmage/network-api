@@ -26,4 +26,5 @@ export class CreatePostDto {
   @IsString({ each: true })
   tagNames?: string[];
 }
+
 ```
