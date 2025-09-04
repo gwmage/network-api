@@ -19,4 +19,17 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'Phone number is required' })
   @Matches(/^[+]?[(]?[0-9]{3}[)]?[-s.]?[0-9]{3}[-s.]?[0-9]{4,6}$/, { message: 'Invalid phone number format' })
   phoneNumber: string;
+
+  @IsNotEmpty({ message: 'Address is required' })
+  address: string;
+
+  @IsNotEmpty({ message: 'City is required' })
+  city: string;
+
+  @IsNotEmpty({ message: 'State is required' })
+  state: string;
+
+  @IsNotEmpty({ message: 'Zip code is required' })
+  @Matches(/^\d{5}(-\d{4})?$/, { message: 'Invalid zip code format' })
+  zipCode: string;
 }

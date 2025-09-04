@@ -18,6 +18,18 @@ export class User {
   phoneNumber: string;
 
   @Column()
+  address: string;
+
+  @Column()
+  city: string;
+
+  @Column()
+  state: string;
+
+  @Column()
+  zipCode: string;
+
+  @Column()
   region: string;
 
   @Column('simple-array')
