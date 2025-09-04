@@ -1,33 +1,48 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './modules/users/users.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './modules/auth/entities/user.entity';
-import { CommunityModule } from './modules/community/community.module';
+import { ConfigModule } from '@nestjs/config';
+import { AdminModule } from './modules/admin/admin.module';
 import { ApplicationModule } from './modules/application/application.module';
-import { Community } from './modules/community/entities/community.entity';
-import { Post } from './modules/community/entities/post.entity';
-import { Comment } from './modules/community/entities/comment.entity';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { CommunityModule } from './modules/community/community.module';
 import { MatchingModule } from './modules/matching/matching.module';
-import { MatchingGroup } from './modules/matching/entities/matching-group.entity';
-import { MatchExplanation } from './modules/matching/entities/match-explanation.entity';
-import { Application } from './modules/application/entities/application.entity';
-import { NotificationModule } from './modules/notification/notification.module'; // Import NotificationModule
-import { UserNotificationPreferences } from './modules/notification/entities/user-notification-preferences.entity';
-import { NotificationDeliveryStatus } from './modules/notification/entities/notification-delivery-status.entity';
-import { ScheduleModule } from '@nestjs/schedule';
-
+import { NotificationModule } from './modules/notification/notification.module';
+import { NotificationPreferences } from './modules/notification/entities/notification-preferences.entity';
+import { Notification } from './modules/notification/entities/notification.entity';
+import { ProfileModule } from './modules/profile/profile.module';
+import { ReservationModule } from './modules/reservation/reservation.module';
+import { User } from './modules/users/entities/user.entity'; 
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
-    // ... other imports
-    NotificationModule, // Add NotificationModule
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService:ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: parseInt(configService.get<string>('DB_PORT') || '5432', 10),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        entities: [User,__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+      }),
+      inject:[ConfigService]
+    }),
+    AdminModule,
+    ApplicationModule,
+    AuthModule,
+    UsersModule,
+    CommunityModule,
+    MatchingModule,
+    NotificationModule,
+    TypeOrmModule.forFeature([NotificationPreferences, Notification]),
+    ProfileModule,
+    ReservationModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
