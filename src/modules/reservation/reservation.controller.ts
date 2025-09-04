@@ -1,7 +1,7 @@
-```typescript
-import { Controller, Delete, Param, Req, HttpException, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Delete, Param, Req, HttpException, HttpStatus, Res, Body } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { Request, Response } from 'express';
+import { CancelReservationDto } from './dto/cancel-reservation.dto';
 
 @Controller('reservations')
 export class ReservationController {
@@ -10,12 +10,13 @@ export class ReservationController {
   @Delete(':id')
   async cancelReservation(
     @Param('id') reservationId: string,
+    @Body() cancelReservationDto: CancelReservationDto,
     @Req() req: Request,
     @Res() res: Response
   ) {
     try {
-      const userId = req.user['userId']; // Assuming userId is available in the request object
-      await this.reservationService.cancelReservation(reservationId, userId);
+      const userId = req.user['userId'];
+      await this.reservationService.cancelReservation(reservationId, userId, cancelReservationDto.cancellationReason);
       return res.status(HttpStatus.OK).json({ message: 'Reservation cancelled successfully' });
     } catch (error) {
       if (error instanceof HttpException) {
@@ -26,5 +27,3 @@ export class ReservationController {
     }
   }
 }
-
-```
