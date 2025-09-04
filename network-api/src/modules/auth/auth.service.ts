@@ -15,9 +15,28 @@ export class AuthService {
 
   constructor(private userRepository: UserRepository, private jwtService: JwtService, private configService: ConfigService, private mailerService: MailerService) {}
 
-  async register(registerDto: RegisterDto) {
-    // ... (Existing registration logic)
+  async register(registerDto: RegisterDto): Promise<{ message: string }> {
+    const { email, password, name, phoneNumber } = registerDto;
+
+    const existingUser = await this.userRepository.findByEmail(email);
+    if (existingUser) {
+      throw new HttpException('Email already exists', HttpStatus.CONFLICT);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = this.userRepository.create({
+      email,
+      password: hashedPassword,
+      name,
+      phoneNumber,
+    });
+
+    await this.userRepository.save(newUser);
+
+    return { message: 'Registration successful' };
   }
+
 
   async login(loginDto: LoginDto): Promise<{ accessToken: string; user: Partial<User> }> {
     const { email, password } = loginDto;

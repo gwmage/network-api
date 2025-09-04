@@ -1,71 +1,55 @@
-## Authentication API Endpoints
-
-This document describes the API endpoints for user authentication.
-
-### 1. Login
-
-**Endpoint:** `/auth/login`
-**Method:** POST
-**Request Body:**
-
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
 ```
-
-**Response (Success - 200 OK):**
-
-```json
-{
-  "accessToken": "your_jwt_token",
-  "user": {
-    "id": 123,
-    "name": "John Doe",
-    "email": "user@example.com"
-  }
-}
-```
-
-**Response (Failure - 401 Unauthorized):**
-
-```json
-{
-  "statusCode": 401,
-  "message": "Invalid credentials" // Or other specific error message
-}
-```
-
-
-### 2. Forgot Password
-
-**Endpoint:** `/auth/forgot-password`
-**Method:** POST
-**Request Body:**
-
-```json
-{
-  "email": "user@example.com"
-}
-```
-
-**Response (Success - 200 OK):**
-
-```json
-{
-  "message": "Password reset email sent"
-}
-```
-
-**Response (Failure - 404 Not Found):**
-
-```json
-{
-  "statusCode": 404,
-  "message": "Email not found"
-}
-
+/**
+ * @api {post} /auth/register Register a new user
+ * @apiName RegisterUser
+ * @apiGroup Authentication
+ *
+ * @apiBody {String} email User's email address. (required, unique)
+ * @apiBody {String} password User's password. (required, min 8 characters, at least one uppercase, one lowercase, one number, and one special character)
+ * @apiBody {String} name User's full name. (required, alphabets and spaces only)
+ * @apiBody {String} phoneNumber User's phone number. (required, valid phone number format)
+ *
+ * @apiSuccess {String} message Success message.
+ *
+ * @apiError (400) ValidationError Invalid request body.
+ * @apiError (409) ConflictError Email already exists.
+ * @apiError (500) InternalServerError Internal server error.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 201 Created
+ *     {
+ *       "message": "Registration successful"
+ *     }
+ *
+ * @apiErrorExample {json} Validation-Error-Response:
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "statusCode": 400,
+ *       "message": [
+ *         "Email is required",
+ *         "Password is required",
+ *         "Name is required",
+ *         "Phone number is required"
+ *       ],
+ *       "error": "Bad Request"
+ *     }
+ *
+ *  @apiErrorExample {json} Email-Conflict-Response:
+ *     HTTP/1.1 409 Conflict
+ *     {
+ *       "statusCode": 409,
+ *       "message": "Email already exists",
+ *       "error": "Conflict"
+ *     }
+ *
+ *  @apiErrorExample {json} Internal-Server-Error-Response:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "statusCode": 500,
+ *       "message": "Registration failed",
+ *       "error": "Internal Server Error"
+ *     }
+ */
 ```
 
 ---[END_OF_FILES]---
