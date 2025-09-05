@@ -15,24 +15,20 @@ import { ReservationModule } from './modules/reservation/reservation.module';
   imports: [
     ConfigModule.forRoot({
       load: [() => ({
-        DB_HOST: process.env.DB_HOST,
-        DB_PORT: parseInt(process.env.DB_PORT, 10) || 5432,
-        DB_USERNAME: process.env.DB_USERNAME,
-        DB_PASSWORD: process.env.DB_PASSWORD,
-        DB_NAME: process.env.DB_NAME,
+        DB_HOST: process.env.RAILWAY_DB_HOST,
+        DB_PORT: parseInt(process.env.RAILWAY_DB_PORT, 10) || 5432,
+        DB_USERNAME: process.env.RAILWAY_DB_USERNAME,
+        DB_PASSWORD: process.env.RAILWAY_DB_PASSWORD,
+        DB_NAME: process.env.RAILWAY_DB_NAME
       })],
-      isGlobal: true, // Make configuration globally available
+      isGlobal: true, 
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'), // Correctly get port as number
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
+        url: process.env.TYPEORM_CONNECTION, // Use Railway provided URL
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
         synchronize: true, 
         autoLoadEntities: true,
