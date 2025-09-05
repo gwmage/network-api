@@ -23,13 +23,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
         MAIL_PASSWORD: process.env.MAIL_PASSWORD,
         MAIL_FROM: process.env.MAIL_FROM,
         SECURE: process.env.SECURE,
-        JWT_SECRET: process.env.JWT_SECRET,
-        // Correctly include database env variables in ConfigModule
-        DB_HOST: process.env.DB_HOST,
-        DB_PORT: process.env.DB_PORT,
-        DB_USERNAME: process.env.DB_USERNAME,
-        DB_PASSWORD: process.env.DB_PASSWORD,
-        DB_NAME: process.env.DB_NAME,
+        JWT_SECRET: process.env.JWT_SECRET
       })],
     }),
     TypeOrmModule.forRootAsync({
@@ -37,8 +31,8 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        // Construct the URL using environment variables from configService
-        url: `postgres://${configService.get('DB_USERNAME')}:${configService.get('DB_PASSWORD')}@${configService.get('DB_HOST')}:${configService.get('DB_PORT')}/${configService.get('DB_NAME')}?schema=public`,
+        // Construct the URL using Railway environment variables
+        url: process.env.TYPEORM_CONNECTION,
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
         synchronize: true,
         autoLoadEntities: true,
