@@ -14,7 +14,7 @@ export class ReservationService {
   ) {}
 
   async cancelReservation(reservationId: number, userId: number, cancellationReason?: string) {
-    const reservation = await this.reservationRepository.findOne({ where: { id: reservationId, userId: userId } });
+    const reservation = await this.reservationRepository.findOne({ where: { id: reservationId, userId } });
 
     if (!reservation) {
       throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);

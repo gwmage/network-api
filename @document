@@ -1,51 +1,58 @@
 ```
-/**
- * @swagger
- * /application:
- *   get:
- *     summary: Get Applications
- *     description: 신청 정보 조회 기능 개발. Retrieves applications with pagination, filtering, and sorting.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *         description: Page number for pagination.
- *       - in: query
- *         name: pageSize
- *         schema:
- *           type: integer
- *         description: Page size for pagination.
- *       - in: query
- *         name: sortField
- *         schema:
- *           type: string
- *         description: Field to sort by (e.g., title, createdAt).
- *       - in: query
- *         name: sortOrder
- *         schema:
- *           type: string
- *           enum: [ASC, DESC]
- *         description: Sort order.
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Search keyword for application title.
- *       - in: query
- *         name: format
- *         schema:
- *           type: string
- *           enum: [json, csv]
- *         description: Response format. Defaults to json.
- *     responses:
- *       '200':
- *         description: Successful retrieval of applications.
- *       '401':
- *         description: Unauthorized.
- *       '500':
- *         description: Internal server error.
- */
+## Reservation Cancellation API
+
+This endpoint allows users to cancel their existing reservations.
+
+**Endpoint:**
+
 ```
+DELETE /reservations/:id
+```
+
+**Request Parameters:**
+
+- `id` (path parameter): The ID of the reservation to cancel.
+- `cancellationReason` (request body, optional): The reason for cancelling the reservation.
+
+**Request Body Example:**
+
+```json
+{
+  "cancellationReason": "I have other plans."
+}
+```
+
+**Response:**
+
+- **200 OK:** Reservation cancelled successfully.
+  ```json
+  {
+    "message": "Reservation cancelled successfully"
+  }
+  ```
+- **400 Bad Request:** Cannot cancel reservation within 24 hours of the reservation time.
+  ```json
+  {
+    "message": "Cannot cancel reservation within 24 hours"
+  }
+  ```  
+- **404 Not Found:** Reservation not found.
+  ```json
+  {
+    "message": "Reservation not found"
+  }
+  ```
+- **500 Internal Server Error:** Failed to cancel reservation.
+  ```json
+  {
+    "message": "Failed to cancel reservation"
+  }
+  ```
+
+**Cancellation Time Restriction:**
+
+Reservations can only be cancelled up to 24 hours before the scheduled reservation time.  Attempts to cancel within this 24-hour window will result in a 400 Bad Request error.
+
+
+```
+---[END_OF_FILES]---
