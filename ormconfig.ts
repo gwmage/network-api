@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { User } from './src/modules/users/entities/user.entity';
+import { User } from './modules/users/entities/user.entity';
 
 export default new DataSource({
   type: 'postgres',
