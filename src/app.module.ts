@@ -32,7 +32,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         // Construct the URL using Railway environment variables
-        url: process.env.TYPEORM_CONNECTION,
+        url: `postgres://${process.env.RAILWAY_DB_USERNAME}:${process.env.RAILWAY_DB_PASSWORD}@${process.env.RAILWAY_DB_HOST}:${process.env.RAILWAY_DB_PORT}/${process.env.RAILWAY_DB_NAME}?schema=public`,
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
         synchronize: true,
         autoLoadEntities: true,
