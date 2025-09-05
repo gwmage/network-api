@@ -2,10 +2,10 @@
 cmds = ["npm install --omit=dev", "npm install --only=prod"]
 
 [phases.build]
-cmds = []
+cmds = ["npm run build"]
 
 [phases.start]
-cmds = ["npm run start"]
+cmds = ["npm run start:prod"]
 
 [app]
 engines = { node = "16.x" }
