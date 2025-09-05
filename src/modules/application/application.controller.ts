@@ -1,13 +1,14 @@
 ```typescript
-import { Controller, Get, Query, Res, Post, Body, HttpException, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Query, Res, Post, Body, HttpException, HttpStatus, UseGuards, Req, Param, ParseIntPipe } from '@nestjs/common';
 import { ApplicationService } from './application.service';
 import { GetApplicationsDto } from './dto/get-applications.dto';
 import { Response, Request } from 'express';
 import { Parser } from 'json2csv';
 import { NetworkingApplicationDto } from './dto/networking-application.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
 import { User } from '../user/entities/user.entity';
+import { GetUserApplicationsDto } from './dto/get-user-applications.dto';
 
 @ApiTags('application')
 @Controller('application')
@@ -69,6 +70,46 @@ export class ApplicationController {
       throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('/user/:userId/sincheong-jeongbo')
+  @ApiOperation({ summary: '특정 사용자의 신청 정보 조회', description: '특정 사용자의 신청 정보를 조회합니다.' })
+  @ApiParam({ name: 'userId', description: '사용자 ID', type: Number })
+  @ApiQuery({ name: 'page', type: Number, required: false, description: '페이지 번호' })
+  @ApiQuery({ name: 'pageSize', type: Number, required: false, description: '페이지 크기' })
+  @ApiQuery({ name: 'search', type: String, required: false, description: '검색어' })
+    @ApiQuery({ name: 'status', type: String, required: false, description: '신청 상태' })
+  async getUserApplications(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query() getUserApplicationsDto: GetUserApplicationsDto,
+  ): Promise<{ applications: Application[]; totalCount: number }> {
+    return this.applicationService.getUserApplications(userId, getUserApplicationsDto);
+  }
+
+
+    @Get('/user/:userId/sincheong-jeongbo/download')
+    @ApiOperation({ summary: '특정 사용자의 신청 정보 다운로드', description: '특정 사용자의 신청 정보를 다운로드합니다.' })
+    @ApiParam({ name: 'userId', description: '사용자 ID', type: Number })
+    @ApiQuery({ name: 'format', type: String, enum: ['csv', 'json'], required: true, description: '파일 형식 (csv 또는 json)' })
+    async downloadUserApplications(
+        @Param('userId', ParseIntPipe) userId: number,
+        @Query('format') format: string,
+        @Res() res: Response,
+    ) {
+        try {
+            const data = await this.applicationService.downloadUserApplications(userId, format);
+
+            if (format.toLowerCase() === 'csv') {
+                res.setHeader('Content-Type', 'text/csv');
+                res.attachment(`user-${userId}-applications.csv`);
+                res.send(data);
+            } else {
+                res.json(JSON.parse(data.toString())); // Assuming other formats are JSON for now
+            }
+
+        } catch (error) {
+            throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
 
 ```
