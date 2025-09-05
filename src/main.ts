@@ -11,7 +11,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
-  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000; // Fallback to 3000 if PORT isn't set
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000; 
 
   try {
     await app.listen(port);
