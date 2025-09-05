@@ -15,6 +15,13 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
 
   const dataSource = app.get(DataSource);
+  const connectionString = process.env.TYPEORM_CONNECTION;
+
+  if (!connectionString) {
+    console.error("TYPEORM_CONNECTION environment variable not set. Exiting...");
+    process.exit(1);
+  }
+
   const maxRetries = 10;
   let retries = 0;
 
