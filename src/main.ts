@@ -11,7 +11,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
-  const port = process.env.PORT || 3000; // Use PORT env variable if available
+  const port = process.env.PORT; // Use PORT env variable provided by Railway
 
   try {
     await app.listen(port);
