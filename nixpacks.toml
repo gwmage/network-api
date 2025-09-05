@@ -5,7 +5,7 @@ cmds = ["npm install --omit=dev", "npm install --only=prod"]
 cmds = []
 
 [phases.start]
-cmds = ["npm run start:prod"]
+cmds = ["PORT=\$PORT npm run start:prod"]
 
 [app]
 engines = { node = "16.x" }
