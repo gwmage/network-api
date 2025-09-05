@@ -1,1 +1,47 @@
-import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\nimport { ValidationPipe } from '@nestjs/common';\nimport * as cookieParser from 'cookie-parser';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  app.useGlobalPipes(new ValidationPipe());\n  app.enableCors({\n    origin: true, // Adjust this for production\n    credentials: true,\n  });\n  app.use(cookieParser());\n  const port = process.env.PORT || 3000;\n\n  try {\n    await app.listen(port);\n    console.log(`Application is running on: ${await app.getUrl()}`); \n  } catch (error) {\n    console.error(`Failed to start application on port ${port}. Exiting...`);\n    console.error(error);\n    process.exit(1);\n  }\n\n}\nbootstrap();\n
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
+import { DataSource } from 'typeorm';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  app.enableCors({
+    origin: true, // Adjust this for production
+    credentials: true,
+  });
+  app.use(cookieParser());
+  const port = process.env.PORT || 3000;
+
+  const dataSource = app.get(DataSource);
+  const maxRetries = 10;
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      await dataSource.initialize();
+      console.log("Database connection successful!");
+      break; // Exit the loop if the connection is successful
+    } catch (error) {
+      console.error(`Failed to connect to database (Attempt ${retries + 1}/${maxRetries}):`, error);
+      retries++;
+      if (retries === maxRetries) {
+        console.error(`Failed to connect to database after ${maxRetries} attempts. Exiting...`);
+        process.exit(1);
+      }
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+    }
+  }
+
+  try {
+    await app.listen(port);
+    console.log(`Application is running on: ${await app.getUrl()}`);
+  } catch (error) {
+    console.error(`Failed to start application on port ${port}. Exiting...`);
+    console.error(error);
+    process.exit(1);
+  }
+}
+
+bootstrap();
