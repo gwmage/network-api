@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../auth/entities/user.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-
+import { NotificationEvent } from './dto/notification-event.enum';
 
 // ... (Existing code)
 
@@ -22,25 +22,37 @@ export class NotificationService {
       ) {}
 
     async createNotification(createNotificationDto: CreateNotificationDto): Promise<Notification> {
+      // ... existing code
+    }
 
-        const { userId, commentId, postId } = createNotificationDto;
-    
-        const user = await this.userRepository.findOneBy({ id: parseInt(userId) });
+    async sendCancellationConfirmation(userId: number, reservationId: number): Promise<void> {
+        const user = await this.userRepository.findOneBy({ id: userId });
         if (!user) {
-            throw new Error("user not found"); // Handle user not found
+            throw new Error("User not found");
         }
 
         const newNotification = this.notificationRepository.create({
             recipient: user,
-            commentId: parseInt(commentId), // Assuming commentId is a number in your entity
-            postId,
-            type: NotificationType.COMMENT, // set the type of notification
+            reservationId: reservationId,
+            type: NotificationType.RESERVATION_CANCELLATION,
             timestamp: new Date(),
             status: NotificationStatus.SENT,
-            deliveryStatus: NotificationDeliveryStatus.PENDING,
-        });
-    
-        return await this.notificationRepository.save(newNotification);
+            deliveryStatus: NotificationDeliveryStatus.PENDING
+          });
+
+        await this.notificationRepository.save(newNotification);
+
+        // TODO: Replace with actual email/notification sending logic using nodemailer, firebase admin sdk, etc.
+        console.log(`Sending cancellation confirmation to user ${userId} for reservation ${reservationId}`);
+        // Example using nodemailer:
+        // const transporter = nodemailer.createTransport({ ... your nodemailer config ... });
+        // await transporter.sendMail({
+        //   from: '"Your App" <your@email.com>',
+        //   to: user.email,
+        //   subject: 'Reservation Cancellation Confirmation',
+        //   text: `Your reservation ${reservationId} has been cancelled.`,
+        //   html: `Your reservation ${reservationId} has been cancelled.`,
+        // });
     }
 
     // ... (Existing code)
