@@ -2,11 +2,13 @@
 import { Injectable } from '@nestjs/common';
 import { GetApplicationDto } from './dto/get-application.dto';
 import { Application } from './entities/application.entity';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { User } from '../user/entities/user.entity';
 import { GetApplicationsDto } from './dto/get-applications.dto';
+import { GetUserApplicationsDto } from './dto/get-user-applications.dto';
+import { Parser } from 'json2csv';
 
 @Injectable()
 export class ApplicationService {
@@ -52,5 +54,46 @@ export class ApplicationService {
     return await this.applicationRepository.save(newApplication);
   }
 
+  async getUserApplications(userId: number, getUserApplicationsDto: GetUserApplicationsDto): Promise<{ applications: Application[]; totalCount: number }> {
+    const { page, pageSize, search, status } = getUserApplicationsDto;
+    const query = this.applicationRepository.createQueryBuilder('application');
+
+    query.where('application.userId = :userId', { userId });
+
+    if (search) {
+      query.andWhere('application.title LIKE :search', { search: `%${search}%` });
+    }
+
+    if (status) {
+      query.andWhere('application.status = :status', { status });
+    }
+
+
+    const totalCount = await query.getCount();
+
+    if (page && pageSize) {
+      query.skip((page - 1) * pageSize).take(pageSize);
+    }
+
+    const applications = await query.getMany();
+    return { applications, totalCount };
+  }
+
+
+  async downloadUserApplications(userId: number, format: string): Promise<string | Buffer> {
+      const applications = await this.applicationRepository.find({
+          where: { userId },
+      });
+
+      if (format.toLowerCase() === 'csv') {
+          const parser = new Parser();
+          const csv = parser.parse(applications);
+          return csv;
+      } else {
+          // Handle other formats if needed (e.g., Excel)
+          return Buffer.from(JSON.stringify(applications));
+      }
+
+  }
 }
 ```
