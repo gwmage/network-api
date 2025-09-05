@@ -1,3 +1,4 @@
+```typescript
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,8 +13,8 @@ export class ReservationService {
     private notificationService: NotificationService
   ) {}
 
-  async cancelReservation(reservationId: string, userId: string, cancellationReason?: string) {
-    const reservation = await this.reservationRepository.findOne({ where: { id: parseInt(reservationId), userId: parseInt(userId) } });
+  async cancelReservation(reservationId: number, userId: number, cancellationReason?: string) {
+    const reservation = await this.reservationRepository.findOne({ where: { id: reservationId, userId: userId } });
 
     if (!reservation) {
       throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);
@@ -32,7 +33,9 @@ export class ReservationService {
     reservation.cancellationReason = cancellationReason;
 
     const result = await this.reservationRepository.save(reservation);
-    await this.notificationService.sendCancellationConfirmation(parseInt(userId), parseInt(reservationId));
+    await this.notificationService.sendCancellationConfirmation(userId, reservationId);
     return result;
   }
 }
+
+```
