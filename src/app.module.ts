@@ -31,8 +31,8 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        // Use the already loaded environment variables from .railway.env
-        url: process.env.TYPEORM_CONNECTION,
+        // Use DATABASE_URL if available, otherwise fall back to the existing method
+        url: process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION,
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
         synchronize: true, // Set to false in production
         autoLoadEntities: true,
@@ -53,5 +53,3 @@ import { ReservationModule } from './modules/reservation/reservation.module';
   providers: [],
 })
 export class AppModule {}
-
----[END_OF_FILES]---
