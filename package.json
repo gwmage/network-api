@@ -1,3 +1,4 @@
+```json
 {
   "name": "network-api",
   "version": "0.0.1",
@@ -16,7 +17,7 @@
     "rxjs": "^7.2.0",
     "typeorm": "^0.3.11",
     "pg": "^8.5.1",
-    "cookie-parser": "^1.4.6" // Ensure cookie-parser is listed
+    "cookie-parser": "^1.4.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -72,5 +73,5 @@
   },
   "main": "dist/main.js"
 }
-
+```
 ---[END_OF_FILES]---

@@ -1,3 +1,4 @@
+```typescript
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -53,3 +54,4 @@ import { ReservationModule } from './modules/reservation/reservation.module';
   providers: [],
 })
 export class AppModule {}
+```
