@@ -27,14 +27,16 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       })],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule], // No need to inject ConfigService here
-      useFactory: () => ({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION, // Use available env variable
+        url: configService.get<string>('DATABASE_URL') || configService.get<string>('TYPEORM_CONNECTION'),
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
         synchronize: false, // Set to false in production
         autoLoadEntities: true,
-        logging: ['error', 'warn', 'log'],
+        logging: ['error', 'warn', 'log'], // Log errors, warnings, and general logs
+        keepConnectionAlive: true, // Important for Railway to maintain the connection
       }),
     }),
     AdminModule,
