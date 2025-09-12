@@ -31,12 +31,12 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        // Use DATABASE_URL if available, otherwise fall back to the existing method
-        url: process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION,
+        // Use the already loaded environment variables from .railway.env
+        url: process.env.TYPEORM_CONNECTION,
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
-        synchronize: true, // Set to false in production
+        synchronize: false, // Set to false in production
         autoLoadEntities: true,
-        logging: true, // Enable logging for debugging connection issues
+        logging: ['error', 'warn', 'log'], // Increased logging for debugging
       }),
     }),
     AdminModule,
