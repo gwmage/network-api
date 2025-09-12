@@ -19,12 +19,12 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: configService.get<string>('TYPEORM_CONNECTION'), // Use TYPEORM_CONNECTION directly
+        url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
-        synchronize: false, // Set to false in production
+        synchronize: false,
         autoLoadEntities: true,
-        logging: ['error', 'warn', 'log'], // Log errors, warnings, and general logs
-        keepConnectionAlive: true, // Important for Railway to maintain the connection
+        logging: ['error', 'warn', 'log'],
+        keepConnectionAlive: true,
       }),
     }),
     AdminModule,
