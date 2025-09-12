@@ -1,5 +1,5 @@
 [phases.install]
-cmds = ["npm install --omit=dev", "npm install --only=prod"]
+cmds = ["npm install"]
 
 [phases.build]
 cmds = ["npm run build"]
