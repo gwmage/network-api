@@ -1,4 +1,3 @@
-```typescript
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -32,8 +31,8 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        // Use the already loaded environment variables from .railway.env
-        url: process.env.TYPEORM_CONNECTION,
+        // Use DATABASE_URL if available, fall back to TYPEORM_CONNECTION
+        url: process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION,
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
         synchronize: false, // Set to false in production
         autoLoadEntities: true,
@@ -54,4 +53,3 @@ import { ReservationModule } from './modules/reservation/reservation.module';
   providers: [],
 })
 export class AppModule {}
-```
