@@ -1,5 +1,5 @@
 ```typescript
-import { Body, Controller, Post, HttpStatus, HttpException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Post, HttpStatus, HttpException, ConflictException, BadRequestException, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 
@@ -8,13 +8,16 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
+  @UsePipes(new ValidationPipe())
   async register(@Body() registerDto: RegisterDto) {
     try {
       const result = await this.authService.register(registerDto);
       if (result.status === 'success') {
         return {
+          statusCode: HttpStatus.CREATED, // 201 Created
           status: 'success',
           message: 'User registered successfully',
+          user: result.user,
         };
       } else {
         if (result.message === 'Email already exists') {

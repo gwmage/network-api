@@ -1,36 +1,34 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { DataSource, Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { ConflictException } from '@nestjs/common';
+
 
 @Injectable()
 export class AuthRepository extends Repository<User> {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {
-    super(userRepository.target, userRepository.manager, userRepository.queryRunner);
+  constructor(private dataSource: DataSource) {
+    super(User, dataSource.createEntityManager());
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const { username, email, password, first_name, last_name } = createUserDto;
+  async createUser(user: any) {
+    try {
+      const existingUser = await this.findOne({ where: { email: user.email } });
 
-    const newUser = this.create({
-      username,
-      email,
-      password,
-      first_name,
-      last_name,
-    });
+      if (existingUser) {
+        return { status: 'error', message: 'Email already exists' };
+      }
 
-    await this.save(newUser);
-    return newUser;
-  }
-
-  async findByEmail(email: string): Promise<User | undefined> {
-    return this.findOne({ where: { email } });
+      const newUser = this.create(user);
+      return { status: 'success', user: await this.save(newUser) };
+    } catch (error) {
+      if (error.code === '23505') { // Unique violation error code in PostgreSQL
+        return { status: 'error', message: 'Email already exists' };
+      }
+      console.error('Error creating user:', error); 
+      return { status: 'error', message: 'Failed to create user', errors: error };
+    }
   }
 }
 ```

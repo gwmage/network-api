@@ -1,58 +1,29 @@
 ```
-## Reservation Cancellation API
-
-This endpoint allows users to cancel their existing reservations.
-
-**Endpoint:**
-
-```
-DELETE /reservations/:id
-```
-
-**Request Parameters:**
-
-- `id` (path parameter): The ID of the reservation to cancel.
-- `cancellationReason` (request body, optional): The reason for cancelling the reservation.
-
-**Request Body Example:**
-
-```json
-{
-  "cancellationReason": "I have other plans."
-}
-```
-
-**Response:**
-
-- **200 OK:** Reservation cancelled successfully.
-  ```json
-  {
-    "message": "Reservation cancelled successfully"
-  }
-  ```
-- **400 Bad Request:** Cannot cancel reservation within 24 hours of the reservation time.
-  ```json
-  {
-    "message": "Cannot cancel reservation within 24 hours"
-  }
-  ```  
-- **404 Not Found:** Reservation not found.
-  ```json
-  {
-    "message": "Reservation not found"
-  }
-  ```
-- **500 Internal Server Error:** Failed to cancel reservation.
-  ```json
-  {
-    "message": "Failed to cancel reservation"
-  }
-  ```
-
-**Cancellation Time Restriction:**
-
-Reservations can only be cancelled up to 24 hours before the scheduled reservation time.  Attempts to cancel within this 24-hour window will result in a 400 Bad Request error.
-
-
+/**
+ * @POST /auth/register
+ * 
+ * Registers a new user.
+ * 
+ * @Request Body:
+ * - email (string, required): User's email address. Must be a valid email format.
+ * - password (string, required): User's password. Must be at least 8 characters long.
+ * - name (string, required): User's full name.
+ * - phoneNumber (string, optional): User's phone number. Must be a valid Korean phone number format.
+ * - location (string, optional) : User's Location
+ * - preferences (string, optional) : User's preferences
+ * - interests (string[], optional): User's interests
+ * 
+ * @Success Response (201 Created):
+ * - statusCode: 201
+ * - status: 'success'
+ * - message: 'User registered successfully'
+ * - user: (User object without password)
+ * 
+ * @Error Responses:
+ * - 400 Bad Request: Validation errors. Returns an object with 'status', 'message', and 'errors' properties. 
+ *   'errors' is an object containing specific field errors.
+ * - 409 Conflict: Email already exists. Returns an object with 'status', 'message', and 'errors' properties.
+ * - 500 Internal Server Error: An unexpected error occurred during registration.
+ */
 ```
 ---[END_OF_FILES]---

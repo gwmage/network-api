@@ -1,3 +1,4 @@
+```typescript
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, IsArray, IsOptional } from 'class-validator';
 
@@ -41,3 +42,5 @@ export class User {
   interests: string[];
 
 }
+
+```
