@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+```typescript
+import { Injectable, HttpException, HttpStatus, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -35,3 +36,5 @@ export class AuthService {
     return this.authRepository.createUser(user); // Use createUser from AuthRepository
   }
 }
+
+```

@@ -1,3 +1,4 @@
+```typescript
 import { IsEmail, IsNotEmpty, IsString, MinLength, IsPhoneNumber, IsOptional, IsArray } from 'class-validator';
 
 export class RegisterDto {
@@ -30,3 +31,5 @@ export class RegisterDto {
   @IsArray()
   interests?: string[];
 }
+
+```
