@@ -19,7 +19,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: configService.get<string>('DATABASE_URL') || `postgres://${process.env.RAILWAY_DB_USERNAME}:${process.env.RAILWAY_DB_PASSWORD}@${process.env.RAILWAY_DB_HOST}:${process.env.RAILWAY_DB_PORT}/${process.env.RAILWAY_DB_NAME}?schema=public`,
+        url: configService.get<string>('TYPEORM_CONNECTION'), // Use TYPEORM_CONNECTION directly
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
         synchronize: false, // Set to false in production
         autoLoadEntities: true,
