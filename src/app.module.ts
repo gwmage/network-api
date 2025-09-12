@@ -34,8 +34,9 @@ import { ReservationModule } from './modules/reservation/reservation.module';
         // Use the already loaded environment variables from .railway.env
         url: process.env.TYPEORM_CONNECTION,
         entities: [__dirname + '/modules/**/entities/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: true, // Set to false in production
         autoLoadEntities: true,
+        logging: true, // Enable logging for debugging connection issues
       }),
     }),
     AdminModule,
@@ -52,3 +53,5 @@ import { ReservationModule } from './modules/reservation/reservation.module';
   providers: [],
 })
 export class AppModule {}
+
+---[END_OF_FILES]---
