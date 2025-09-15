@@ -50,7 +50,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Only copy necessary files for production after the build
-COPY dist ./dist
+COPY build ./build
 COPY package.json ./package.json
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "build/main.js"]
