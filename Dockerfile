@@ -1,15 +1,12 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Install necessary build tools *before* installing dependencies
-RUN apk add --no-cache --update alpine-sdk bash git nodejs npm
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
-RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
+# Install necessary build tools
+RUN apk add --no-cache --update git
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
 # Install project dependencies
 RUN npm ci --verbose
