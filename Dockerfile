@@ -29,12 +29,12 @@ RUN chmod +x install-nix.sh
 # Run the Nix installer. 
 RUN ./install-nix.sh --daemon
 
-# Source the Nix environment
+# Source the Nix environment AFTER installation
 RUN . /home/.nix-profile/etc/profile.d/nix.sh     \
-    && nix-env -if ./.nixpacks/nixpkgs-unstable.nix \
-    && nix-collect-garbage -d
+    && nix-env -iA nixpkgs.nodejs-16_x nixpkgs.yarn nixpkgs.coreutils nixpkgs.git
 
 
+RUN npm ci --omit=dev
 RUN npm run build
 
 # remove development dependencies to slim down the final image
