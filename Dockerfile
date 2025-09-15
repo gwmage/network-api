@@ -15,14 +15,12 @@ RUN mkdir -m 0755 /nix && chown root:root /nix
 
 COPY . .
 
-# Combine installation, PATH update, and subsequent commands into a single RUN command
-# The $NIX_USER_PROFILE_DIR variable is problematic in the cp command as it's part of a longer path.
-# Copying the nixpkgs-unstable.nix file to the workdir first avoids complex pathing issues within the chained command.
-RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR \
-    && export PATH=$NIX_USER_PROFILE_DIR/bin:$PATH \
-    && cp .nixpacks/nixpkgs-unstable.nix . \
-    && nix-env -if nixpkgs-unstable.nix \
-    && nix-collect-garbage -d
+# Run the Nix installer. Source the updated environment immediately afterwards to make the changes available.
+RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR && \
+    . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh && \
+    cp .nixpacks/nixpkgs-unstable.nix . && \
+    nix-env -if nixpkgs-unstable.nix && \
+    nix-collect-garbage -d
 
 RUN npm run build
 
