@@ -16,9 +16,9 @@ RUN mkdir -m 0755 /nix && chown root:root /nix # This line isn't strictly necess
 COPY . .
 
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
-# The cp command is updated to remove the unsupported preserve option, using -p instead to preserve timestamps.
+# The cp command is updated to remove the unsupported -p option.
 RUN mkdir -p $NIX_USER_PROFILE_DIR     && sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
-    && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp -p .nixpacks/nixpkgs-unstable.nix .     && nix-env -if nixpkgs-unstable.nix     && nix-collect-garbage -d
+    && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp .nixpacks/nixpkgs-unstable.nix .     && nix-env -if nixpkgs-unstable.nix     && nix-collect-garbage -d
 
 RUN npm run build
 
