@@ -20,9 +20,6 @@ COPY . .
 RUN mkdir -p $NIX_USER_PROFILE_DIR     && sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
     && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp .nixpacks/nixpkgs-unstable.nix .     && nix-env -if ./nixpkgs-unstable.nix     && nix-collect-garbage -d
 
-# Ensure correct ownership for node_modules after Nix installation
-RUN chown -R node:node /app/node_modules
-
 RUN npm run build
 
 # remove development dependencies to slim down the final image
