@@ -9,3 +9,6 @@ cmds = ["npm run start"]
 
 [app]
 engines = { node = "16.x" }
+
+[build]
+include = ["package-lock.json"]
