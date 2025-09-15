@@ -16,11 +16,13 @@ RUN mkdir -m 0755 /nix && chown root:root /nix # This line isn't strictly necess
 COPY . .
 
 # Run the Nix installer. Pipe yes to the installer to bypass the prompt. 
-RUN yes | sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR -f && \ 
-    . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh && \ 
-    cp .nixpacks/nixpkgs-unstable.nix . && \ 
-    nix-env -if nixpkgs-unstable.nix && \ 
-    nix-collect-garbage -d
+# The key change is to move the sourcing of nix.sh *after* the other nix commands,
+# which ensures the profile directory and nix.sh exist.
+RUN yes | sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR -f && \
+    cp .nixpacks/nixpkgs-unstable.nix . && \
+    nix-env -if nixpkgs-unstable.nix && \
+    nix-collect-garbage -d && \
+    . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh
 
 RUN npm run build
 
