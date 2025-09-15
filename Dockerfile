@@ -17,9 +17,9 @@ COPY . .
 
 # Run the Nix installer.  Use the -f option to bypass the interactive prompt.
 RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR -f && \
-    . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh && \
     cp .nixpacks/nixpkgs-unstable.nix . && \
     nix-env -if nixpkgs-unstable.nix && \
+    . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh && \ # Source the profile after a nix command
     nix-collect-garbage -d
 
 RUN npm run build
