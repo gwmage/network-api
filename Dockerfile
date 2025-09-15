@@ -1,16 +1,3 @@
-FROM node:16-alpine
-AS runtime # Use a separate tag for the runtime image
-
-WORKDIR /app
-
-# Placeholder for copied nix store
-
-# Set environment variable to ensure nix commands are available
-ENV PATH /nix/var/nix/profiles/default/bin:$PATH
-
-# Placeholder for copied files
-
-
 FROM node:16-alpine AS builder
 
 WORKDIR /app
@@ -62,6 +49,10 @@ RUN npm run build
 # remove development dependencies to slim down the final image
 RUN npm prune --production
 
+
+FROM node:16-alpine
+
+WORKDIR /app
 
 # Now copy from builder stage
 COPY --from=builder /nix /nix
