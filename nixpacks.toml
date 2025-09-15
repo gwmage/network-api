@@ -1,6 +1,6 @@
 [app]
-engines = { node = "18.x"
-install_command = "npm install" }
+engines = { node = "18.x" }
+install_command = "npm install"
 
 [build]
-include = ["package.json"]
+include = ["package.json", "package-lock.json", "src", "api", "config", "test", "tsconfig.json"]
