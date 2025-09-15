@@ -41,11 +41,11 @@ RUN npm ci --omit=dev
 # Copy node_modules AFTER it has been created
 COPY node_modules ./node_modules
 
-# Copy the entire source code before building
-COPY . .
-
 # Build the application
 RUN npm run build
+
+# Copy the entire source code after building
+COPY . .
 
 # Only copy necessary files for production after the build
 COPY build ./build
