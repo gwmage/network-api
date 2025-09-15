@@ -18,11 +18,12 @@ COPY . .
 # Run the Nix installer. Create the profile directory before running the installer.
 # The sourcing of nix.sh and other nix commands are moved within the same RUN command
 # after the installer completes successfully.
-RUN mkdir -p $NIX_USER_PROFILE_DIR \ 
-    && yes | sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR -f \ 
-    && . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh \ 
-    && cp .nixpacks/nixpkgs-unstable.nix . \ 
-    && nix-env -if nixpkgs-unstable.nix \ 
+# The -f flag was removed to ensure profile directory is created when installing nix non-interactively
+RUN mkdir -p $NIX_USER_PROFILE_DIR \
+    && yes | sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR  \
+    && . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh \
+    && cp .nixpacks/nixpkgs-unstable.nix . \
+    && nix-env -if nixpkgs-unstable.nix \
     && nix-collect-garbage -d
 
 RUN npm run build
