@@ -16,10 +16,10 @@ RUN mkdir -m 0755 /nix && chown root:root /nix
 COPY . .
 
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
-# Copy the nix file to the current directory.
+# Copy the nix file to the current directory using the absolute path.
 # The --no-daemon flag is added to ensure the daemon isn't started which can cause conflicts
 RUN mkdir -p $NIX_USER_PROFILE_DIR     && sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
-    && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp .nixpacks/nixpkgs-unstable.nix .     && nix-env -if ./nixpkgs-unstable.nix     && nix-collect-garbage -d
+    && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp ./.nixpacks/nixpkgs-unstable.nix ./nixpkgs-unstable.nix     && nix-env -if ./nixpkgs-unstable.nix     && nix-collect-garbage -d
 
 
 RUN npm run build
