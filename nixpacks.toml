@@ -11,4 +11,4 @@ cmds = ["npm run start:prod"]
 engines = { node = "16.x" }
 
 [build]
-include = ["package-lock.json"]
+include = ["package.json", "package-lock.json"]
