@@ -21,7 +21,7 @@ COPY package-lock.json .
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
 # The --no-daemon flag is added to ensure the daemon isn't started which can cause conflicts
 RUN sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
-    && . $HOME/.nix-profile/etc/profile.d/nix.sh     \
+    && . /home/.nix-profile/etc/profile.d/nix.sh     \
     && nix-env -if ./.nixpacks/nixpkgs-unstable.nix \
     && nix-collect-garbage -d
 
