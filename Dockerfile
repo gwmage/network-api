@@ -43,7 +43,9 @@ RUN npm run build
 RUN npm prune --production
 
 COPY dist ./dist
-COPY node_modules ./node_modules
 COPY package.json ./package.json
+
+# Copy node_modules AFTER it has been created
+COPY node_modules ./node_modules
 
 CMD ["node", "dist/main.js"]
