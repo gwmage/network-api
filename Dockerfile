@@ -44,13 +44,14 @@ COPY node_modules ./node_modules
 # Copy the entire source code before building
 COPY . .
 
+# Build the application
 RUN npm run build
-
-# remove development dependencies
-RUN npm prune --production
 
 # Only copy necessary files for production after the build
 COPY build ./build
 COPY package.json ./package.json
+
+# remove development dependencies
+RUN npm prune --production
 
 CMD ["node", "build/main.js"]
