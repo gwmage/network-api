@@ -4,4 +4,4 @@ install_command = "npm install"
 
 [build]
 include = ["package.json", "src", "api", "config", "tsconfig.json"]
-install_command = "npm ci && npm install"
+install_command = "npm install"
