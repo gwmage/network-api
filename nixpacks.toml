@@ -5,7 +5,7 @@ cmds = ["npm install"]
 cmds = ["npm run build"]
 
 [phases.start]
-cmds = ["npm run start"]
+cmds = ["npm run start:prod"]
 
 [app]
 engines = { node = "16.x" }
