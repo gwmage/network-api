@@ -16,9 +16,7 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/rep
 RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 
 # Build the application
-RUN npm run build
-
-# Copy remaining files after building
 COPY . .
+RUN npm run build
 
 CMD ["node", "dist/main.js"]
