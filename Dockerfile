@@ -48,7 +48,7 @@ RUN npm run build
 COPY . .
 
 # Only copy necessary files for production after the build
-COPY build ./build
+COPY dist ./dist
 COPY package.json ./package.json
 
-CMD ["node", "build/main.js"]
+CMD ["node", "dist/main.js"]
