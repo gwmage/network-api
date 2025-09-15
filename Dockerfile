@@ -38,17 +38,10 @@ RUN for i in {1..5}; do while ! [ -S /nix/var/nix/daemon-socket/socket ]; do sle
 # Install project dependencies and build
 RUN npm ci --omit=dev
 
-# Copy node_modules AFTER it has been created
-COPY node_modules ./node_modules
-
 # Build the application
 RUN npm run build
 
-# Copy the entire source code after building
+# Copy the entire source code *after* building
 COPY . .
-
-# Only copy necessary files for production after the build
-COPY dist ./dist
-COPY package.json ./package.json
 
 CMD ["node", "dist/main.js"]
