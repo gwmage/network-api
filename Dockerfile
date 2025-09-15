@@ -11,7 +11,7 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 # Install nix
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
-RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
+# apk add for curl, xz, coreutils is already done above, no need to repeat
 
 # Install nix using the multi-user installer to a writable location
 # and setting the necessary environment variables.
