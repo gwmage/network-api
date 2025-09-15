@@ -39,14 +39,15 @@ COPY .nixpacks/ .nixpacks/
 COPY package.json .
 COPY package-lock.json .
 
+# Install bash
+RUN apk add bash
+
 # Download the latest Nix installer script using curl and retry logic.
 RUN curl -L --retry 3 --retry-delay 1 https://nixos.org/nix/install -o install-nix.sh
 
 # Make the script executable
 RUN chmod +x install-nix.sh
 
-# Source bash explicitly before running the installer
-RUN apk add bash # Moved this line up
 
 # Run the installer in daemon mode to handle permissions automatically
 RUN /bin/bash -c "./install-nix.sh --daemon"
