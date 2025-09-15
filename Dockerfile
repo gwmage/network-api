@@ -20,9 +20,15 @@ COPY .nixpacks/ .nixpacks/
 COPY package.json .
 COPY package-lock.json .
 
+# Download the Nix installer script
+RUN curl -L https://nixos.org/nix/install -o install-nix.sh
+
+# Make the script executable
+RUN chmod +x install-nix.sh
+
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
 # The --no-daemon flag is added to ensure the daemon isn't started which can cause conflicts
-RUN sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
+RUN ./install-nix.sh --yes --no-daemon \
     && . /home/.nix-profile/etc/profile.d/nix.sh     \
     && nix-env -if ./.nixpacks/nixpkgs-unstable.nix \
     && nix-collect-garbage -d
