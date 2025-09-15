@@ -11,7 +11,7 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz
 # Install nix without sudo, using a single-user install to a writable location 
 # and setting the necessary environment variables.
 ENV NIX_USER_PROFILE_DIR=/home/.nix-profile
-RUN mkdir -m 0755 /nix && chown root:root /nix # This line isn't strictly necessary anymore but kept for consistency
+RUN mkdir -m 0755 /nix && chown root:root /nix
 
 COPY . .
 
@@ -19,6 +19,9 @@ COPY . .
 # Copy the nix file to the current directory.
 RUN mkdir -p $NIX_USER_PROFILE_DIR     && sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
     && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp .nixpacks/nixpkgs-unstable.nix .     && nix-env -if ./nixpkgs-unstable.nix     && nix-collect-garbage -d
+
+# Ensure correct ownership for node_modules after Nix installation
+RUN chown -R node:node /app/node_modules
 
 RUN npm run build
 
