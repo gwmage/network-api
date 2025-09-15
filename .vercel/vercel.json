@@ -2,13 +2,14 @@
   "functions": {
     "api/**/*.{ts,js}": {
       "memory": 1024,
-      "maxDuration": 15
+      "maxDuration": 15,
+      "handler": "dist/api/index.handler"
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/index.ts"
+      "dest": "/api"
     }
   ]
 }
