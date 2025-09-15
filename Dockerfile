@@ -2,8 +2,13 @@ FROM node:16-alpine AS builder
 
 WORKDIR /app/
 
-# Install nix
+# Install necessary build tools including bash *before* Nix installation
 RUN apk add --no-cache --update alpine-sdk
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
+RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
+
+# Install nix
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
