@@ -35,6 +35,9 @@ RUN /bin/bash -c "./install-nix.sh --daemon -b /home/.nix-profile"
 
 RUN for i in {1..5}; do while ! [ -S /nix/var/nix/daemon-socket/socket ]; do sleep 10; done && nix profile install nixpkgs#nodejs-16_x nixpkgs#yarn nixpkgs#coreutils nixpkgs#git  && break; if [ $i -eq 5 ]; then exit 1; fi; done
 
+# Activate the nix environment
+ENV PATH /home/.nix-profile/bin:$PATH
+
 # Install project dependencies and build
 RUN npm ci --omit=dev
 RUN npm run build
@@ -43,7 +46,9 @@ RUN npm run build
 RUN npm prune --production
 
 COPY dist ./dist
-COPY node_modules ./node_modules
 COPY package.json ./package.json
+
+# Instead of copying node_modules, install dependencies again in the final image
+RUN npm install --omit=dev --production
 
 CMD ["node", "dist/main.js"]
