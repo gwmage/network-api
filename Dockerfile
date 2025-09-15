@@ -50,7 +50,8 @@ RUN chmod +x install-nix.sh
 
 
 # Run the installer in daemon mode to handle permissions automatically
-RUN /bin/bash -c "./install-nix.sh --daemon"
+# Use -b /home/.nix-profile to specify the installation location explicitly
+RUN /bin/bash -c "./install-nix.sh --daemon -b /home/.nix-profile"
 
 # Install Nix packages after the daemon is running. 'nix-env' is deprecated, use 'nix profile install' instead.  Sourcing nix.sh is handled by the daemon.
 # Increased delay and added retry logic for more robustness. Retry up to 5 times with 10-second intervals
