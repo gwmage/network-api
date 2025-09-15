@@ -3,11 +3,7 @@
   "builds": [
     {
       "src": "./package.json",
-      "use": "@vercel/node",
-      "config": {
-        "installCommand": "npm install",
-        "buildCommand": "npm run build"
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
