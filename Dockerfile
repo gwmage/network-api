@@ -54,7 +54,7 @@ RUN /bin/bash -c "./install-nix.sh --daemon"
 
 # Install Nix packages after the daemon is running. 'nix-env' is deprecated, use 'nix profile install' instead.  Sourcing nix.sh is handled by the daemon.
 # Increased delay and added retry logic for more robustness. Retry up to 5 times with 10-second intervals
-RUN for i in {1..5}; do while ! [ -S /nix/var/nix/daemon-socket/socket ]; do sleep 1; done && nix profile install 'github:NixOS/nixpkgs/nixpkgs-unstable#nodejs-16_x' 'github:NixOS/nixpkgs/nixpkgs-unstable#yarn' 'github:NixOS/nixpkgs/nixpkgs-unstable#coreutils' 'github:NixOS/nixpkgs/nixpkgs-unstable#git' && break; if [ $i -eq 5 ]; then exit 1; fi; done
+RUN for i in {1..5}; do while ! [ -S /nix/var/nix/daemon-socket/socket ]; do sleep 10; done && nix profile install 'github:NixOS/nixpkgs/nixpkgs-unstable#nodejs-16_x' 'github:NixOS/nixpkgs/nixpkgs-unstable#yarn' 'github:NixOS/nixpkgs/nixpkgs-unstable#coreutils' 'github:NixOS/nixpkgs/nixpkgs-unstable#git' && break; if [ $i -eq 5 ]; then exit 1; fi; done
 
 RUN npm ci --omit=dev
 RUN npm run build
