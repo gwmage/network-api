@@ -4,8 +4,11 @@ WORKDIR /app/
 
 # Install nix
 RUN apk add --no-cache --update alpine-sdk
-RUN echo "https://nixos.org/channels/nixpkgs-unstable" >> /etc/apk/repositories
-RUN apk add --no-cache nix
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
+RUN apk add --no-cache --virtual=build-dependencies curl
+RUN curl -L https://nixos.org/nix/install | sh
+RUN apk del build-dependencies
 
 COPY .nixpacks/nixpkgs-*.nix .
 RUN nix-env -if .nixpacks/nixpkgs-*.nix && nix-collect-garbage -d
