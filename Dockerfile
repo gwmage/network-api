@@ -20,8 +20,8 @@ COPY .nixpacks/ .nixpacks/
 COPY package.json .
 COPY package-lock.json .
 
-# Download the Nix installer script
-RUN curl -L https://nixos.org/nix/install -o install-nix.sh
+# Download the Nix installer script using a more robust method (wget with retry)
+RUN wget -q --tries=3 --retry-connrefused https://nixos.org/nix/install -O install-nix.sh
 
 # Make the script executable
 RUN chmod +x install-nix.sh
