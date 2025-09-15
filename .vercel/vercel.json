@@ -1,15 +1,20 @@
 {
-  "functions": {
-    "api/**/*.{ts,js}": {
-      "memory": 1024,
-      "maxDuration": 15,
-      "handler": "dist/api/index.handler"
+  "version": 2,
+  "builds": [
+    {
+      "src": "./package.json",
+      "use": "@vercel/node",
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run build"
+      }
     }
-  },
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/api"
+      "dest": "/api/index"
     }
-  ]
+  ],
+  "outputDirectory": "dist"
 }
