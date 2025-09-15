@@ -1,7 +1,7 @@
 [app]
 engines = { node = "18.x" }
-install_command = "npm install"
+install_command = "npm ci"
 
 [build]
-include = ["package.json", "src", "api", "config", "tsconfig.json"]
-install_command = "npm install"
+include = [".", "src", "api", "config", "tsconfig.json", "test", "@document", "Dockerfile", "README.md", ".railway.env", ".vercel"]
+install_command = "npm ci"
