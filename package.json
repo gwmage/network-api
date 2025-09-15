@@ -17,7 +17,8 @@
     "typeorm": "^0.3.11",
     "pg": "^8.5.1",
     "cookie-parser": "^1.4.6",
-    "serverless-http": "^3.2.0"
+    "serverless-http": "^3.2.0",
+    "rimraf": "^3.0.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
