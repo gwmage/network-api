@@ -34,7 +34,7 @@ RUN curl -L --retry 3 --retry-delay 1 https://nixos.org/nix/install -o install-n
 RUN chmod +x install-nix.sh
 
 # Source bash explicitly before running the installer
-RUN apk add bash
+RUN apk add bash # Moved this line up
 
 # Run the installer in daemon mode to handle permissions automatically
 RUN /bin/bash -c "./install-nix.sh --daemon"
