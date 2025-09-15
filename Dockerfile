@@ -10,9 +10,11 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 
 # Copy package files
 COPY package.json .
-COPY package-lock.json .
 
 # Install project dependencies
+RUN npm install --omit=dev --package-lock-only
+
+COPY package-lock.json .
 RUN npm ci --omit=dev
 
 # Build the application
