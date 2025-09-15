@@ -5,7 +5,7 @@ WORKDIR /app/
 # Install nix
 RUN apk add --no-cache --update alpine-sdk
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
-RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
+RUN echo "https://dl-cdn.alpinelux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --no-cache --virtual=build-dependencies curl xz
 
 # Install nix without sudo, using a single-user install to a writable location 
@@ -18,7 +18,7 @@ COPY . .
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
 # Using -T option with cp to treat the destination as a normal file
 RUN mkdir -p $NIX_USER_PROFILE_DIR     && sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
-    && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp -T .nixpacks/nixpkgs-unstable.nix .     && nix-env -if nixpkgs-unstable.nix     && nix-collect-garbage -d
+    && . $HOME/.nix-profile/etc/profile.d/nix.sh     && cp .nixpacks/nixpkgs-unstable.nix .     && nix-env -if nixpkgs-unstable.nix     && nix-collect-garbage -d
 
 RUN npm run build
 
