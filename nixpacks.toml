@@ -3,4 +3,4 @@ app]
 engines = { node = "16.x" }
 
 [build]
-include = ["package.json", "package-lock.json"]
+include = ["package.json"]
