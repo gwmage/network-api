@@ -6,7 +6,7 @@ WORKDIR /app/
 RUN apk add --no-cache --update alpine-sdk
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
 RUN echo "https://dl-cdn.alpinelux.org/alpine/v3.18/community" >> /etc/apk/repositories
-RUN apk add --no-cache --virtual=build-dependencies curl xz
+RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 
 # Install nix without sudo, using a single-user install to a writable location 
 # and setting the necessary environment variables.
@@ -20,7 +20,6 @@ COPY package-lock.json .
 
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
 # The --no-daemon flag is added to ensure the daemon isn't started which can cause conflicts
-# Using GNU cp to ensure compatibility with the preserve option.
 RUN mkdir -p $NIX_USER_PROFILE_DIR     && sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
     && . $HOME/.nix-profile/etc/profile.d/nix.sh     \
     && nix-env -if ./.nixpacks/nixpkgs-unstable.nix \
