@@ -1,5 +1,6 @@
 [app]
-engines = { node = "18.x" }
+engines = { node = "18.x"
+install_command = "npm install" }
 
 [build]
 include = ["package.json"]
