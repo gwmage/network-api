@@ -50,7 +50,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Only copy necessary files for production after the build
-COPY build ./build
+COPY build ./build     # This line is now AFTER the build command
 COPY package.json ./package.json
 
 CMD ["node", "build/main.js"]
