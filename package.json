@@ -18,13 +18,13 @@
     "pg": "^8.8.0",
     "cookie-parser": "^1.4.6",
     "serverless-http": "^3.2.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "@nestjs/cli": "^9.0.0",
+    "@nestjs/schematics": "^9.0.0"
   },
   "devDependencies": {
     "@types/pg": "^8.0.0",
     "@types/typeorm": "^0.3.17",
-    "@nestjs/cli": "^9.0.0",
-    "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
     "@types/express": "^4.17.13",
     "@types/node": "^16.0.0",
@@ -45,13 +45,13 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write "src/**/*.ts" "test/**/*.ts" "src/**/*.js" "test/**/*.js"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"src/**/*.js\" \"test/**/*.js\"",
     "start": "npx nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "vercel-build": "npm run build",
-    "lint": "eslint "{src,apps,libs,test}/**/*.ts" --fix",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
