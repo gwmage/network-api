@@ -6,7 +6,7 @@ WORKDIR /app/
 RUN apk add --no-cache --update alpine-sdk
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
-RUN apk add --no-cache --virtual=build-dependencies curl
+RUN apk add --no-cache --virtual=build-dependencies curl xz
 RUN curl -L https://nixos.org/nix/install | sh
 RUN apk del build-dependencies
 
