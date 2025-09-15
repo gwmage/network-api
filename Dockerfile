@@ -36,12 +36,12 @@ RUN chmod +x install-nix.sh
 
 # Source bash explicitly before running the installer
 RUN apk add bash
-RUN /bin/bash -c "./install-nix.sh --daemon"
 
-# Source the Nix environment AFTER installation
-RUN . /home/.nix-profile/etc/profile.d/nix.sh     \
-    && nix-env -iA nixpkgs.nodejs-16_x nixpkgs.yarn nixpkgs.coreutils nixpkgs.git
+# Run the installer in a non-daemon mode so the environment is available immediately
+RUN /bin/bash -c "./install-nix.sh"
 
+# The nix.sh file should now be available after a successful non-daemonized installation. Sourcing it here is redundant and can be removed.
+RUN nix-env -iA nixpkgs.nodejs-16_x nixpkgs.yarn nixpkgs.coreutils nixpkgs.git
 
 RUN npm ci --omit=dev
 RUN npm run build
