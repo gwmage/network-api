@@ -13,7 +13,10 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz
 ENV NIX_USER_PROFILE_DIR=/home/.nix-profile
 RUN mkdir -m 0755 /nix && chown root:root /nix
 
-COPY . .
+# Copy only necessary files to avoid issues with unsupported cp options
+COPY .nixpacks/ .nixpacks/
+COPY package.json .
+COPY package-lock.json .
 
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
 # Copy the nix file to the current directory using the absolute path.
