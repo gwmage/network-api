@@ -8,8 +8,12 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/reposito
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --no-cache --virtual=build-dependencies curl xz
 
-# Install nix without sudo, using the --no-daemon flag to prevent issues in Docker
-RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon
+# Install nix without sudo, using a single-user install to a writable location 
+# and setting the necessary environment variables.
+ENV NIX_USER_PROFILE_DIR=/nix/.nix-profile
+RUN mkdir -m 0755 /nix && chown root:root /nix
+RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR
+ENV PATH=$NIX_USER_PROFILE_DIR/bin:$PATH
 
 RUN apk del build-dependencies
 
