@@ -31,8 +31,9 @@ RUN curl -L --retry 3 --retry-delay 1 https://nixos.org/nix/install -o install-n
 # Make the script executable
 RUN chmod +x install-nix.sh
 
-# Run the Nix installer. 
-RUN ./install-nix.sh --daemon
+# Source bash explicitly before running the installer
+RUN apk add bash
+RUN /bin/bash -c "./install-nix.sh --daemon"
 
 # Source the Nix environment AFTER installation
 RUN . /home/.nix-profile/etc/profile.d/nix.sh     \
