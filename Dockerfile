@@ -8,13 +8,12 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/reposito
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 
-# Install shadow package for groupadd before Nix installation
+# Install shadow package for groupadd before Nix installation (This might not be strictly necessary anymore)
 RUN apk add --no-cache shadow
 
 # Install nix
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
-# apk add for curl, xz, coreutils is already done above, no need to repeat
 
 # Install nix using the multi-user installer to a writable location
 # and setting the necessary environment variables.
@@ -37,11 +36,11 @@ RUN chmod +x install-nix.sh
 # Source bash explicitly before running the installer
 RUN apk add bash
 
-# Run the installer in a non-daemon mode so the environment is available immediately
-RUN /bin/bash -c "./install-nix.sh"
+# Run the installer in daemon mode to handle permissions automatically
+RUN /bin/bash -c "./install-nix.sh --daemon"
 
-# The nix.sh file should now be available after a successful non-daemonized installation. Sourcing it here is redundant and can be removed.
-RUN nix-env -iA nixpkgs.nodejs-16_x nixpkgs.yarn nixpkgs.coreutils nixpkgs.git
+# Install Nix packages after the daemon is running. 'nix-env' is deprecated, use 'nix profile install' instead.  Sourcing nix.sh is handled by the daemon.
+RUN nix profile install nixpkgs#nodejs-16_x nixpkgs#yarn nixpkgs#coreutils nixpkgs#git
 
 RUN npm ci --omit=dev
 RUN npm run build
