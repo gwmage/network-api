@@ -7,7 +7,10 @@ RUN apk add --no-cache --update alpine-sdk
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --no-cache --virtual=build-dependencies curl xz
-RUN curl -L https://nixos.org/nix/install | sh
+
+# Install nix without sudo, using the --no-daemon flag to prevent issues in Docker
+RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon
+
 RUN apk del build-dependencies
 
 COPY .nixpacks/nixpkgs-*.nix .
