@@ -14,7 +14,13 @@ ENV NIX_USER_PROFILE_DIR=/nix/.nix-profile
 RUN mkdir -m 0755 /nix && chown root:root /nix
 
 # Combine installation, PATH update, and subsequent commands into a single RUN command
-RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR &&     export PATH=$NIX_USER_PROFILE_DIR/bin:$PATH &&     cp .nixpacks/nixpkgs-unstable.nix . &&     nix-env -if .nixpacks/nixpkgs-unstable.nix &&     nix-collect-garbage -d
+# The $NIX_USER_PROFILE_DIR variable is problematic in the cp command as it's part of a longer path.
+# Copying the nixpkgs-unstable.nix file to the workdir first avoids complex pathing issues within the chained command.
+RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR \
+    && export PATH=$NIX_USER_PROFILE_DIR/bin:$PATH \
+    && cp .nixpacks/nixpkgs-unstable.nix . \
+    && nix-env -if nixpkgs-unstable.nix \
+    && nix-collect-garbage -d
 
 COPY . .
 
