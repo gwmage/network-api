@@ -1,4 +1,5 @@
-FROM node:16-alpine AS runtime # Use a separate tag for the runtime image
+FROM node:16-alpine
+AS runtime # Use a separate tag for the runtime image
 
 WORKDIR /app
 
