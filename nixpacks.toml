@@ -1,6 +1,5 @@
-[
-app]
-engines = { node = "16.x" }
+[app]
+engines = { node = "18.x" }
 
 [build]
 include = ["package.json"]
