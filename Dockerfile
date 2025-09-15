@@ -4,7 +4,7 @@ WORKDIR /app/
 
 # Install nix
 RUN apk add --no-cache --update alpine-sdk
-RUN echo "https://nixos.org/channels/nixpkgs-unstable/binary-caches/nixpkgs-unstable" >> /etc/apk/repositories
+RUN echo "https://nixos.org/channels/nixpkgs-unstable" >> /etc/apk/repositories
 RUN apk add --no-cache nix
 
 COPY .nixpacks/nixpkgs-*.nix .
