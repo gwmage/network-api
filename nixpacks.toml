@@ -3,5 +3,5 @@ engines = { node = "18.x" }
 install_command = "npm install"
 
 [build]
-include = ["package.json", "src", "api", "config", "test", "tsconfig.json"]
+include = ["package.json", "src", "api", "config", "tsconfig.json"]
 install_command = "npm ci"
