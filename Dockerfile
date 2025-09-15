@@ -13,6 +13,8 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz
 ENV NIX_USER_PROFILE_DIR=/nix/.nix-profile
 RUN mkdir -m 0755 /nix && chown root:root /nix
 RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR
+
+# Set PATH *after* installing Nix
 ENV PATH=$NIX_USER_PROFILE_DIR/bin:$PATH
 
 COPY .nixpacks/nixpkgs-*.nix .
