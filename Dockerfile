@@ -51,7 +51,4 @@ RUN npm run build
 COPY build ./build
 COPY package.json ./package.json
 
-# remove development dependencies
-RUN npm prune --production
-
 CMD ["node", "build/main.js"]
