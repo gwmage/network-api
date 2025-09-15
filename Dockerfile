@@ -3,6 +3,8 @@ FROM node:16-alpine AS builder
 WORKDIR /app/
 
 # Install nix
+RUN apk add --no-cache --update alpine-sdk
+RUN echo "https://repos.nixos.org/nixos/nixpkgs/channels/nixpkgs-unstable" >> /etc/apk/repositories
 RUN apk add --no-cache nix
 
 COPY .nixpacks/nixpkgs-*.nix .
