@@ -49,9 +49,15 @@ RUN npm run build
 # remove development dependencies to slim down the final image
 RUN npm prune --production
 
-FROM node:16-alpine
+FROM node:16-alpine AS runtime # Use a separate tag for the runtime image
 
 WORKDIR /app
+
+# Copy the nix store to persist nix packages in the runtime image.
+COPY --from=builder /nix /nix
+
+# Set environment variable to ensure nix commands are available
+ENV PATH /nix/var/nix/profiles/default/bin:$PATH
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
