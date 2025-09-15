@@ -2,6 +2,9 @@ FROM node:16-alpine AS builder
 
 WORKDIR /app/
 
+# Install nix
+RUN apk add --no-cache nix
+
 COPY .nixpacks/nixpkgs-*.nix .
 RUN nix-env -if .nixpacks/nixpkgs-*.nix && nix-collect-garbage -d
 
