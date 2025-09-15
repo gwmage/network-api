@@ -12,7 +12,7 @@ ENV PATH /nix/var/nix/profiles/default/bin:$PATH
 
 FROM node:16-alpine AS builder
 
-WORKDIR /app/
+WORKDIR /app
 
 # Install necessary build tools including bash *before* Nix installation
 RUN apk add --no-cache --update alpine-sdk
@@ -66,8 +66,8 @@ RUN npm prune --production
 
 # Now copy from builder stage
 COPY --from=builder /nix /nix
-COPY --from=builder /app//dist ./dist
-COPY --from=builder /app//node_modules ./node_modules
-COPY --from=builder /app//package.json ./package.json
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
 CMD ["node", "dist/main.js"]
