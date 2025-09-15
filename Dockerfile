@@ -13,13 +13,12 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz
 ENV NIX_USER_PROFILE_DIR=/nix/.nix-profile
 RUN mkdir -m 0755 /nix && chown root:root /nix
 
-# Combine installation and PATH update into a single RUN command
+# Combine installation, PATH update, and subsequent commands into a single RUN command
 RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR && \
-    export PATH=$NIX_USER_PROFILE_DIR/bin:$PATH
-
-# Now the PATH is updated and nix-env will be found.
-COPY .nixpacks/nixpkgs-*.nix .
-RUN nix-env -if .nixpacks/nixpkgs-*.nix && nix-collect-garbage -d
+    export PATH=$NIX_USER_PROFILE_DIR/bin:$PATH && \
+    cp .nixpacks/nixpkgs-*.nix . && \
+    nix-env -if .nixpacks/nixpkgs-*.nix && \
+    nix-collect-garbage -d
 
 COPY . .
 
