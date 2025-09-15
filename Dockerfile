@@ -9,7 +9,7 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/rep
 RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 
 # Copy package files
-COPY package.json .
+COPY package.json package-lock.json ./
 
 # Install project dependencies
 COPY package.json package-lock.json ./
