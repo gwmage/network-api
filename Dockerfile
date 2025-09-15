@@ -12,13 +12,12 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 COPY package.json .
 
 # Install project dependencies
-RUN npm install --omit=dev --package-lock-only
+RUN npm install --omit=dev
 
-COPY package-lock.json .
-RUN npm ci --omit=dev
+# Copy remaining files
+COPY . .
 
 # Build the application
-COPY . .
 RUN npm run build
 
 CMD ["node", "dist/main.js"]
