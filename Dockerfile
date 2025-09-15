@@ -14,11 +14,7 @@ ENV NIX_USER_PROFILE_DIR=/nix/.nix-profile
 RUN mkdir -m 0755 /nix && chown root:root /nix
 
 # Combine installation, PATH update, and subsequent commands into a single RUN command
-RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR && \
-    export PATH=$NIX_USER_PROFILE_DIR/bin:$PATH && \
-    cp .nixpacks/nixpkgs-*.nix . && \
-    nix-env -if .nixpacks/nixpkgs-*.nix && \
-    nix-collect-garbage -d
+RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR &&     export PATH=$NIX_USER_PROFILE_DIR/bin:$PATH &&     cp .nixpacks/nixpkgs-unstable.nix . &&     nix-env -if .nixpacks/nixpkgs-unstable.nix &&     nix-collect-garbage -d
 
 COPY . .
 
