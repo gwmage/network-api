@@ -8,6 +8,9 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/reposito
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 
+# Install shadow package for groupadd before Nix installation
+RUN apk add --no-cache shadow
+
 # Install nix
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/repositories
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
