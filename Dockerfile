@@ -15,8 +15,8 @@ RUN mkdir -m 0755 /nix && chown root:root /nix
 
 COPY . .
 
-# Run the Nix installer. Source the updated environment immediately afterwards to make the changes available.
-RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR && \
+# Run the Nix installer.  Use the -f option to bypass the interactive prompt.
+RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR -f && \
     . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh && \
     cp .nixpacks/nixpkgs-unstable.nix . && \
     nix-env -if nixpkgs-unstable.nix && \
