@@ -43,6 +43,9 @@ RUN /bin/bash -c "./install-nix.sh --daemon"
 # Add a delay to allow the Nix daemon to start
 RUN sleep 5 && nix profile install nixpkgs#nodejs-16_x nixpkgs#yarn nixpkgs#coreutils nixpkgs#git
 
+# Correct the installation command.  Use pkgs.nodejs_16.
+RUN sleep 5 && nix profile install 'github:NixOS/nixpkgs/nixpkgs-unstable#pkgs.nodejs_16' 'github:NixOS/nixpkgs/nixpkgs-unstable#pkgs.yarn' 'github:NixOS/nixpkgs/nixpkgs-unstable#pkgs.coreutils' 'github:NixOS/nixpkgs/nixpkgs-unstable#pkgs.git'
+
 RUN npm ci --omit=dev
 RUN npm run build
 
