@@ -11,7 +11,9 @@ RUN apk add --no-cache --virtual=build-dependencies curl xz coreutils
 # Install nix without sudo, using a single-user install to a writable location 
 # and setting the necessary environment variables.
 ENV NIX_USER_PROFILE_DIR=/home/.nix-profile
-RUN mkdir -p $NIX_USER_PROFILE_DIR
+
+# Create the directory and set permissions *before* running the installer
+RUN mkdir -p $NIX_USER_PROFILE_DIR && chown nobody:nogroup $NIX_USER_PROFILE_DIR
 
 # Copy necessary files including nixpkgs-unstable.nix *before* installing Nix
 COPY .nixpacks/ .nixpacks/
