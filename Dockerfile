@@ -40,8 +40,8 @@ RUN apk add bash
 RUN /bin/bash -c "./install-nix.sh --daemon"
 
 # Install Nix packages after the daemon is running. 'nix-env' is deprecated, use 'nix profile install' instead.  Sourcing nix.sh is handled by the daemon.
-# Increased delay to 30 seconds for daemon startup and using correct package names
-RUN sleep 30 && nix profile install 'github:NixOS/nixpkgs/nixpkgs-unstable#nodejs-16_x' 'github:NixOS/nixpkgs/nixpkgs-unstable#yarn' 'github:NixOS/nixpkgs/nixpkgs-unstable#coreutils' 'github:NixOS/nixpkgs/nixpkgs-unstable#git'
+# Increased delay to 60 seconds for daemon startup and check for nix-daemon socket
+RUN while ! [ -S /nix/var/nix/daemon-socket/socket ]; do sleep 1; done && nix profile install 'github:NixOS/nixpkgs/nixpkgs-unstable#nodejs-16_x' 'github:NixOS/nixpkgs/nixpkgs-unstable#yarn' 'github:NixOS/nixpkgs/nixpkgs-unstable#coreutils' 'github:NixOS/nixpkgs/nixpkgs-unstable#git'
 
 RUN npm ci --omit=dev
 RUN npm run build
