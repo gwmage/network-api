@@ -8,16 +8,16 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" >> /etc/apk/reposito
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --no-cache --virtual=build-dependencies curl xz
 
-# Install nix without sudo, using a single-user install to a writable location 
-# and setting the necessary environment variables.
-ENV NIX_USER_PROFILE_DIR=/nix/.nix-profile
-RUN mkdir -m 0755 /nix && chown root:root /nix
+# Install nix without sudo, using a single-user install.
+# We remove the explicit profile directory so it uses the default user profile location.
+ENV NIX_USER_PROFILE_DIR=~/.nix-profile 
+RUN mkdir -m 0755 /nix && chown root:root /nix # This directory remains useful for caching
 
 COPY . .
 
-# Run the Nix installer. Source the updated environment immediately afterwards to make the changes available.
-RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon --profile $NIX_USER_PROFILE_DIR && \
-    . $NIX_USER_PROFILE_DIR/etc/profile.d/nix.sh && \
+# Run the Nix installer.
+RUN sh <(curl -L https://nixos.org/nix/install) --no-daemon && \
+    . $HOME/.nix-profile/etc/profile.d/nix.sh && \
     cp .nixpacks/nixpkgs-unstable.nix . && \
     nix-env -if nixpkgs-unstable.nix && \
     nix-collect-garbage -d
