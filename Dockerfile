@@ -20,6 +20,7 @@ COPY package-lock.json .
 
 # Run the Nix installer. Removing --profile flag so it defaults to single user profile location.
 # The --no-daemon flag is added to ensure the daemon isn't started which can cause conflicts
+# Using busybox's cp to avoid issues with the preserve option in some Alpine versions.
 RUN mkdir -p $NIX_USER_PROFILE_DIR     && sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon \
     && . $HOME/.nix-profile/etc/profile.d/nix.sh     \
     && nix-env -if ./.nixpacks/nixpkgs-unstable.nix \
