@@ -1,22 +1,37 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import fastifySwagger from '@fastify/swagger';
-import fastifySwaggerUi from '@fastify/swagger-ui';
-import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as fs from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
-  await app.register(fastifySwagger);
-  await app.register(fastifySwaggerUi);
-  app.useGlobalPipes(new ValidationPipe());
+  console.log("Starting bootstrap...");
+  try {
+    const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+    console.log("App created...");
+    const config = new DocumentBuilder()
+      .setTitle('My App')
+      .setDescription('My App API description')
+      .setVersion('1.0')
+      .build();
 
-  const port = parseInt(process.env.PORT, 10) || 3000;
+    console.log("Swagger config built...");
 
-  await app.listen(port, '0.0.0.0');
-  console.log('Application is running on: ${await app.getUrl()}');
+    const document = SwaggerModule.createDocument(app, config);
+
+    console.log("Swagger document created...");
+
+    fs.writeFileSync("./swagger-spec.json", JSON.stringify(document));
+    SwaggerModule.setup('api', app, document);
+
+    console.log("Swagger setup complete...");
+
+    await app.listen(3000);
+
+    console.log("Listening on port 3000...");
+  } catch (error) {
+    console.error("Error during bootstrap:", error);
+  }
 }
+
 bootstrap();
