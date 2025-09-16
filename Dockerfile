@@ -13,6 +13,9 @@ RUN npm install --verbose > npm_install.log 2>&1
 RUN echo "After npm install"
 
 COPY . .
+RUN echo "package-lock.json after install:"
+RUN cat package-lock.json || echo "package-lock.json does not exist"
+
 
 RUN npm run build --verbose > build.log 2>&1
 
