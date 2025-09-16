@@ -1,11 +1,8 @@
 {
   "builds": [
     {
-      "src": ".vercel/project.json",
-      "use": "@vercel/next",
-      "config": {
-        "installCommand": "npm install --prefer-offline"
-      }
+      "src": "Dockerfile",
+      "use": "@vercel/static-build"
     }
   ],
   "routes": [
