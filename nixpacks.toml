@@ -1,12 +1,10 @@
-[[processes]]
-  name = "web"
-  start = "npm run start:prod"
-
-[build.npm]
-  installCmd = "npm install --verbose"
-
-[phases]
-  build = [
-    "npm ci --only=production --verbose",
-    "npm run build"
-  ]
+{
+  "name": "network-api",
+  "version": "0.0.1",
+  "start": "node dist/main.js",
+  "install": "npm install",
+  "build": "npm run build",
+  "engines": {
+    "node": "18.x"
+  }
+}
