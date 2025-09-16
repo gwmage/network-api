@@ -28,6 +28,14 @@ async function bootstrap() {
 
     await app.listen(3000);
     console.log('App listening on port 3000...');
+
+    console.log('Application started successfully.'); // Log successful start
+
+    // Keep the process alive
+    setInterval(() => {
+      console.log('Application still running...');
+    }, 60000); // Log every minute
+
   } catch (error) {
     console.error('An error occurred during bootstrap:', error);
   }
