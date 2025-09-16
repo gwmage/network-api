@@ -1,0 +1,9 @@
+{
+  "services": [
+    {
+      "name": "api",
+      "command": "npm run start:prod",
+      "port": 3000
+    }
+  ]
+}
