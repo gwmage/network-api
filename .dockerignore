@@ -2,3 +2,4 @@ node_modules
 .git
 .vercel
 .railway.env
+!.package-lock.json
