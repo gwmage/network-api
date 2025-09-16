@@ -9,8 +9,7 @@ RUN apk add --no-cache --update git
 COPY . .
 
 # Install project dependencies
-COPY package*.json ./
-RUN npm install --verbose
+RUN npm ci --verbose
 
 # Build the application
 RUN npm run build
