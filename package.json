@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build --verbose || (echo \"Nest build failed\" && exit 1)",
+    "build": "nest build --verbose --debug",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"config/**/*.ts\" \"*.ts\" \"@document/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
