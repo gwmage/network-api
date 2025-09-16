@@ -4,15 +4,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --verbose
+RUN npm ci --verbose --loglevel verbose
 
 COPY . .
 
 RUN npm run build
 
-CMD ["node", "dist/main.js"]
+EXPOSE 3000
 
-RUN echo "Node Version:" && node -v
-RUN echo "NPM Version:" && npm -v
-RUN echo "OS Details:" && cat /etc/os-release
-RUN echo "Environment Variables:" && printenv
+CMD ["npm", "run", "start:prod"]
