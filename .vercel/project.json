@@ -1,10 +1,20 @@
 {
   "projectId": "prs6239n5",
   "orgId": "jrdncnrll",
+  "settings": {
+    "framework": null
+  },
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/node"
+      "src": ".vercel/vercel.json",
+      "use": "@vercel/static-build"
     }
-  ]
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index"
+    }
+  ],
+  "outputDirectory": "dist"
 }
