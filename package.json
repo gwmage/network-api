@@ -75,5 +75,8 @@
     "coverageDirectory": "coverage",
     "testEnvironment": "node"
   },
-  "main": "dist/main.js"
+  "main": "dist/main.js",
+  "engines": {
+    "node": "18.16.0"
+  }
 }
