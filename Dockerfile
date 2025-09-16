@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apk add --no-cache --update git
 
 # Copy project files
+COPY package*.json ./
 COPY . .
 
 # Install project dependencies
