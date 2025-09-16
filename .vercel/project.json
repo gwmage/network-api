@@ -1,4 +1,9 @@
 {
-  "orgId": "your-org-id",
-  "projectId": "your-project-id"
+  "projectId": "prs6239n5",
+  "orgId": "jrdncnrll",
+  "build": {
+    "ignore": [
+      "Dockerfile"
+    ]
+  }
 }
