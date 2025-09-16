@@ -9,8 +9,10 @@ RUN npm ci -dd --verbose \
 
 COPY . .
 
-RUN npm run build
+RUN npm run build --verbose
 
 CMD ["npm", "run", "start:prod"]
 
 RUN echo "build finished"
+
+RUN ls -al
