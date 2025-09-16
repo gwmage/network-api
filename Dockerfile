@@ -14,4 +14,4 @@ RUN echo "Build completed successfully"
 
 RUN echo "About to execute CMD"
 CMD ["node", "dist/main.js"]
-RUN echo "CMD executed"
+
