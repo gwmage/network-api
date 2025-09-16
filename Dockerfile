@@ -6,6 +6,8 @@ COPY package*.json ./
 
 RUN npm ci --verbose
 
+RUN npm install -g @nestjs/cli
+
 COPY . .
 
 RUN npm run build
