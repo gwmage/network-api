@@ -2,18 +2,17 @@ FROM node:18.16.0-alpine3.17
 
 WORKDIR /app
 
-# Install dependencies first, before copying application files, with verbose logging.
 COPY package*.json ./
-RUN npm ci --verbose --loglevel verbose
 
-# Copy the rest of the application files
+RUN npm ci --verbose
+
 COPY . .
 
-# Build the application
 RUN npm run build
 
-# Expose the port that the app listens on
-EXPOSE 3000
+CMD ["node", "dist/main.js"]
 
-# Start the application
-CMD [ "node", "dist/main.js" ]
+RUN echo "Node Version:" && node -v
+RUN echo "NPM Version:" && npm -v
+RUN echo "OS Details:" && cat /etc/os-release
+RUN echo "Environment Variables:" && printenv
