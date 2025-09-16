@@ -6,8 +6,8 @@
   },
   "builds": [
     {
-      "src": ".vercel/vercel.json",
-      "use": "@vercel/static-build"
+      "src": "package.json",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
