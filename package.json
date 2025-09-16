@@ -21,7 +21,7 @@
     "rimraf": "^3.0.2",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
-    "@types/typeorm": "^0.3.17"
+    "@types/typeorm": "0.3.17"  // Ensure specific version to avoid potential registry issues
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
@@ -57,7 +57,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "npm install"
+    "prepare": "npm install",
+    "postinstall": "npm ci" // Add postinstall to ensure lockfile consistency
   },
   "jest": {
     "moduleFileExtensions": [
