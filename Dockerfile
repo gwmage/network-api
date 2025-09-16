@@ -1,20 +1,19 @@
-FROM node:18-alpine
+FROM node:18.16.0-alpine
 
 WORKDIR /app
 
-# Install necessary build tools
-RUN apk add --no-cache --update git
-
-# Copy only necessary files for dependency installation
 COPY package*.json ./
 
-# Install project dependencies
 RUN npm ci --verbose
 
-# Copy the rest of the application code
 COPY . .
 
-# Build the application
 RUN npm run build
 
 CMD ["node", "dist/main.js"]
+
+# Adding debug logs to understand build context and dependency installation
+RUN echo "Current working directory contents:"
+RUN ls -al
+RUN echo "Node Modules directory contents after npm ci:"
+RUN ls -al node_modules
