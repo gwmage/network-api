@@ -10,6 +10,7 @@ COPY . .
 
 # Install project dependencies
 COPY package*.json ./
+COPY package-lock.json ./
 RUN npm ci --only=production --verbose
 
 # Build the application
