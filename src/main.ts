@@ -4,6 +4,19 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
+  console.log('Bootstrap function started');
+  try {
+    const app = await NestFactory.create<NestFastifyApplication>(
+      AppModule,
+      new FastifyAdapter(),
+    );
+    console.log('NestJS application created');
+
+    await app.listen(3000);
+    console.log('Application listening on port 3000');
+  } catch (error) {
+    console.error('Error starting application:', error);
+  }
   try {
     console.log('Starting application bootstrap...');
     const app = await NestFactory.create<NestFastifyApplication>(
