@@ -3,15 +3,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --verbose > npm_install.log 2>&1
 
 COPY . .
 
-RUN npm run build
+RUN npm run build --verbose > build.log 2>&1
 
 COPY Procfile ./
 
 CMD ["npm", "run", "start:prod"]
-
-# Added logging to capture stdout and stderr during build
-RUN npm run build > build.log 2>&1
