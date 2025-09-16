@@ -6,6 +6,8 @@ COPY package*.json package-lock.json .dockerignore ./
 RUN npm ci --verbose
 COPY . .
 
+RUN npm install
+
 RUN npm run build
 
 RUN ls -l dist
