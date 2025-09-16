@@ -1,6 +1,13 @@
-[app]
-engines = { node = "18.x" }
-install_command = "npm ci"
+[[processes]]
+  name = "web"
+  start = "npm run start:prod"
 
-[build]
-install_command = "npm ci"
+[build.npm]
+  # Explicitly install with production dependencies only to reduce image size
+  installCmd = "npm ci --only-production"
+
+[phases]
+  build = [
+    "npm install",
+    "npm run build"
+  ]
