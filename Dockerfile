@@ -5,9 +5,8 @@ WORKDIR /app
 # Install necessary build tools
 RUN apk add --no-cache --update git
 
-# Copy project files
+# Copy only necessary files for dependency installation
 COPY package*.json ./
-RUN npm install
 
 # Install project dependencies
 RUN npm ci --verbose
