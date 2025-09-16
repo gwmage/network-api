@@ -4,15 +4,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci -ddd --verbose \
-    && echo "npm ci output: $?"
+RUN npm ci --verbose
 
 COPY . .
 
-RUN npm run build --verbose
+RUN npm run build
 
-CMD ["npm", "run", "start:prod"]
-
-RUN echo "build finished"
-
-RUN ls -al
+CMD ["node", "dist/main.js"]
