@@ -9,6 +9,7 @@ RUN apk add --no-cache --update git
 COPY package.json ./
 RUN npm install --package-lock-only
 COPY package-lock.json ./
+RUN npm ci --verbose
 COPY .
 
 # Install project dependencies
