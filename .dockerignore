@@ -3,4 +3,3 @@ node_modules
 .vercel
 .railway.env
 nixpacks.toml
-package-lock.json
