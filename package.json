@@ -59,6 +59,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "npm run build",
     "postinstall": "npm run build"
+  ,"engines": {
+    "node": "18.x"
+  }
   },
   "jest": {
     "moduleFileExtensions": [
