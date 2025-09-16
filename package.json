@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo "Error: no test specified" && exit 1",
     "build": "tsc",
     "start": "node dist/main.js"
   },
@@ -17,7 +17,7 @@
     "@nestjs/platform-fastify": "^9.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
-    "fastify-swagger": "^6.0.0"
+    "fastify-swagger": "6.4.1"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
