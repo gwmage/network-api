@@ -1,11 +1,10 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "./package.json",
-      "use": "@vercel/node",
+      "src": ".vercel/project.json",
+      "use": "@vercel/next",
       "config": {
-        "installCommand": "npm ci --verbose"
+        "installCommand": "npm install --prefer-offline"
       }
     }
   ],
@@ -14,6 +13,5 @@
       "src": "/(.*)",
       "dest": "/api/index"
     }
-  ],
-  "outputDirectory": "dist"
+  ]
 }
