@@ -3,11 +3,10 @@
   start = "npm run start:prod"
 
 [build.npm]
-  # Explicitly install with production dependencies only to reduce image size
-  installCmd = "npm ci --only-production"
+  installCmd = "npm ci --only=production"
 
 [phases]
   build = [
-    "npm install",
+    "npm ci --only=production",
     "npm run build"
   ]
