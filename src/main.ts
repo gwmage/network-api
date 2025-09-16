@@ -4,6 +4,7 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
+  console.log("Application started successfully");
   try {
     const app = await NestFactory.create<NestFastifyApplication>(
       AppModule,
