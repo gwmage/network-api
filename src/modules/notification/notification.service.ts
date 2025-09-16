@@ -2,6 +2,11 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationPreferences, Notification, NotificationStatus, NotificationDeliveryStatus, NotificationType } from './entities/notification.entity';
 import * as admin from 'firebase-admin';
+import { initializeApp } from 'firebase-admin/app';
+
+// Initialize Firebase Admin
+initializeApp();
+
 import * as nodemailer from 'nodemailer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

@@ -19,11 +19,13 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
     "fastify-swagger": "^4.3.0",
-    "fastify-plugin": "^4.3.0"
+    "fastify-plugin": "^4.3.0",
+    "firebase-admin": "^11.9.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
     "@types/node": "^20.0.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "@types/firebase-admin": "^11.9.0"
   }
 }
