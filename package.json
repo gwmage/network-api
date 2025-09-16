@@ -18,7 +18,7 @@
     "@nestjs/platform-fastify": "^9.4.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
-    "fastify-swagger": "^6.2.0",
+    "fastify-swagger": "^4.3.0",
     "fastify-plugin": "^4.3.0"
   },
   "devDependencies": {
