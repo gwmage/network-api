@@ -1,20 +1,12 @@
 {
-  "projectId": "prs6239n5",
-  "orgId": "jrdncnrll",
+  "orgId": "YOUR_ORG_ID",
+  "projectId": "YOUR_PROJECT_ID",
   "settings": {
-    "framework": null
-  },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/index"
-    }
-  ],
-  "outputDirectory": "dist"
+    "framework": null,
+    "devCommand": "npm run dev",
+    "buildCommand": "npm run build",
+    "outputDirectory": ".next",
+    "rootDirectory": null,
+    "installCommand": "npm install"
+  }
 }
