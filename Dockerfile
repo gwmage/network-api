@@ -12,4 +12,4 @@ RUN npm run build
 
 RUN echo "Build completed successfully"
 
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/main.js"]
