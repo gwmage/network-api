@@ -11,4 +11,4 @@ RUN npm run build
 
 RUN ls -l dist
 
-CMD ["cat", "dist/output.txt"]
+CMD ["node", "dist/main.js"]
