@@ -15,7 +15,7 @@ async function bootstrap() {
   const port = parseInt(process.env.PORT, 10) || 3000; 
 
   try {
-    await app.listen(port, '0.0.0.0'); // Explicitly listen on all interfaces and the designated port
+    await app.listen(port, '0.0.0.0');
     console.log(`Application is running on: ${await app.getUrl()}`);
   } catch (error) {
     console.error(`Failed to start application on port ${port}. Exiting...`);
