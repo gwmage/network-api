@@ -3,7 +3,7 @@
   start = "npm run start:prod"
 
 [build.npm]
-  installCmd = "npm ci --only=production --verbose"
+  installCmd = "npm install --verbose"
 
 [phases]
   build = [
