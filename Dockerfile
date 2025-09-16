@@ -3,7 +3,9 @@ WORKDIR /app
 
 COPY package*.json ./
 
+RUN echo "Before npm install"
 RUN npm install --verbose > npm_install.log 2>&1
+RUN echo "After npm install"
 
 COPY . .
 
