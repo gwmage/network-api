@@ -6,6 +6,21 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   console.log("Starting application...");
   try {
+    const app = await NestFactory.create(AppModule);
+    console.log("NestFactory created.");
+    app.enableCors();
+    console.log("CORS enabled.");
+    const configService = app.get(ConfigService);
+    console.log("ConfigService retrieved.");
+    const port = configService.get('PORT') || 3000;
+    console.log("PORT retrieved.");
+    await app.listen(port);
+    console.log('Application listening on port ${port}.");
+  } catch (error) {
+    console.error("Error starting application:", error);
+  }
+  console.log("Starting application...");
+  try {
     const app = await NestFactory.create<NestFastifyApplication>(
       AppModule,
       new FastifyAdapter(),
