@@ -10,10 +10,6 @@ COPY . .
 
 RUN npm run build
 
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]
 
-# Adding debug logs to understand build context and dependency installation
-RUN echo "Current working directory contents:"
-RUN ls -al
-RUN echo "Node Modules directory contents after npm ci:"
-RUN ls -al node_modules
+RUN echo "build finished"
