@@ -16,5 +16,5 @@ EXPOSE 3000
 RUN apk add --no-cache tzdata
 ENV TZ=Europe/London
 
-# Log container startup information and environment variables and redirect stderr to stdout
+# Log container startup information, environment variables, and redirect stderr to stdout
 CMD sh -c "echo 'Container starting...'; env; npm run start 2>&1"
