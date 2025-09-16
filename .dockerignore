@@ -1,5 +1,4 @@
-node_modules
-.git
+node_modules/
+.next/
+dist/
 .vercel
-.railway.env
-!.package-lock.json
