@@ -1,15 +1,15 @@
-FROM node:20-alpine
-
+FROM node:20
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --verbose
+RUN npm install
 
 COPY . .
 
-RUN npm run build --verbose
+RUN npm run build
 
-EXPOSE 3000
+CMD ["npm", "run", "start:prod"]
 
-CMD ["node", "dist/main.js"]
+# Added logging to capture stdout and stderr during build
+RUN npm run build > build.log 2>&1
