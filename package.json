@@ -46,9 +46,9 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write src/**/*.ts test/**/*.ts src/**/*.js test/**/*.js",
-    "start": "npm ci && npx nest start",
-    "start:dev": "npm ci && nest start --watch",
-    "start:debug": "npm ci && nest start --debug --watch",
+    "start": "npm install && npx nest start",
+    "start:dev": "npm install && nest start --watch",
+    "start:debug": "npm install && nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "vercel-build": "npm run prebuild && npm run build",
     "lint": "eslint {src,apps,libs,test}/**/*.ts --fix",
@@ -58,7 +58,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "npm run build",
-    "postinstall": "npm ci"
+    "postinstall": "npm install"
   },
   "jest": {
     "moduleFileExtensions": [
