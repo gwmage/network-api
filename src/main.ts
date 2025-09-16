@@ -1,57 +1,35 @@
 import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
-  console.log('Bootstrap function started');
-  try {
-    const app = await NestFactory.create<NestFastifyApplication>(
-      AppModule,
-      new FastifyAdapter(),
-    );
-    console.log('NestJS application created');
+  console.log('Starting application bootstrap...');
 
-    await app.listen(3000);
-    console.log('Application listening on port 3000');
-  } catch (error) {
-    console.error('Error starting application:', error);
-  }
-  try {
-    console.log('Starting application bootstrap...');
-    const app = await NestFactory.create<NestFastifyApplication>(
-      AppModule,
-      new FastifyAdapter(),
-    );
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
 
-    console.log('Application created...');
+  console.log('NestFactory created...');
 
-    const config = new DocumentBuilder()
-      .setTitle('Matching App API')
-      .setDescription('The Matching App API description')
-      .setVersion('1.0')
-      .build();
-    console.log('Swagger config built...');
+  const config = new DocumentBuilder()
+    .setTitle('Matchmaking API')
+    .setDescription('The Matchmaking API description')
+    .setVersion('1.0')
+    .addTag('matchmaking')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
-    const document = SwaggerModule.createDocument(app, config);
-    console.log('Swagger document created...');
+  console.log('Swagger setup complete...');
 
-    SwaggerModule.setup('api', app, document);
-    console.log('Swagger setup complete...');
+  await app.listen(3000);
 
-    await app.listen(3000);
-    console.log('App listening on port 3000...');
-
-    console.log('Application started successfully.'); // Log successful start
-
-    // Keep the process alive
-    setInterval(() => {
-      console.log('Application still running...');
-    }, 60000); // Log every minute
-
-  } catch (error) {
-    console.error('An error occurred during bootstrap:', error);
-  }
+  console.log('App listening on port 3000...');
 }
 
-bootstrap();
+bootstrap().catch(err => {
+  console.error('Fatal error during bootstrap:', err);
+  process.exit(1);
+});
