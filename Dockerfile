@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --verbose --verbose --loglevel verbose
+RUN npm ci --verbose --verbose --verbose --loglevel verbose
 
 COPY . .
 
