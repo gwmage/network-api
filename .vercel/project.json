@@ -1,9 +1,10 @@
 {
   "projectId": "prs6239n5",
   "orgId": "jrdncnrll",
-  "build": {
-    "ignore": [
-      "Dockerfile"
-    ]
-  }
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ]
 }
