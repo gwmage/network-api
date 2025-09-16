@@ -4,7 +4,9 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --verbose
+RUN npm ci -dd \
+    && echo "npm ci output: $?"
+ --verbose
 
 COPY . .
 
