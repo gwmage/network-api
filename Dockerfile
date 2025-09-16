@@ -10,7 +10,7 @@ COPY . .
 
 # Install project dependencies
 COPY package*.json ./
-RUN npm install --verbose
+RUN npm ci --only=production --verbose
 
 # Build the application
 RUN npm run build
