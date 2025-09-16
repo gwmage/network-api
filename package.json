@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo \"Building...\" && mkdir dist && echo \"Built!\" > dist/output.txt"
+    "build": "echo \"Building...\" && mkdir dist && echo \"Built!\" > dist/output.txt && cp src/main.ts dist/main.js"
   },
   "keywords": [],
   "author": "",
