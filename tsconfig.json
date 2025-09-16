@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2022",
+    "target": "es2020",
     "module": "commonjs",
-    "outDir": "dist",
+    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInCaseInsensitivePaths": true
+    "forceConsistentCasingInFileNames": true
   }
 }
