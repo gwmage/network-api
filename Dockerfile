@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies first, before copying application files, with verbose logging.
 COPY package*.json ./
-RUN npm ci --verbose
+RUN npm ci --verbose --loglevel verbose
 
 # Copy the rest of the application files
 COPY . .
