@@ -12,6 +12,7 @@ RUN npm run build
 
 RUN echo "Build completed successfully"
 
+RUN ls -al dist
+
 RUN echo "About to execute CMD"
 CMD ["node", "dist/main.js"]
-
