@@ -9,6 +9,8 @@ COPY . .
 
 RUN npm run build
 
+COPY Procfile ./
+
 CMD ["npm", "run", "start:prod"]
 
 # Added logging to capture stdout and stderr during build
