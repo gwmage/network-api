@@ -6,7 +6,10 @@ WORKDIR /app
 RUN apk add --no-cache --update git
 
 # Copy project files
-COPY package*.json ./
+COPY package.json ./
+RUN npm install --package-lock-only
+COPY package-lock.json ./
+COPY .
 COPY . .
 
 # Install project dependencies
