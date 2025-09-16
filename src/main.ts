@@ -1,15 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   try {
-    const app = await NestFactory.create(AppModule);
-    console.log("Starting application...");
+    const app = await NestFactory.create<NestFastifyApplication>(
+      AppModule,
+      new FastifyAdapter(),
+    );
+
+    const config = new DocumentBuilder()
+      .setTitle('Cats example')
+      .setDescription('The cats API description')
+      .setVersion('1.0')
+      .addTag('cats')
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+
     await app.listen(3000);
-    console.log("Application started on port 3000");
+    console.log("Application started successfully");
   } catch (error) {
-    console.error("Error starting application:", error);
-    process.exit(1);
+    console.error("Application failed to start:", error);
   }
 }
 
