@@ -32,7 +32,7 @@ async function bootstrap() {
     }
 
   } catch (error) {
-    console.error("Error starting application:", error);
+    console.error("Error during bootstrap:", error);
     console.error("Error stack:", error.stack); 
     console.log("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
     process.exit(1); 
