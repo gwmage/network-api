@@ -15,5 +15,5 @@ RUN npm run build
 EXPOSE 3000
 
 RUN echo "Before starting app..."
-CMD ["node", "dist/main.js"]
+CMD npm run start:prod
 RUN echo "After starting app..."
