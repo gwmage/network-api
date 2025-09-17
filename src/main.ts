@@ -25,8 +25,9 @@ async function bootstrap() {
     console.log("After app.listen");
   } catch (error) {
     console.error("Error starting application:", error);
-    console.error("Error stack:", error.stack); // Log the stack trace for more detail
-    process.exit(1); // Exit the process with an error code to indicate failure
+    console.error("Error stack:", error.stack); 
+    console.log("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    process.exit(1); 
   }
 }
 
