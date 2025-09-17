@@ -23,6 +23,11 @@ async function bootstrap() {
 
     const db_url = process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION;
     console.log("Database URL:", db_url);
+    console.log("All environment variables:", process.env);
+    console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
+
+    const connectionOptions = connection.options;
+    console.log("TypeORM connection options:", connectionOptions);
 
     const connection = app.get(TypeOrmModule);
 
