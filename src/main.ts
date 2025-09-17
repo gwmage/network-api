@@ -21,8 +21,16 @@ async function bootstrap() {
     console.log("Before app.listen");
     const port = process.env.PORT || 3000;
     console.log('PORT is ${port}');
-    await app.listen(port);
-    console.log("After app.listen");
+    try {
+      await app.listen(port);
+      console.log("After app.listen");
+    } catch (error) {
+      console.error("Error starting app.listen:", error);
+      console.error("Error stack:", error.stack);
+      console.log("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      throw error; 
+    }
+
   } catch (error) {
     console.error("Error starting application:", error);
     console.error("Error stack:", error.stack); 
