@@ -11,7 +11,7 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "echo \"Building...\" > build.log; nest build --debug >> build.log; echo \"Build finished\" >> build.log; if [ $? -ne 0 ]; then echo \"Build failed with code $?\" >> build.log; fi",
+    "build": "echo \"Building...\" > build.log; nest build --debug >> build.log 2>&1; echo \"Build finished\" >> build.log 2>&1; if [ $? -ne 0 ]; then echo \"Build failed with code $?\" >> build.log; fi",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"config/**/*.ts\" \".ts\" \"@document/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
