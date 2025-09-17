@@ -9,14 +9,14 @@ RUN echo "Current working directory:"
 RUN pwd
 RUN echo "Before npm install"
 RUN npm config set registry https://registry.npmjs.org/
-RUN npm install --verbose || true > npm_install.log 2>&1
+RUN npm install --verbose 2>&1 | tee npm_install.log
 RUN echo "After npm install"
 
 COPY . .
 
 
 
-RUN npm run build --verbose > build.log 2>&1
+RUN npm run build --verbose 2>&1 | tee build.log
 
 COPY Procfile ./
 
