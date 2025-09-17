@@ -23,9 +23,12 @@ async function bootstrap() {
     const db_url = process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION;
     console.log("Database URL:", db_url);
 
+    console.log("Attempting to connect to the database..."); // New log
+
     await app.listen(process.env.PORT || 3000);
 
     console.log('Application is running on: ${await app.getUrl()}');
+    console.log("Database connection successful."); // New log
 
   } catch (error) {
     console.error("Error during bootstrap:", error);
