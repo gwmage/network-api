@@ -5,27 +5,28 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   try {
     console.log("Starting bootstrap...");
+    console.log("Environment variables:", process.env);
+
     const app = await NestFactory.create(AppModule);
 
+    console.log("Nest app created...");
+
     const config = new DocumentBuilder()
-      .setTitle('Project Ephesus')
-      .setDescription('The project Ephesus API description')
+      .setTitle('capstone')
+      .setDescription('The capstone API description')
       .setVersion('1.0')
-      .addTag('project-ephesus')
+      .addTag('capstone')
       .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('docs', app, document);
 
-    const port = process.env.PORT || 3000;
-    console.log('PORT is ${port}');
-    await app.listen(port);
+    await app.listen(process.env.PORT || 3000);
+
     console.log('Application is running on: ${await app.getUrl()}');
+
   } catch (error) {
     console.error("Error during bootstrap:", error);
-    console.error("Error stack:", error.stack);
-    console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
     process.exit(1);
   }
 }
-
 bootstrap();
