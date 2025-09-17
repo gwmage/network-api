@@ -5,7 +5,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   console.log("Starting bootstrap...");
   try {
+    console.log("Creating Nest app...");
     const app = await NestFactory.create(AppModule);
+    console.log("Nest app created.");
 
     const config = new DocumentBuilder()
       .setTitle('Project Ephesus')
@@ -23,6 +25,8 @@ async function bootstrap() {
     console.log("After app.listen");
   } catch (error) {
     console.error("Error starting application:", error);
+    console.error("Error stack:", error.stack); // Log the stack trace for more detail
+    process.exit(1); // Exit the process with an error code to indicate failure
   }
 }
 
