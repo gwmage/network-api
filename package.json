@@ -4,6 +4,10 @@
   "description": "",
   "author": "",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/your-repository"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "echo \"Building...\"; nest build --debug; echo \"Build finished\"; if [ $? -ne 0 ]; then echo \"Build failed with code $?\"; fi",
