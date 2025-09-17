@@ -9,13 +9,15 @@ RUN echo "Current working directory:"
 RUN pwd
 RUN echo "Before npm install"
 RUN npm config set registry https://registry.npmjs.org/
-RUN rm -f package-lock.json
 RUN npm install --verbose 2>&1 | tee npm_install.log
 RUN echo "After npm install"
 
 COPY . .
 
 
+RUN echo "Before prebuild"
+RUN npm run prebuild --verbose 2>&1 | tee prebuild.log
+RUN echo "After prebuild"
 
 RUN npm run build --verbose 2>&1 | tee build.log
 
