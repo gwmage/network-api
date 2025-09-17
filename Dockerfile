@@ -11,6 +11,8 @@ RUN echo "Before npm install"
 RUN npm config set registry https://registry.npmjs.org/
 RUN npm install --verbose 2>&1 | tee npm_install.log
 RUN echo "After npm install"
+RUN ls -al /app/node_modules/.bin
+RUN ls -al /app/node_modules/rimraf
 
 COPY . .
 
