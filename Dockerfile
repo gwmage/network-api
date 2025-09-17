@@ -23,3 +23,4 @@ RUN npm run build --verbose 2>&1 | tee build.log
 COPY Procfile ./
 
 CMD ["npm", "run", "start:prod"]
+RUN echo "Command executed: npm run start:prod"
