@@ -9,6 +9,7 @@ RUN echo "Current working directory:"
 RUN pwd
 RUN echo "Before npm install"
 RUN npm config set registry https://registry.npmjs.org/
+RUN rm -f package-lock.json
 RUN npm install --verbose 2>&1 | tee npm_install.log
 RUN echo "After npm install"
 
