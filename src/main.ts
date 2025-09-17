@@ -20,6 +20,9 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, document);
 
+    const db_url = process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION;
+    console.log("Database URL:", db_url);
+
     await app.listen(process.env.PORT || 3000);
 
     console.log('Application is running on: ${await app.getUrl()}');
