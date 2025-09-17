@@ -9,7 +9,7 @@ RUN echo "Current working directory:"
 RUN pwd
 RUN echo "Before npm install"
 RUN npm config set registry https://registry.npmjs.org/
-RUN npm install --verbose > npm_install.log 2>&1
+RUN npm ci --verbose > npm_install.log 2>&1
 RUN echo "After npm install"
 
 COPY . .
