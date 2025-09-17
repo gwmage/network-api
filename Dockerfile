@@ -14,7 +14,6 @@ RUN echo "After npm install"
 
 COPY . .
 
-
 RUN echo "Before prebuild"
 RUN npm run prebuild --verbose 2>&1 | tee prebuild.log
 RUN echo "After prebuild"
