@@ -22,7 +22,9 @@ async function bootstrap() {
     const port = process.env.PORT || 3000;
     console.log('PORT is ${port}');
     try {
+      console.log("Just before app.listen");
       await app.listen(port);
+      console.log("Just after app.listen");
       console.log("After app.listen");
     } catch (error) {
       console.error("Error starting app.listen:", error);
