@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 async function bootstrap() {
   try {
@@ -23,12 +24,22 @@ async function bootstrap() {
     const db_url = process.env.DATABASE_URL || process.env.TYPEORM_CONNECTION;
     console.log("Database URL:", db_url);
 
-    console.log("Attempting to connect to the database..."); // New log
+    const connection = app.get(TypeOrmModule);
+
+    console.log("Attempting to connect to the database...");
+
+    // Attempt to ping the database to ensure it's up and the credentials are correct.
+    try {
+      await connection.query('SELECT 1'); // A simple query to check the connection
+      console.log("Database connection successful.");
+    } catch (error) {
+      console.error("Error pinging the database:", error);
+      process.exit(1);
+    }
 
     await app.listen(process.env.PORT || 3000);
 
     console.log('Application is running on: ${await app.getUrl()}');
-    console.log("Database connection successful."); // New log
 
   } catch (error) {
     console.error("Error during bootstrap:", error);
