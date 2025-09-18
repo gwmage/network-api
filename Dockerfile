@@ -15,4 +15,6 @@ RUN npm run build
 EXPOSE 3000
 
 RUN echo "Before starting app..."
+RUN echo "Running start command..."
 CMD npm run start:prod
+RUN echo "After start command..."
