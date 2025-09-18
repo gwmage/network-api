@@ -1,8 +1,10 @@
-FROM node:16-alpine
+FROM node:16-bullseye
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+
+RUN apt-get update && apt-get install -y python build-essential
 
 RUN echo "Installing dependencies..."
 RUN npm install
