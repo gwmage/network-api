@@ -9,9 +9,6 @@ RUN npm install
 
 COPY . .
 
-RUN echo "Building app..."
-RUN npm run build
-
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["npm", "run", "build", "&&", "node", "dist/main.js"]
