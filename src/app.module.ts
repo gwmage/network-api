@@ -14,8 +14,6 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { scheduleConfig } from 'config/schedule.config';
 
-console.error("Before importing modules");
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -51,26 +49,3 @@ export class AppModule {
     console.error("TYPEORM_URL:", process.env.TYPEORM_URL);
   }
 }
-
-console.error("TYPEORM_URL:", process.env.TYPEORM_URL);
-    console.error("DB_HOST:", process.env.DB_HOST);
-    console.error("DB_USERNAME:", process.env.DB_USERNAME);
-    console.error("DB_NAME:", process.env.DB_NAME);
-    try {
-      const connection = await TypeOrmModule.forRootAsync({
-        useFactory: () => ({
-          url: process.env.TYPEORM_URL,
-          type: 'postgres',
-          autoLoadEntities: true,
-          synchronize: false,
-          logging: true,
-        }),
-      });
-      console.error("Database connection successful:", connection);
-    } catch (error) {
-      console.error("Database connection error:", error);
-    }
-  }
-}
-
-console.error("After importing modules");
