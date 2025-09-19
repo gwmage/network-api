@@ -25,6 +25,13 @@ console.log("Before importing modules");
       }),
     }),
     TypeOrmModule.forRoot({
+      url: process.env.TYPEORM_URL,
+      // ... other TypeORM config
+    });
+    console.error("TypeORM Config:", JSON.stringify(TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+      url: process.env.TYPEORM_URL,
+      })})));{
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
