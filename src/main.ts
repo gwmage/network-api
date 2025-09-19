@@ -19,14 +19,7 @@ async function bootstrap() {
       }
     };
 
-    console.error = (message: any, ...optionalParams: any[]) => {
-      process.stderr.write(JSON.stringify(message) + '
-');
-      if (optionalParams) {
-        optionalParams.forEach(param => process.stderr.write(JSON.stringify(param) + '
-'));
-      }
-    };
+    
 
     console.error(JSON.stringify("AppModule created."));
     const port = process.env.PORT || 3000;
