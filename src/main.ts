@@ -4,8 +4,8 @@ import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   try {
-    console.error("Bootstrap function starting...");
-    console.error("Environment variables:", process.env);
+    console.error(JSON.stringify("Bootstrap function starting..."));
+    console.error(JSON.stringify({ env: process.env }));
     const app = await NestFactory.create(AppModule);
     const logger = new Logger();
     app.useLogger(logger);
@@ -24,18 +24,18 @@ async function bootstrap() {
       }
     };
 
-    console.error("AppModule created.");
+    console.error(JSON.stringify("AppModule created."));
     const port = process.env.PORT || 3000;
-    console.error("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
-    console.error("DATABASE_URL:", process.env.DATABASE_URL);
-    console.error("TYPEORM_URL:", process.env.TYPEORM_URL);
-    console.error("PORT:", port);
+    console.error(JSON.stringify({ TYPEORM_CONNECTION: process.env.TYPEORM_CONNECTION }));
+    console.error(JSON.stringify({ DATABASE_URL: process.env.DATABASE_URL }));
+    console.error(JSON.stringify({ TYPEORM_URL: process.env.TYPEORM_URL }));
+    console.error(JSON.stringify({ port }));
     await app.listen(port, '0.0.0.0');
-    console.error('Application listening on port ${port}.');
+    console.error(JSON.stringify('Application listening on port ${port}.'));
   } catch (error) {
-    console.error("Error starting application:", error);
-    console.error("Error stack:", error.stack); // Log the stack trace
-    process.exit(1); // Exit with a non-zero code to indicate failure
+    console.error(JSON.stringify("Error starting application:"), error);
+    console.error(JSON.stringify("Error stack:"), JSON.stringify(error.stack)); 
+    process.exit(1); 
   }
 }
 
