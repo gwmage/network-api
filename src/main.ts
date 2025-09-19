@@ -27,7 +27,9 @@ async function bootstrap() {
     console.log("6 - After app.listen");
 
   } catch (error) {
-    console.error("13 - Error during bootstrap:", error);
+        console.error("13 - Error during bootstrap:", error);
+    console.timeEnd('bootstrap');
+  }
   }
 }
 
