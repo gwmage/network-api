@@ -1,52 +1,40 @@
-import { Module, Logger } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AdminModule } from './modules/admin/admin.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { CommunityModule } from './modules/community/community.module';
-import { ProfileModule } from './modules/profile/profile.module';
-import { MatchingModule } from './modules/matching/matching.module';
-import { NotificationModule } from './modules/notification/notification.module';
-import { ApplicationModule } from './modules/application/application.module';
-import { ReservationModule } from './modules/reservation/reservation.module';
-import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
-import { scheduleConfig } from 'config/schedule.config';
+import * as process from 'process';
+
+// other imports ...
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
-      validationSchema: Joi.object({
-        TYPEORM_URL: Joi.string().required(),
-      }),
+      isGlobal: true
     }),
-    TypeOrmModule.forRoot({
-      url: process.env.TYPEORM_URL,
-      type: 'postgres',
-      autoLoadEntities: true,
-      synchronize: false,
-      logging: true,
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'postgres',
+        url: process.env.DATABASE_URL,
+        autoLoadEntities: true,
+        synchronize: true // Set to false in production
+      })
     }),
-    ScheduleModule.forRoot(),
-    AdminModule,
-    AuthModule,
-    UsersModule,
-    CommunityModule,
-    ProfileModule,
-    MatchingModule,
-    NotificationModule,
-    ApplicationModule,
-    ReservationModule,
+    // other imports ...
   ],
-  controllers: [],
-  providers: [scheduleConfig],
+  controllers: [AppController, /* other controllers */],
+  providers: [AppService, /* other providers */],
 })
-export class AppModule {
-  constructor() {
-    console.error("AppModule initialized.");
-    console.error("TYPEORM_URL:", process.env.TYPEORM_URL);
-    console.error("DATABASE_URL:", process.env.DATABASE_URL);
+export class AppModule implements OnModuleInit{
+  onModuleInit() {
+    console.log("AppModule initializing...");
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
+    console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
+    console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
+    console.log("DB_HOST:", process.env.DB_HOST);
+    console.log("DB_PORT:", process.env.DB_PORT);
+    console.log("DB_USERNAME:", process.env.DB_USERNAME);
+    console.log("DB_PASSWORD:", process.env.DB_PASSWORD);
+    console.log("DB_NAME:", process.env.DB_NAME);
   }
 }
