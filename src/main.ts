@@ -1,12 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
 
-  await app.listen(3000, '0.0.0.0', () => {
-    process.stdout.write('Listening on port 3000...\n');
-  });
+async function bootstrap() {
+  try {
+    console.log("Starting bootstrap...");
+    const app = await NestFactory.create(AppModule);
+    console.log("NestFactory created...");
+
+    await app.listen(3000, '0.0.0.0', () => {
+      console.log('Listening on port 3000...');
+    });
+    console.log("App listening...");
+  } catch (error) {
+    console.error("Error during bootstrap:", error);
+  }
 }
 
 bootstrap();
