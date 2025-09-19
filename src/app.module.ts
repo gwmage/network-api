@@ -14,26 +14,19 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { scheduleConfig } from 'config/schedule.config';
 
-console.log("Before importing modules");
+console.error("Before importing modules");
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        TYPEORM_CONNECTION: Joi.string().required(),
+        TYPEORM_URL: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
       url: process.env.TYPEORM_URL,
-      // ... other TypeORM config
-    });
-    console.error("TypeORM Config:", JSON.stringify(TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-      url: process.env.TYPEORM_URL,
-      })})));{
       type: 'postgres',
-      url: process.env.DATABASE_URL,
       autoLoadEntities: true,
       synchronize: false,
       logging: true,
@@ -54,8 +47,9 @@ console.log("Before importing modules");
 })
 export class AppModule {
   constructor() {
-    console.log("AppModule initialized.");
+    console.error("AppModule initialized.");
+    console.error("TYPEORM_URL:", process.env.TYPEORM_URL);
   }
 }
 
-console.log("After importing modules");
+console.error("After importing modules");
