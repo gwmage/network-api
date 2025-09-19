@@ -7,8 +7,25 @@ async function bootstrap() {
     console.error("Bootstrap function starting...");
     console.error("Environment variables:", process.env);
     const app = await NestFactory.create(AppModule);
+    const logger = new Logger();
+    app.useLogger(logger);
+    console.log = (message: any, ...optionalParams: any[]) => {
+      process.stdout.write(JSON.stringify(message) + '
+');
+      if (optionalParams) {
+        optionalParams.forEach(param => process.stdout.write(JSON.stringify(param) + '
+'));
+      }
+    };
+    console.error = (message: any, ...optionalParams: any[]) => {
+      process.stderr.write(JSON.stringify(message) + '
+');
+      if (optionalParams) {
+        optionalParams.forEach(param => process.stderr.write(JSON.stringify(param) + '
+'));
+      }
+    };
     console.error("AppModule created.");
-    app.useLogger(new Logger());
     const port = process.env.PORT || 3000;
     console.error("PORT:", port);
     await app.listen(port, '0.0.0.0');
