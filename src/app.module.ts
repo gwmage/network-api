@@ -47,5 +47,6 @@ export class AppModule {
   constructor() {
     console.error("AppModule initialized.");
     console.error("TYPEORM_URL:", process.env.TYPEORM_URL);
+    console.error("DATABASE_URL:", process.env.DATABASE_URL);
   }
 }
