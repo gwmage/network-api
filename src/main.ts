@@ -13,6 +13,7 @@ async function bootstrap() {
     });
 
     try {
+      console.log("Attempting to listen on port 3000...");
       await app.listen(3000, '0.0.0.0', () => {
         console.log('Listening on port 3000...');
       });
@@ -20,25 +21,24 @@ async function bootstrap() {
     } catch (error) {
       console.error("Error starting server:", error.stack);
     }
-    console.log("App listening...");
 
     console.log("Environment Variables:", process.env);
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
     const pg = require('pg');
+    console.log("Creating pg pool...");
     const pool = new pg.Pool({
       connectionString: process.env.DATABASE_URL
     });
-
-    const delay = (ms) => new Promise(res => setTimeout(res, ms));
-    await delay(5000); // Wait for 5 seconds
+    console.log("pg pool created...");
 
     try {
+      console.log("Attempting database connection...");
       await pool.query('SELECT 1');
       console.log('Database connection successful!');
     } catch (err) {
       console.error('Error connecting to database:', err);
     }
-
 
   } catch (error) {
     console.error("Error during bootstrap:", error);
