@@ -20,16 +20,18 @@ async function bootstrap() {
     const port = process.env.PORT || 3000; 
     console.log('3 - Port set to: ${port}');
 
-    console.log("4 - Before app.listen");
-    await app.listen(port, '0.0.0.0');
-    console.log('5 - Listening on port ${port}...');
+    try {
+      console.log("4 - Before app.listen");
+      await app.listen(port, '0.0.0.0');
+      console.log('5 - Listening on port ${port}...');
+    } catch (error) {
+      console.error("Error starting server:", error);
+    }
 
     console.log("6 - After app.listen");
 
   } catch (error) {
         console.error("13 - Error during bootstrap:", error);
-    console.timeEnd('bootstrap');
-  }
   }
 }
 
