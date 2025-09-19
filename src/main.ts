@@ -14,8 +14,12 @@ async function bootstrap() {
 
     try {
       console.log("Attempting to listen on port 3000...");
-      await app.listen(3000, '0.0.0.0', () => {
-        console.log('Listening on port 3000...');
+
+      const port = process.env.PORT || 3000; // Get port from environment variables or default to 3000
+      console.log('Port set to: ${port}');
+
+      await app.listen(port, '0.0.0.0', () => {
+        console.log('Listening on port ${port}...');
       });
       console.log("App listening...");
     } catch (error) {
@@ -24,6 +28,7 @@ async function bootstrap() {
 
     console.log("Environment Variables:", process.env);
     console.log("DATABASE_URL:", process.env.DATABASE_URL);
+    console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
 
     const pg = require('pg');
     console.log("Creating pg pool...");
