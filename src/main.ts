@@ -28,7 +28,7 @@ async function bootstrap() {
     const pg = require('pg');
     console.log("Creating pg pool...");
     const pool = new pg.Pool({
-      connectionString: process.env.DATABASE_URL
+      connectionString: process.env.TYPEORM_URL
     });
     console.log("pg pool created...");
 
