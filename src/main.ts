@@ -29,6 +29,9 @@ async function bootstrap() {
       connectionString: process.env.DATABASE_URL
     });
 
+    const delay = (ms) => new Promise(res => setTimeout(res, ms));
+    await delay(5000); // Wait for 5 seconds
+
     try {
       await pool.query('SELECT 1');
       console.log('Database connection successful!');
