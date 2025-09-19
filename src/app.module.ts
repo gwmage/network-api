@@ -15,9 +15,16 @@ import * as process from 'process';
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'postgres',
-        url: process.env.DATABASE_URL,
+        host: process.env.RAILWAY_DB_HOST,
+        port: parseInt(process.env.RAILWAY_DB_PORT || '5432', 10),
+        username: process.env.RAILWAY_DB_USERNAME,
+        password: process.env.RAILWAY_DB_PASSWORD,
+        database: process.env.RAILWAY_DB_NAME,
         autoLoadEntities: true,
-        synchronize: true // Set to false in production
+        synchronize: true,
+        ssl:  process.env.NODE_ENV === 'production' 
+          ? { rejectUnauthorized: false } 
+          : false
       })
     }),
     // other imports ...
