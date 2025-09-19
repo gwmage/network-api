@@ -12,9 +12,14 @@ async function bootstrap() {
       next();
     });
 
-    await app.listen(3000, '0.0.0.0', () => {
-      console.log('Listening on port 3000...');
-    });
+    try {
+      await app.listen(3000, '0.0.0.0', () => {
+        console.log('Listening on port 3000...');
+      });
+      console.log("App listening...");
+    } catch (error) {
+      console.error("Error starting server:", error.stack);
+    }
     console.log("App listening...");
 
     console.log("Environment Variables:", process.env);
