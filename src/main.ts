@@ -9,30 +9,30 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const logger = new Logger();
     app.useLogger(logger);
+
     console.log = (message: any, ...optionalParams: any[]) => {
-      process.stdout.write(JSON.stringify(message) + '
-');
+      process.stdout.write(JSON.stringify(message) + '\n');
       if (optionalParams) {
-        optionalParams.forEach(param => process.stdout.write(JSON.stringify(param) + '
-'));
+        optionalParams.forEach(param => process.stdout.write(JSON.stringify(param) + '\n'));
       }
     };
+
     console.error = (message: any, ...optionalParams: any[]) => {
-      process.stderr.write(JSON.stringify(message) + '
-');
+      process.stderr.write(JSON.stringify(message) + '\n');
       if (optionalParams) {
-        optionalParams.forEach(param => process.stderr.write(JSON.stringify(param) + '
-'));
+        optionalParams.forEach(param => process.stderr.write(JSON.stringify(param) + '\n'));
       }
     };
+
     console.error("AppModule created.");
     const port = process.env.PORT || 3000;
     console.error("PORT:", port);
     await app.listen(port, '0.0.0.0');
-    console.error('Application listening on port ${port}.");
+    console.error('Application listening on port ${port}.');
   } catch (error) {
     console.error("Error starting application:", error);
     process.exit(1); 
   }
 }
+
 bootstrap();
