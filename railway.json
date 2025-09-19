@@ -2,7 +2,7 @@
   "services": [
     {
       "name": "api",
-      "command": "npm run start:prod",
+      "command": "node dist/main.js",
       "port": 3000
     }
   ]
