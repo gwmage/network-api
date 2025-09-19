@@ -52,4 +52,25 @@ export class AppModule {
   }
 }
 
+console.error("TYPEORM_URL:", process.env.TYPEORM_URL);
+    console.error("DB_HOST:", process.env.DB_HOST);
+    console.error("DB_USERNAME:", process.env.DB_USERNAME);
+    console.error("DB_NAME:", process.env.DB_NAME);
+    try {
+      const connection = await TypeOrmModule.forRootAsync({
+        useFactory: () => ({
+          url: process.env.TYPEORM_URL,
+          type: 'postgres',
+          autoLoadEntities: true,
+          synchronize: false,
+          logging: true,
+        }),
+      });
+      console.error("Database connection successful:", connection);
+    } catch (error) {
+      console.error("Database connection error:", error);
+    }
+  }
+}
+
 console.error("After importing modules");
