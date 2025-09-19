@@ -11,16 +11,20 @@ async function bootstrap() {
     app.useLogger(logger);
 
     console.log = (message: any, ...optionalParams: any[]) => {
-      process.stdout.write(JSON.stringify(message) + '\n');
+      process.stdout.write(JSON.stringify(message) + '
+');
       if (optionalParams) {
-        optionalParams.forEach(param => process.stdout.write(JSON.stringify(param) + '\n'));
+        optionalParams.forEach(param => process.stdout.write(JSON.stringify(param) + '
+'));
       }
     };
 
     console.error = (message: any, ...optionalParams: any[]) => {
-      process.stderr.write(JSON.stringify(message) + '\n');
+      process.stderr.write(JSON.stringify(message) + '
+');
       if (optionalParams) {
-        optionalParams.forEach(param => process.stderr.write(JSON.stringify(param) + '\n'));
+        optionalParams.forEach(param => process.stderr.write(JSON.stringify(param) + '
+'));
       }
     };
 
@@ -30,7 +34,15 @@ async function bootstrap() {
     console.error(JSON.stringify({ DATABASE_URL: process.env.DATABASE_URL }));
     console.error(JSON.stringify({ TYPEORM_URL: process.env.TYPEORM_URL }));
     console.error(JSON.stringify({ port }));
-    await app.listen(port, '0.0.0.0');
+    console.error("Before app.listen");
+    try {
+      await app.listen(port, '0.0.0.0');
+      console.error(JSON.stringify('Application listening on port ${port}.'));
+    } catch (error) {
+      console.error(JSON.stringify("Error in app.listen:"), error);
+      console.error(JSON.stringify("Error stack:"), JSON.stringify(error.stack));
+    }
+    console.error("After app.listen");
     console.error(JSON.stringify('Application listening on port ${port}.'));
   } catch (error) {
     console.error(JSON.stringify("Error starting application:"), error);
