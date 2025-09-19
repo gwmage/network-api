@@ -25,20 +25,7 @@ async function bootstrap() {
     console.log("DATABASE_URL:", process.env.DATABASE_URL);
     console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
 
-    console.log("7 - Before pg require");
-    const pg = require('pg');
-    console.log("8 - Creating pg pool...");
-    const pool = new pg.Pool({
-      connectionString: process.env.TYPEORM_URL
-    });
-    console.log("9 - pg pool created...");
-
-    try {
-      console.log("10 - Attempting database connection...");
-      await pool.query('SELECT 1');
-      console.log('11 - Database connection successful!');
-    } catch (err) {
-      console.error('12 - Error connecting to database:', err);
+    console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
     }
 
   } catch (error) {
