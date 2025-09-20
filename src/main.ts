@@ -9,14 +9,7 @@ async function bootstrap() {
     console.log("DATABASE_URL:", process.env.DATABASE_URL);
     console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
     console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
-    try {
-      console.log("Creating Nest app...");
-      const app = await NestFactory.create(AppModule);
-      console.log("Nest app created successfully.");
-    } catch (error) {
-      console.error("Error creating Nest app:", error);
-      process.exit(1);
-    }
+    const app = await NestFactory.create(AppModule);
     console.log("2 - NestFactory created...");
 
     app.use((req, res, next) => {
@@ -33,12 +26,14 @@ async function bootstrap() {
       console.log('5 - Listening on port ${port}...');
     } catch (error) {
       console.error("Error starting server:", error);
+      process.exit(1);
     }
 
     console.log("6 - After app.listen");
 
   } catch (error) {
         console.error("13 - Error during bootstrap:", error);
+        process.exit(1);
   }
 }
 
