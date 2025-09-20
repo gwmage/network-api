@@ -24,7 +24,7 @@ import * as process from 'process';
         synchronize: true,
         ssl:  process.env.NODE_ENV === 'production' 
           ? { rejectUnauthorized: false } 
-          : false
+          : false,
       })
     }),
     // other imports ...
@@ -38,10 +38,10 @@ export class AppModule implements OnModuleInit{
     console.log("DATABASE_URL:", process.env.DATABASE_URL);
     console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
     console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
-    console.log("DB_HOST:", process.env.DB_HOST);
-    console.log("DB_PORT:", process.env.DB_PORT);
-    console.log("DB_USERNAME:", process.env.DB_USERNAME);
-    console.log("DB_PASSWORD:", process.env.DB_PASSWORD);
-    console.log("DB_NAME:", process.env.DB_NAME);
+    console.log("RAILWAY_DB_HOST:", process.env.RAILWAY_DB_HOST);
+    console.log("RAILWAY_DB_PORT:", process.env.RAILWAY_DB_PORT);
+    console.log("RAILWAY_DB_USERNAME:", process.env.RAILWAY_DB_USERNAME);
+    console.log("RAILWAY_DB_PASSWORD:", process.env.RAILWAY_DB_PASSWORD);
+    console.log("RAILWAY_DB_NAME:", process.env.RAILWAY_DB_NAME);
   }
 }
