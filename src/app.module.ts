@@ -15,9 +15,12 @@ import { AppService } from './app.service';
       useFactory: async () => {
       try {
         console.log("Before TypeORM config creation");
+        console.log("Accessing url from process.env");
+        const url = process.env.DATABASE_URL;
+        console.log("URL accessed: ", url);
         const config = {
           type: 'postgres',
-          url: process.env.DATABASE_URL,
+          url: url,
           entities: [],
           synchronize: true,
           retryAttempts: 10,
