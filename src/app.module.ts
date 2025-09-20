@@ -1,47 +1,49 @@
-import { Module, OnModuleInit } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import * as process from 'process';
+import { AdminModule } from './modules/admin/admin.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { CommunityModule } from './modules/community/community.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { ApplicationModule } from './modules/application/application.module';
+import { UsersModule } from './modules/users/users.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { MatchingModule } from './modules/matching/matching.module';
+import { ReservationModule } from './modules/reservation/reservation.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { config } from 'dotenv';
 
-// other imports ...
+config();
+
+console.log("DATABASE_URL from app.module.ts:", process.env.DATABASE_URL);
+console.log("TYPEORM_URL from app.module.ts:", process.env.TYPEORM_URL);
+console.log("TYPEORM_CONNECTION from app.module.ts:", process.env.TYPEORM_CONNECTION);
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
+      envFilePath: '.railway.env'
     }),
-    TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        type: 'postgres',
-        host: process.env.RAILWAY_DB_HOST,
-        port: parseInt(process.env.RAILWAY_DB_PORT || '5432', 10),
-        username: process.env.RAILWAY_DB_USERNAME,
-        password: process.env.RAILWAY_DB_PASSWORD,
-        database: process.env.RAILWAY_DB_NAME,
-        autoLoadEntities: true,
-        synchronize: true,
-        ssl:  process.env.NODE_ENV === 'production' 
-          ? { rejectUnauthorized: false } 
-          : false,
-      })
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL || process.env.TYPEORM_URL || process.env.TYPEORM_CONNECTION,
+      autoLoadEntities: true,
+      synchronize: true,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false, // Only disable SSL verification in production
     }),
-    // other imports ...
+    ScheduleModule.forRoot(),
+    AdminModule,
+    AuthModule,
+    CommunityModule,
+    ProfileModule,
+    ApplicationModule,
+    UsersModule,
+    NotificationModule,
+    MatchingModule,
+    ReservationModule
   ],
-  controllers: [AppController, /* other controllers */],
-  providers: [AppService, /* other providers */],
+  controllers: [],
+  providers: [],
 })
-export class AppModule implements OnModuleInit{
-  onModuleInit() {
-    console.log("AppModule initializing...");
-    console.log("DATABASE_URL:", process.env.DATABASE_URL);
-    console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
-    console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
-    console.log("RAILWAY_DB_HOST:", process.env.RAILWAY_DB_HOST);
-    console.log("RAILWAY_DB_PORT:", process.env.RAILWAY_DB_PORT);
-    console.log("RAILWAY_DB_USERNAME:", process.env.RAILWAY_DB_USERNAME);
-    console.log("RAILWAY_DB_PASSWORD:", process.env.RAILWAY_DB_PASSWORD);
-    console.log("RAILWAY_DB_NAME:", process.env.RAILWAY_DB_NAME);
-  }
-}
+export class AppModule {}
