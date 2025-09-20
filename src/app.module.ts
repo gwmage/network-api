@@ -30,9 +30,12 @@ import { AppController } from './app.controller';
             url: url,
             entities: [],
             synchronize: true,
-            retryAttempts: 10,
-            retryDelay: 3000, 
+            retryAttempts: 20,
+            retryDelay: 5000,
             onRetry: (err, count) => {
+              console.error('Retry attempt ${count} failed. Error:', err);
+              console.error("Environment Variables:", process.env);
+            },
               console.log('Retry attempt ${count} to connect to database. Error: ${err}');
             },
           };
