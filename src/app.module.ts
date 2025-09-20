@@ -18,6 +18,8 @@ import { AppService } from './app.service';
         console.log("Accessing url from process.env");
         const url = process.env.DATABASE_URL;
         console.log("URL accessed: ", url);
+        console.log("Environment variables:", process.env);
+        console.log("DATABASE_URL:", process.env.DATABASE_URL);
         const config = {
           type: 'postgres',
           url: url,

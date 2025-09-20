@@ -10,7 +10,12 @@ async function bootstrap() {
     console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
     console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
     try {
+      try {
       const app = await NestFactory.create(AppModule);
+    } catch (error) {
+      console.error("Error creating NestJS application:", error);
+      process.exit(1);
+    }
     } catch (error) {
       console.error("Error creating NestJS application:", error);
       process.exit(1);
