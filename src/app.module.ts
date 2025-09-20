@@ -12,7 +12,27 @@ import { AppService } from './app.service';
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
-      useFactory: async () => ({
+      useFactory: async () => {
+      try {
+        console.log("Before TypeORM config creation");
+        const config = {
+          type: 'postgres',
+          url: process.env.DATABASE_URL,
+          entities: [],
+          synchronize: true,
+          retryAttempts: 10,
+          retryDelay: 3000, // 3 seconds
+          onRetry: (err, count) => {
+            console.log('Retry attempt ${count} to connect to database. Error: ${err}');
+          },
+        };
+        console.log("After TypeORM config creation", config);
+        return config;
+      } catch (error) {
+        console.error("Error creating TypeORM config:", error);
+        throw error; // Re-throw to halt the application startup
+      }
+    },
         type: 'postgres',
         url: process.env.DATABASE_URL,
         entities: [],
