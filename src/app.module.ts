@@ -15,10 +15,15 @@ import { AppService } from './app.service';
       useFactory: async () => {
         try {
           console.log("Before TypeORM config creation");
-          const url = process.env.DATABASE_URL;
-          console.log("URL accessed: ", url);
-          console.log("Environment variables:", process.env);
-          console.log("DATABASE_URL:", process.env.DATABASE_URL);
+          const url = process.env.DATABASE_URL || process.env.TYPEORM_URL || process.env.TYPEORM_CONNECTION;
+          console.log("URL accessed from DATABASE_URL:", process.env.DATABASE_URL);
+          console.log("URL accessed from TYPEORM_URL:", process.env.TYPEORM_URL);
+          console.log("URL accessed from TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
+          console.log("Final URL used:", url);
+          if (!url) {
+            console.error("No database URL found in environment variables!");
+            process.exit(1);
+          }
           const config = {
             type: 'postgres',
             url: url,
