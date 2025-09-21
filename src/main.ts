@@ -39,6 +39,7 @@ async function bootstrap() {
           }
         });
         console.log("6 - After app.listen");
+        console.log("Application started successfully.");
       } catch (error) {
         console.error("Error starting server:", error.stack);
         process.exit(1);
