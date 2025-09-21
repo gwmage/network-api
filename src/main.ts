@@ -14,17 +14,17 @@ async function bootstrap() {
     console.log("2 - NestFactory created...");
 
     app.use((req, res, next) => {
-      console.log('Request received: ${req.method} ${req.url}');
+      console.log('Request received:', req);
       next();
     });
 
     const port = process.env.PORT || 3000; 
-    console.log('3 - Port set to: ${port}');
+    console.log('3 - Port set to:', port);
 
     try {
       console.log("4 - Before app.listen");
       await app.listen(port, '0.0.0.0', async () => {
-        console.log('5 - Listening on port ${port}...');
+        console.log('5 - Listening on port:', port);
         try {
           const connection = await getConnection(); 
           if (connection.isConnected) {
@@ -36,12 +36,11 @@ async function bootstrap() {
           console.error('Error checking database connection:', error);
         }
       });
+      console.log("6 - After app.listen");
     } catch (error) {
       console.error("Error starting server:", error);
       process.exit(1);
     }
-
-    console.log("6 - After app.listen");
 
   } catch (error) {
         console.error("13 - Error during bootstrap:", error);
@@ -50,3 +49,7 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
