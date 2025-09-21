@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AppController } from './app.controller';
 
 // Modules imports
 
@@ -30,14 +29,12 @@ import { AppController } from './app.controller';
             url: url,
             entities: [],
             synchronize: true,
-            connectTimeoutMS: 30000,  // Set a connection timeout
+            connectTimeoutMS: 30000, 
             retryAttempts: 20,
-            retryDelay: (attempt) => Math.pow(2, attempt) * 1000, // Exponential backoff
+            retryDelay: (attempt) => Math.pow(2, attempt) * 1000,
             onRetry: (err, count) => {
               console.error('Retry attempt ${count} failed. Error:', err);
               console.error("Environment Variables:", process.env);
-            },
-              console.log('Retry attempt ${count} to connect to database. Error: ${err}');
             },
           };
           console.log("After TypeORM config creation", config);
