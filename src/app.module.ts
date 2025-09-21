@@ -30,8 +30,9 @@ import { AppController } from './app.controller';
             url: url,
             entities: [],
             synchronize: true,
+            connectTimeoutMS: 30000,  // Set a connection timeout
             retryAttempts: 20,
-            retryDelay: 5000,
+            retryDelay: (attempt) => Math.pow(2, attempt) * 1000, // Exponential backoff
             onRetry: (err, count) => {
               console.error('Retry attempt ${count} failed. Error:', err);
               console.error("Environment Variables:", process.env);
