@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { getConnection } from "typeorm";
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';

@@ -32,7 +32,19 @@ async function bootstrap() {
 
     try {
       console.log("4 - Before app.listen");
-      await app.listen(port, '0.0.0.0');
+      await app.listen(port, '0.0.0.0', async () => {
+      console.log('5 - Listening on port ${port}...');
+      try {
+        const connection = await getConnection(); // Ensure connection is established
+        if (connection.isConnected) {
+          console.log('Database connection established successfully!');
+        } else {
+          console.error('Database connection failed!');
+        }
+      } catch (error) {
+        console.error('Error checking database connection:', error);
+      }
+    });
       console.log('5 - Listening on port ${port}...');
     } catch (error) {
       console.error("Error starting server:", error);
