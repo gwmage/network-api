@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { getConnection } from 'typeorm';
 
 async function bootstrap() {
+  console.log("Application bootstrap started");
   console.log("Starting application...");
   try {
     await NestFactory.create(AppModule);
