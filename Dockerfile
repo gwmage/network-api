@@ -30,4 +30,3 @@ EXPOSE 3000
 RUN echo "Executing npm run start..."
 RUN echo "Before npm run start"
 CMD ["npm", "run", "start"]
-RUN echo "After npm run start"
