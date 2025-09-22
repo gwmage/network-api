@@ -3,6 +3,12 @@ import { AppModule } from './app.module';
 import { getConnection } from 'typeorm';
 
 async function bootstrap() {
+  console.log("Before loading .env");
+  console.log(process.env);
+
+  console.log("After loading .env");
+  console.log(process.env);
+
   console.log("DATABASE_URL:", process.env.DATABASE_URL);
   console.log("RAILWAY_DB_USERNAME:", process.env.RAILWAY_DB_USERNAME);
   console.log("RAILWAY_DB_PASSWORD:", process.env.RAILWAY_DB_PASSWORD);
