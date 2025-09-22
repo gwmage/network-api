@@ -14,4 +14,3 @@ export class UpdateCommentDto extends PartialType(CreateCommentDto) {
 }
 
 ```
----[END_OF_FILES]---

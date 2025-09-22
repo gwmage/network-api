@@ -24,6 +24,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/entities/user.entity';
 import { Post as PostEntity } from './entities/post.entity';
+import { SearchPostDto } from './dto/search-post.dto';
 
 
 @Controller('community')
@@ -38,14 +39,9 @@ export class CommunityController {
 
   @Get('posts')
   async findAllPosts(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('pageSize', new DefaultValuePipe(10), ParseIntPipe) pageSize: number = 10,
-    @Query('categories', ParseIntPipe, { optional: true, transform: (values: string) => values.split(',').map(Number) }) categories?: number[],
-    @Query('tags', ParseIntPipe, { optional: true, transform: (values: string) => values.split(',').map(Number) }) tags?: number[],
-    @Query('search', { optional: true }) search?: string,
+    @Query() searchPostDto: SearchPostDto
   ): Promise<{ posts: PostEntity[]; totalCount: number }> {
-
-    return this.communityService.findAllPosts(page, pageSize, categories, tags, search);
+    return this.communityService.findAllPosts(searchPostDto);
   }
 
 
