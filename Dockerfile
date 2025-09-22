@@ -1,5 +1,9 @@
 FROM node:18-bullseye
 
+RUN echo "Attempting to download base image..."
+RUN echo "Network diagnostics: $(ping -c 3 google.com)"
+RUN echo "Base image download complete."
+
 WORKDIR /usr/src/app
 
 COPY .railway.env ./
