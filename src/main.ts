@@ -3,6 +3,14 @@ import { AppModule } from './app.module';
 import { getConnection } from 'typeorm';
 
 async function bootstrap() {
+  console.log("Starting application...");
+  try {
+    await NestFactory.create(AppModule);
+    console.log("Application started successfully.");
+  }
+  catch(error) {
+    console.error("Application startup failed:", error);
+  }
   console.log("Before loading .env");
   console.log(process.env);
 

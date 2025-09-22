@@ -27,4 +27,6 @@ RUN echo "Project files copied."
 
 EXPOSE 3000
 
+RUN echo "Executing npm run start..."
 CMD ["npm", "run", "start"]
+RUN echo "Finished executing npm run start."
