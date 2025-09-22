@@ -9,7 +9,6 @@ COPY package*.json ./
 RUN apt-get update && apt-get install -y python build-essential
 
 RUN echo "Installing dependencies..."
-RUN echo "Installing dependencies..."
 RUN npm install --verbose
 RUN echo "Dependencies installed."
 
