@@ -49,8 +49,29 @@ async function bootstrap() {
       await app.listen(port, '0.0.0.0', async () => {
         console.log('5 - Listening on port:', port);
         let connection;
-        let retries = 5;
-        let waitTime = 1000;
+        const maxRetries = 10; // Increased number of retries
+        let currentRetry = 0;
+        let waitTime = 2000; // Increased initial wait time
+
+        while (currentRetry < maxRetries) {
+          try {
+            console.log('Attempting database connection (Attempt ${currentRetry + 1} of ${maxRetries})');
+            connection = await getConnection();
+            console.log("connection object:", connection);
+            if (connection.isConnected) {
+              console.log('Database connection established successfully!');
+              break;
+            }
+          } catch (error) {
+            currentRetry++;
+            console.error('Failed to connect to database (Attempt ${currentRetry}):', error);
+            if (currentRetry < maxRetries) {
+              console.log('Retrying in ${waitTime}ms...');
+              await new Promise(resolve => setTimeout(resolve, waitTime));
+              waitTime *= 2; // Exponential backoff
+            }
+          }
+        }
 
         for (let i = 0; i < retries; i++) {
           try {
