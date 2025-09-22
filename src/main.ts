@@ -29,6 +29,20 @@ async function bootstrap() {
           console.log('5 - Listening on port:', port);
           try {
             console.log("Attempting to get database connection...");
+            try {
+              const connection = await getConnection();
+              console.log("Connection object:", connection);
+              if (connection.isConnected) {
+                console.log('Database connection established successfully!');
+              } else {
+                console.error('Database connection failed!');
+                console.error("Connection object:", connection);
+              }
+            } catch (error) {
+              console.error('Error checking database connection:', error);
+              console.error('Error stack:', error.stack);
+              throw error; // Re-throw the error to prevent startup
+            }
             const connection = await getConnection(); 
             console.log("Connection object:", connection);
             if (connection.isConnected) {
