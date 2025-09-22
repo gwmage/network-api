@@ -1,29 +1,190 @@
 ```
-/**
- * @POST /auth/register
- * 
- * Registers a new user.
- * 
- * @Request Body:
- * - email (string, required): User's email address. Must be a valid email format.
- * - password (string, required): User's password. Must be at least 8 characters long.
- * - name (string, required): User's full name.
- * - phoneNumber (string, optional): User's phone number. Must be a valid Korean phone number format.
- * - location (string, optional) : User's Location
- * - preferences (string, optional) : User's preferences
- * - interests (string[], optional): User's interests
- * 
- * @Success Response (201 Created):
- * - statusCode: 201
- * - status: 'success'
- * - message: 'User registered successfully'
- * - user: (User object without password)
- * 
- * @Error Responses:
- * - 400 Bad Request: Validation errors. Returns an object with 'status', 'message', and 'errors' properties. 
- *   'errors' is an object containing specific field errors.
- * - 409 Conflict: Email already exists. Returns an object with 'status', 'message', and 'errors' properties.
- * - 500 Internal Server Error: An unexpected error occurred during registration.
- */
+## Community Board API Documentation
+
+This document describes the API endpoints for the community board feature.
+
+**1. Create Post**
+
+* **Endpoint:** `POST /community/posts`
+* **Description:** Creates a new post.
+* **Request Body:**
+```json
+{
+  "title": "Post Title",
+  "content": "Post content goes here...",
+  "categoryIds": [1, 2],
+  "categoryNames": ["Category A", "Category B"],
+  "tagIds": [1,2],
+  "tagNames": ["Tag A", "Tag B"]
+
+}
+```
+* **Response:**
+```json
+{
+  "id": 1,
+  "title": "Post Title",
+  "content": "Post content goes here...",
+  "author": {
+      // ... author details
+  },
+  "categories": [
+      // ... category details
+  ],
+  "tags": [
+      // ... tag details
+
+  ],
+  "createdAt": "2023-10-26T12:00:00.000Z",
+  "updatedAt": "2023-10-26T12:00:00.000Z",
+  "commentCount": 0
+}
+```
+* **Error Responses:**
+    * 400 Bad Request: Invalid request data.
+    * 401 Unauthorized: User not authenticated.
+
+
+**2. Read Posts (with pagination)**
+
+* **Endpoint:** `GET /community/posts`
+* **Description:** Returns a paginated list of posts.
+* **Query Parameters:**
+    * `keyword`: Keyword to search in title and content.
+    * `title`: Filter by title.
+    * `content`: Filter by content.
+    * `author`: Filter by author username.
+    * `categoryIds`: Filter by category IDs.
+    * `tagNames`: Filter by tag names.
+    * `sort`: Sort by `recency` or `relevance` (default: `recency`).
+    * `page`: Page number (default: 1).
+    * `limit`: Number of items per page (default: 10, max: 50).
+* **Response:**
+```json
+{
+  "posts": [
+    // ... array of post objects (similar to create post response)
+  ],
+  "totalCount": 100
+}
+```
+* **Error Responses:**
+    * 400 Bad Request: Invalid query parameters.
+
+
+**3. Update Post**
+
+* **Endpoint:** `PATCH /community/posts/:id`
+* **Description:** Updates an existing post.
+* **Path Parameters:**
+    * `id`: Post ID.
+* **Request Body:** (Same as Create Post, but all fields are optional)
+* **Response:** (Same as Create Post response)
+* **Error Responses:**
+    * 400 Bad Request: Invalid request data.
+    * 401 Unauthorized: User not authenticated or not authorized to update the post.
+    * 404 Not Found: Post not found.
+
+
+**4. Delete Post**
+
+* **Endpoint:** `DELETE /community/posts/:id`
+* **Description:** Deletes a post.
+* **Path Parameters:**
+    * `id`: Post ID.
+* **Response:** 200 OK.
+* **Error Responses:**
+    * 401 Unauthorized: User not authenticated or not authorized to delete the post.
+    * 404 Not Found: Post not found.
+
+
+
+**5. Create Comment**
+
+* **Endpoint:** `POST /community/posts/:postId/comments`
+* **Description:** Creates a new comment for a post.
+* **Path Parameters:**
+    * `postId`: Post ID.
+
+* **Request Body:**
+```json
+{
+  "content": "Comment content goes here...",
+  "parentCommentId": 123 // Optional parent comment ID
+}
+```
+* **Response:** 
+```json
+{
+  "id": 1,
+  "content": "Comment content",
+  "author": {
+    // ... author details
+  },
+  "post": {
+    "id": 123 // Post ID
+  },
+  "createdAt": "2023-10-26T13:00:00.000Z",
+  "updatedAt": "2023-10-26T13:00:00.000Z"
+}
+```
+
+* **Error Responses:**
+    * 400 Bad Request: Invalid request data.
+    * 401 Unauthorized: User not authenticated.
+    * 404 Not Found: Post not found.
+
+
+**6. Read Comments**
+
+* **Endpoint:** `GET /community/posts/:postId/comments`
+* **Description:** Returns a list of comments for a post.
+* **Path Parameters:**
+    * `postId`: Post ID.
+* **Query Parameters:**
+    * `parentCommentId`: Optional. If provided, only comments that are replies to this comment will be returned.
+* **Response:** Array of comment objects (similar to create comment response).
+* **Error Responses:**
+    * 404 Not Found: Post not found.
+
+
+**7. Update Comment**
+
+* **Endpoint:** `PATCH /community/posts/:postId/comments/:id`
+* **Description:** Updates an existing comment.
+* **Path Parameters:**
+    * `postId`: Post ID.
+    * `id`: Comment ID.
+* **Request Body:** (Same as Create Comment, but all fields are optional)
+
+* **Response:** (Same as Create Comment Response)
+* **Error Responses:**
+    * 400 Bad Request: Invalid request data.
+    * 401 Unauthorized: User not authenticated.
+    * 404 Not Found: Comment not found.
+
+
+
+**8. Delete Comment**
+
+* **Endpoint:** `DELETE /community/posts/:postId/comments/:id`
+* **Description:** Deletes a comment.
+* **Path Parameters:**
+    * `postId`: Post ID.
+
+    * `id`: Comment ID.
+* **Response:**
+```json
+{
+  "message": "Comment deleted successfully."
+}
+```
+* **Error Responses:**
+    * 401 Unauthorized: User not authenticated.
+    * 404 Not Found: Comment not found.
+
+
+
+
 ```
 ---[END_OF_FILES]---

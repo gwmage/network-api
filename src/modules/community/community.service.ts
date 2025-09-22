@@ -13,6 +13,7 @@ import { NotificationService } from '../notification/notification.service';
 import { CreateNotificationDto } from '../notification/dto/create-notification.dto';
 import { Category } from './entities/category.entity';
 import { Tag } from './entities/tag.entity';
+import { SearchPostDto, SortOptions } from './dto/search-post.dto';
 
 
 @Injectable()
@@ -32,7 +33,7 @@ export class CommunityService {
 
 
   async createPost(createPostDto: CreatePostDto, user: User): Promise<Post> {
-    const { categoryIds, tagIds, ...postData } = createPostDto;
+    const { categoryIds, tagIds, categoryNames, tagNames, ...postData } = createPostDto;
     const newPost = this.communityPostRepository.create({
       ...postData,
       author: user,
@@ -42,8 +43,33 @@ export class CommunityService {
       newPost.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
     }
 
+    if (categoryNames) {
+      const categories = await Promise.all(categoryNames.map(async name => {
+        let category = await this.categoryRepository.findOneBy({ name });
+        if (!category) {
+          category = this.categoryRepository.create({ name });
+          await this.categoryRepository.save(category);
+        }
+        return category;
+      }));
+      newPost.categories = categories;
+    }
+
+
     if (tagIds) {
       newPost.tags = await this.tagRepository.findBy({ id: In(tagIds) });
+    }
+
+    if (tagNames) {
+      const tags = await Promise.all(tagNames.map(async name => {
+        let tag = await this.tagRepository.findOneBy({ name });
+        if (!tag) {
+          tag = this.tagRepository.create({ name });
+          await this.tagRepository.save(tag);
+        }
+        return tag;
+      }));
+      newPost.tags = tags;
     }
 
     return await this.communityPostRepository.save(newPost);
@@ -51,31 +77,54 @@ export class CommunityService {
 
 
   async findAllPosts(
-    page: number,
-    pageSize: number,
-    categories?: number[],
-    tags?: number[],
-    search?: string,
+    searchPostDto: SearchPostDto
   ): Promise<{ posts: Post[]; totalCount: number }> {
+
+    const {keyword, title, content, author, categoryIds, tagNames, page, limit, sort } = searchPostDto
+
     const queryBuilder = this.communityPostRepository.createQueryBuilder('post');
 
-    if (categories) {
-      queryBuilder.leftJoinAndSelect('post.categories', 'category').where('category.id IN (:...categories)', { categories });
+    if (keyword) {
+      queryBuilder.andWhere(
+        'post.title LIKE :keyword OR post.content LIKE :keyword',
+        { keyword: `%${keyword}%` },
+      );
     }
 
-    if (tags) {
-      queryBuilder.leftJoinAndSelect('post.tags', 'tag').where('tag.id IN (:...tags)', { tags });
+    if (title) {
+      queryBuilder.andWhere('post.title LIKE :title', { title: `%${title}%` });
     }
 
-    if (search) {
-      queryBuilder.andWhere('post.title LIKE :search OR post.content LIKE :search', { search: `%${search}%` });
+    if (content) {
+      queryBuilder.andWhere('post.content LIKE :content', { content: `%${content}%` });
     }
+
+    if (author) {
+      queryBuilder.andWhere('author.username LIKE :author', { author: `%${author}%` });
+    }
+
+
+
+    if (categoryIds) {
+      queryBuilder.leftJoinAndSelect('post.categories', 'category').andWhere('category.id IN (:...categoryIds)', { categoryIds });
+    }
+
+    if (tagNames) {
+      queryBuilder.leftJoinAndSelect('post.tags', 'tag').andWhere('tag.name IN (:...tagNames)', { tagNames });
+    }
+
+
 
     queryBuilder.leftJoinAndSelect('post.author', 'author');
-    queryBuilder.orderBy('post.createdAt', 'DESC');
+
+    if (sort === SortOptions.RECENCY) {
+        queryBuilder.orderBy('post.createdAt', 'DESC');
+    }
 
     const totalCount = await queryBuilder.getCount();
-    const posts = await queryBuilder.skip((page - 1) * pageSize).take(pageSize).getMany();
+    const posts = await queryBuilder.skip((page - 1) * limit).take(limit).getMany();
+
+
     return { posts, totalCount };
 
 
@@ -90,7 +139,7 @@ export class CommunityService {
   }
 
   async updatePost(id: number, updatePostDto: UpdatePostDto, user: User): Promise<Post> {
-    const { categoryIds, tagIds, ...postData } = updatePostDto;
+    const { categoryIds, tagIds, categoryNames, tagNames, ...postData } = updatePostDto;
 
     const post = await this.communityPostRepository.findOne({ where: { id, author: { id: user.id } }, relations: ['author', 'categories', 'tags'] });
     if (!post) {
@@ -98,12 +147,42 @@ export class CommunityService {
     }
 
     Object.assign(post, postData);
+
     if (categoryIds) {
         post.categories = await this.categoryRepository.findBy({ id: In(categoryIds) });
     }
+
+    if (categoryNames) {
+      const categories = await Promise.all(categoryNames.map(async name => {
+        let category = await this.categoryRepository.findOneBy({ name });
+        if (!category) {
+          category = this.categoryRepository.create({ name });
+          await this.categoryRepository.save(category);
+        }
+        return category;
+      }));
+      post.categories = categories;
+    }
+
+
+
     if (tagIds) {
         post.tags = await this.tagRepository.findBy({ id: In(tagIds) });
     }
+
+
+    if (tagNames) {
+      const tags = await Promise.all(tagNames.map(async name => {
+        let tag = await this.tagRepository.findOneBy({ name });
+        if (!tag) {
+          tag = this.tagRepository.create({ name });
+          await this.tagRepository.save(tag);
+        }
+        return tag;
+      }));
+      post.tags = tags;
+    }
+
     return await this.communityPostRepository.save(post);
 
   }
