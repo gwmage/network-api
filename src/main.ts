@@ -49,59 +49,33 @@ async function bootstrap() {
       await app.listen(port, '0.0.0.0', async () => {
         console.log('5 - Listening on port:', port);
         let connection;
-        const maxRetries = 10; // Increased number of retries
+        const maxRetries = 10; 
         let currentRetry = 0;
-        let waitTime = 2000; // Increased initial wait time
+        let waitTime = 2000; 
 
         while (currentRetry < maxRetries) {
           try {
-            console.log('Attempting database connection (Attempt ${currentRetry + 1} of ${maxRetries})');
+            console.log('Attempting database connection (Attempt ${currentRetry + 1} of ${maxRetries})')
             connection = await getConnection();
-            console.log("connection object:", connection);
             if (connection.isConnected) {
               console.log('Database connection established successfully!');
               break;
             }
           } catch (error) {
             currentRetry++;
-            console.error('Failed to connect to database (Attempt ${currentRetry}):', error);
+            console.error('Failed to connect to database (Attempt ${currentRetry})', error);
             if (currentRetry < maxRetries) {
               console.log('Retrying in ${waitTime}ms...');
               await new Promise(resolve => setTimeout(resolve, waitTime));
-              waitTime *= 2; // Exponential backoff
+              waitTime *= 2; 
             }
           }
         }
 
-        for (let i = 0; i < retries; i++) {
-          try {
-            console.log('Attempting to get database connection (Attempt ${i + 1} of ${retries})...');
-            connection = await getConnection();
-            if (connection.isConnected) {
-              console.log('Database connection established successfully!');
-              break;
-            }
-          } catch (error) {
-            console.error('Error checking database connection (Attempt ${i + 1}):', error);
-            if (i < retries -1) {
-              console.log('Retrying in ${waitTime}ms...')
-              await new Promise(resolve => setTimeout(resolve, waitTime));
-              waitTime *= 2; // Exponential backoff
-            }
-          }
-        }
-          console.log("Connection object:", connection);
-          if (connection.isConnected) {
-            console.log('Database connection established successfully!');
-          } else {
+        if (!connection.isConnected) {
             console.error('Database connection failed!');
             console.error("Connection object:", connection);
           }
-        } catch (error) {
-          console.error('Error checking database connection:', error);
-          console.error('Error stack:', error.stack);
-          throw error; 
-        }
       });
       console.log("6 - After app.listen");
       console.log("Application started successfully.");
