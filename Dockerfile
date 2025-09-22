@@ -1,4 +1,4 @@
-FROM node:18-bullseye
+FROM node:18-alpine
 
 RUN echo "Attempting to download base image..."
 RUN echo "Network diagnostics: $(ping -c 3 google.com)"
@@ -7,10 +7,13 @@ RUN echo "Base image download complete."
 WORKDIR /usr/src/app
 
 COPY .railway.env ./
+RUN echo ".railway.env copied."
 
 COPY package*.json ./
+RUN echo "package*.json copied."
 
-RUN apt-get update && apt-get install -y python build-essential
+RUN apk add --no-cache python3 make g++
+RUN echo "Build tools installed."
 
 RUN echo "Installing dependencies..."
 RUN cat package.json
@@ -18,6 +21,7 @@ RUN npm install --verbose && echo "Dependencies installed successfully" || (echo
 RUN echo "Dependencies installed."
 
 COPY . .
+RUN echo "Project files copied."
 
 EXPOSE 3000
 
