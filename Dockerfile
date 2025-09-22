@@ -29,4 +29,9 @@ EXPOSE 3000
 
 RUN echo "Executing npm run start..."
 RUN echo "Before npm run start"
+RUN npm run build
+RUN echo "After npm run build"
+RUN ls -al
+RUN echo "Listing files before run start"
+
 CMD ["npm", "run", "start"]
