@@ -6,10 +6,8 @@ RUN echo "Base image download complete."
 
 WORKDIR /usr/src/app
 
-COPY .railway.env ./
-RUN echo ".railway.env copied."
-
-COPY package*.json ./
+COPY .railway.env package*.json ./
+RUN echo ".railway.env and package*.json copied."
 RUN echo "package*.json copied."
 
 RUN apk add --no-cache python3 make g++
