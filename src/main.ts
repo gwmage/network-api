@@ -3,6 +3,12 @@ import { AppModule } from './app.module';
 import { getConnection } from 'typeorm';
 
 async function bootstrap() {
+  console.log("DATABASE_URL:", process.env.DATABASE_URL);
+  console.log("RAILWAY_DB_USERNAME:", process.env.RAILWAY_DB_USERNAME);
+  console.log("RAILWAY_DB_PASSWORD:", process.env.RAILWAY_DB_PASSWORD);
+  console.log("RAILWAY_DB_HOST:", process.env.RAILWAY_DB_HOST);
+  console.log("RAILWAY_DB_PORT:", process.env.RAILWAY_DB_PORT);
+  console.log("RAILWAY_DB_NAME:", process.env.RAILWAY_DB_NAME);
   console.log("Starting bootstrap...");
   try {
     console.log("1 - Before NestFactory.create");
