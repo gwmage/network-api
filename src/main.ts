@@ -19,7 +19,19 @@ async function bootstrap() {
     const databaseUrl = process.env.DATABASE_URL;
     console.log('DATABASE_URL environment variable:', databaseUrl); // Log DATABASE_URL before connection
     console.log('Attempting to parse the database URL...');
-    const url = new URL(databaseUrl);
+    try {
+      const url = new URL(databaseUrl);
+      console.log('Parsed database URL:', url);
+      console.log('Hostname:', url.hostname);
+      console.log('Port:', url.port);
+      console.log('Username:', url.username);
+      console.log('Password:', url.password);
+      console.log('Database name:', url.pathname.slice(1));
+    } catch (urlError) {
+      console.error('Error parsing DATABASE_URL:', urlError);
+      console.error('DATABASE_URL Value:', databaseUrl);
+      throw new Error('Invalid DATABASE_URL');
+    }
     console.log('Parsed database URL:', url);
     console.log('Hostname:', url.hostname);
     console.log('Port:', url.port);
