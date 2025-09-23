@@ -1,10 +1,12 @@
 {
   "build": {
-    "service": "nixpacks"
+    "docker": {
+      "image": null
+    }
   },
-  "healthcheck": {
-    "path": "/health",
-    "interval": 20,
-    "timeout": 60
+  "deploy": {
+    "healthcheck": {
+      "path": "/health"
+    }
   }
 }
