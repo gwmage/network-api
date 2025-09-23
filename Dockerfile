@@ -8,9 +8,19 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build -v && echo "Typescript compilation output complete." || (echo "Typescript compilation failed.  See output for details." && exit 1)
-ENV PORT 3000
+RUN npm run build
+
+# Log the working directory
+RUN pwd
+
+# Log environment variables
+RUN env
 
 EXPOSE 3000
 
-CMD ["/bin/bash", "-c", "node dist/main.js && curl http://localhost:3000"]
+# Log before running the startup command
+RUN echo "Running startup command..."
+CMD ["npm", "run", "start:prod"]
+
+# Log after running the startup command (this may not be reached if command fails)
+RUN echo "Startup command executed."
