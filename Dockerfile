@@ -27,7 +27,9 @@ RUN echo "Project files copied."
 
 EXPOSE 3000
 
-RUN echo "Executing npm run start..."
+RUN echo "Executing npm run start...
+"; ls -al dist | grep main
+RUN npm run start:prod
 RUN echo "Before npm run start"
 RUN echo "Starting nest build with detailed logs...
 "; npm run build --verbose || (echo "
