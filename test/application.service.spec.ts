@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ApplicationService } from '../src/modules/application/application.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Application } from '../src/modules/application/entities/application.entity';
-import { User } from '../src/modules/user/entities/user.entity';
+import { User } from '../src/modules/auth/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateApplicationDto } from '../src/modules/application/dto/create-application.dto';
 import { GetApplicationsDto } from '../src/modules/application/dto/get-applications.dto';

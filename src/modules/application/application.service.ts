@@ -5,7 +5,7 @@ import { Application } from './entities/application.entity';
 import { Repository, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateApplicationDto } from './dto/create-application.dto';
-import { User } from '../user/entities/user.entity';
+import { User } from '../auth/entities/user.entity';
 import { GetApplicationsDto } from './dto/get-applications.dto';
 import { GetUserApplicationsDto } from './dto/get-user-applications.dto';
 import { Parser } from 'json2csv';

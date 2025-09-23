@@ -7,7 +7,7 @@ import { Parser } from 'json2csv';
 import { NetworkingApplicationDto } from './dto/networking-application.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
-import { User } from '../user/entities/user.entity';
+import { User } from '../auth/entities/user.entity';
 import { GetUserApplicationsDto } from './dto/get-user-applications.dto';
 
 @ApiTags('application')
