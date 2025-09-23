@@ -10,11 +10,11 @@ COPY .railway.env ./
 COPY package*.json ./
 RUN echo ".railway.env and package*.json copied."
 
-COPY . .
-RUN echo "Project files copied."
-
 RUN apk add --no-cache python3 make g++
 RUN echo "Build tools installed."
+
+COPY . .
+RUN echo "Project files copied."
 
 RUN echo "Installing dependencies..."
 RUN cat package.json
