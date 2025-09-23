@@ -1,1 +1,17 @@
-import { Injectable } from '@nestjs/common';\nimport { MatchingStatusDto } from './dto/matching-status.dto';\n\n@Injectable()\nexport class MatchingService {\n  private matchingStatus: MatchingStatusDto = {\n    status: 'pending',\n    startTime: null,\n    endTime: null,\n    errorMessage: null,\n  };\n\n  async getStatus(): Promise<MatchingStatusDto> {\n    return this.matchingStatus;\n  }\n\n  // Example to update the status (This would typically be called by a scheduled job or other processes)\n  updateStatus(status: string, startTime?: Date, endTime?: Date, errorMessage?: string) {\n    this.matchingStatus = {\n      status,\n      startTime,\n      endTime,\n      errorMessage,\n    };\n  }\n}\n
+import { Injectable } from '@nestjs/common';
+import { MatchingStatusDto } from './dto/matching-status.dto';
+
+@Injectable()
+export class MatchingService {
+  private matchingStatus: MatchingStatusDto = {
+    status: 'pending',
+    startTime: new Date(),
+  };
+
+  constructor() {
+    console.log("MatchingService constructor called");
+    console.error(this.matchingStatus); // Log the matchingStatus object to see its state
+  }
+
+  // ... rest of the MatchingService code
+}
