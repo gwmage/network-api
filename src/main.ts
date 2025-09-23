@@ -2,30 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  console.log("Environment variables:", process.env);
-
   try {
-    console.log("Inside try block");
+    console.log('Starting application bootstrap...');
     const app = await NestFactory.create(AppModule);
-    console.log("App created");
+    console.log('Application instance created.');
     await app.listen(3000);
-    console.log("Listening on port 3000");
+    console.log('Application listening on port 3000.');
   } catch (error) {
-    console.error("Error starting application:", error);
-  }
-  console.log("Bootstrapping application...");
-  try {
-    const app = await NestFactory.create(AppModule);
-    console.log("NestJS application created.");
-    try {
-      await app.listen(3000);
-      console.log('Application started successfully');
-    } catch (error) {
-      console.error('Error starting application:', error);
-    }
-    console.log("Listening on port 3000.");
-  } catch (error) {
-    console.error("Critical error during application startup:", error);
+    console.error('Error during application bootstrap:', error);
   }
 }
 
