@@ -27,6 +27,9 @@ async function bootstrap() {
     });
 
     console.log('Application bootstrap complete.');
+  console.log('Environment variables:', process.env);
+  console.log('Current working directory:', process.cwd());
+  console.log('Directory contents:', fs.readdirSync('.'));
   } catch (error) {
     console.error('Error during application bootstrap:', error);
   }
