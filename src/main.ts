@@ -18,7 +18,6 @@ async function bootstrap() {
 
     const databaseUrl = process.env.DATABASE_URL;
     console.log('DATABASE_URL environment variable:', databaseUrl); // Log DATABASE_URL before connection
-    console.log('Attempting to parse the database URL...');
 
     try {
       const url = new URL(databaseUrl);
@@ -35,7 +34,6 @@ async function bootstrap() {
     }
 
     try {
-      console.log('Attempting to connect to the database...');
       const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
         logger: ['error', 'warn', 'log', 'debug', 'verbose'] // Enable verbose logging for NestJS
       });
@@ -44,21 +42,17 @@ async function bootstrap() {
 
       try {
         await connection.connect(); // Explicitly attempt connection
-      console.log('Connection attempt complete. Connection status:', connection.isConnected);
-      if (connection.isConnected) {
-        console.log('Database connected!');
-      } else {
-        console.error('Database connection failed!');
-      }
-        console.log('Database connection successful!', connection.isConnected);
-        try {
-          const entities = connection.entityMetadatas;
-          console.log('Connected entities:', entities.map(entity => entity.name));
-          await connection.query('SELECT 1');
-          console.log('Successfully executed a test query against the database!');
-        } catch (queryError) {
-          console.error('Error executing test query:', queryError);
+        console.log('Connection attempt complete. Connection status:', connection.isConnected);
+        if (connection.isConnected) {
+          console.log('Database connected!');
+        } else {
+          console.error('Database connection failed!');
         }
+
+        const entities = connection.entityMetadatas;
+        console.log('Connected entities:', entities.map(entity => entity.name));
+        await connection.query('SELECT 1');
+        console.log('Successfully executed a test query against the database!');
       } catch (dbError) {
         console.error('[${new Date().toISOString()}] Database connection error:', dbError);
         console.error('Database error details:', dbError.stack); // Log the full error object for detailed stack trace
@@ -66,8 +60,14 @@ async function bootstrap() {
         throw dbError; // Re-throw to prevent application startup
       }
 
-      await app.listen(port, '0.0.0.0');
-      console.log('[${new Date().toISOString()}] Server listening on port ${port}');
+      try {
+        await app.listen(port, '0.0.0.0');
+        console.log('[${new Date().toISOString()}] Server listening on port ${port}');
+      } catch (listenError) {
+        console.error('[${new Date().toISOString()}] Error starting server:', listenError);
+        throw listenError;
+      }
+
     } catch (error) {
       console.error('[${new Date().toISOString()}] Error during app initialization or database connection:', error);
       console.error('Error details:', error.stack);
