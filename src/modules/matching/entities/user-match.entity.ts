@@ -9,9 +9,7 @@ export class UserMatch {
   @ManyToOne(() => User, (user) => user.userMatches)
   user: User;
 
-  constructor() {
-    console.log('UserMatch entity instantiated');
-  }
+  constructor() {}
 
   @Column({ type: 'float', nullable: true })
   matchingScore: number;
