@@ -27,4 +27,4 @@ RUN echo "Starting NestJS build..."
 RUN npm run build --if-present 2>&1 && echo "Build successful" || (echo "Detailed nest build error logs: exit code: $?" && npm --prefix ./node_modules/@nestjs/cli run build --verbose 2>&1 && exit 1)
 RUN echo "NestJS build complete."
 
-CMD ["npm", "run", "start:prod"]
+CMD sh -c "npm run start:prod > /dev/stdout 2> /dev/stderr"
