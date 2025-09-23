@@ -27,7 +27,7 @@ RUN npm run build --if-present \
     && echo "Build successful" \
     || (echo "Detailed nest build error logs:
 " \
-    && npm --prefix ./node_modules/@nestjs/cli run build --verbose \
+    && npm --prefix ./node_modules/@nestjs/cli run build --verbose 2>&1 \
     && exit 1)
 
 CMD ["npm", "run", "start:prod"]
