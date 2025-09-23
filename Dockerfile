@@ -19,4 +19,4 @@ RUN cat dist/src/main.js || echo "dist/src/main.js not found"
 # Log the current working directory
 RUN pwd
 
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
