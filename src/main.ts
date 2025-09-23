@@ -19,8 +19,20 @@ async function bootstrap() {
 
     try {
       console.log('Attempting to connect to the database...');
-      const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
-      console.log('Attempting to start server on port', port);
+      const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
+        logger: ['error', 'warn', 'log', 'debug', 'verbose'] // Enable verbose logging for NestJS
+      });
+      console.log('NestFactory.create completed.'); // Log after NestFactory.create
+
+      console.log('Attempting to get connection...');
+      const connection = app.get(Connection);
+      
+      if (connection) {
+        console.log('Database connection successful!', connection.isConnected);
+      } else {
+        console.error('Failed to obtain database connection object from app.');
+      }
+
       await app.listen(port, '0.0.0.0', (err, address) => {
         if (err) {
           console.error('[${new Date().toISOString()}] Error starting server:', err);
