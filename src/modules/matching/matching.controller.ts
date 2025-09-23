@@ -1,1 +1,13 @@
-import { Controller, Get } from '@nestjs/common';\nimport { MatchingService } from './matching.service';\nimport { MatchingStatusDto } from './dto/matching-status.dto';\n\n@Controller('matching')\nexport class MatchingController {\n  constructor(private readonly matchingService: MatchingService) {}\n\n  @Get('status')\n  async getStatus(): Promise<MatchingStatusDto> {\n    return this.matchingService.getStatus();\n  }\n}\n
+import { Controller, Get } from '@nestjs/common';
+import { MatchingService } from './matching.service';
+import { MatchingStatusDto } from './dto/matching-status.dto';
+
+@Controller('matching')
+export class MatchingController {
+  constructor(private readonly matchingService: MatchingService) {}
+
+  @Get('status')
+  async getStatus(): Promise<MatchingStatusDto> {
+    return await this.matchingService.getStatus();
+  }
+}
