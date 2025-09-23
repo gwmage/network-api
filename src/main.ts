@@ -25,7 +25,12 @@ async function bootstrap() {
         console.log('[${new Date().toISOString()}] Server listening at ${address}');
       }
     });
-    console.log('Server started successfully.');
+      console.log('Server started successfully.');
+    } catch (error) {
+      console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
+      console.error('Error details:', error.stack);
+      throw error; // Re-throw the error to prevent the application from starting
+    }
     console.log('Application bootstrap complete.');
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
