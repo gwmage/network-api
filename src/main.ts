@@ -58,6 +58,8 @@ async function bootstrap() {
         try {
           console.log('Before app.listen');
           await app.listen(port, '0.0.0.0');
+      console.log(app.getHttpServer().listening);
+      console.log(app.getUrl());
           console.log('[${new Date().toISOString()}] Server listening on port ${port}');
         } catch (listenError) {
           console.error('[${new Date().toISOString()}] Error starting server:', listenError);
