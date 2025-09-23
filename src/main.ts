@@ -38,7 +38,6 @@ async function bootstrap() {
     });
     console.log('NestFactory.create completed.'); 
     const connection = app.get(Connection);
-
     try {
       await connection.connect(); 
       console.log('Connection attempt complete. Connection status:', connection.isConnected);
@@ -55,12 +54,10 @@ async function bootstrap() {
       await app.listen(port, '0.0.0.0');
       console.log('[${new Date().toISOString()}] Server listening on port ${port}');
       console.log('app.getUrl():', app.getUrl());
-
-    } catch (dbError) {
-      console.error('[${new Date().toISOString()}] Database connection error:', dbError);
-      console.error('Database error details:', dbError.stack);
-      console.error('DATABASE_URL:', process.env.DATABASE_URL);
-      throw dbError; 
+    } catch (error) {
+      console.error('[${new Date().toISOString()}] Error after successful database connection:', error);
+      console.error('Detailed error:', error.stack); // Log the stack trace for debugging
+      throw error;
     }
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught an error during bootstrap:', error);
