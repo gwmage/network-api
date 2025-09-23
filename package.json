@@ -13,7 +13,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "console.log(\"Starting application...\"); node dist/main.js; console.log(\"Application started.\");",
-    "postinstall": "npm run build && node dist/main.js",
+    "postinstall": "console.log('Starting postinstall...'); npm run build && node dist/main.js && console.log('Postinstall completed.');",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
