@@ -26,6 +26,7 @@ async function bootstrap() {
       }
     });
     console.log('Server started successfully.');
+    console.log('Server URL:', app.getUrl());
     console.log('Application bootstrap complete.');
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
