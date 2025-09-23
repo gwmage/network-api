@@ -14,9 +14,11 @@ async function bootstrap() {
     console.log('Current working directory:', process.cwd());
     console.log('Directory contents:', fs.readdirSync('.'));
     console.log('PORT environment variable:', process.env.PORT);
-    console.log('DATABASE_URL environment variable:', process.env.DATABASE_URL);
+
+    console.log('DATABASE_URL environment variable:', process.env.DATABASE_URL); // Log DATABASE_URL before connection
 
     try {
+      console.log('Attempting to connect to the database...');
       const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
       console.log('Attempting to start server on port', port);
       await app.listen(port, '0.0.0.0', (err, address) => {
@@ -33,14 +35,13 @@ async function bootstrap() {
       console.error('[${new Date().toISOString()}] Database connection error:', dbError);
       console.error('Database error details:', dbError.stack);
       console.error('DATABASE_URL:', process.env.DATABASE_URL);  // Log database URL
-      // Log other relevant DB config if available
       throw dbError; // Re-throw to prevent application startup
     }
 
     console.log('Application bootstrap complete.');
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
-    console.error('Error details:', error);
+    console.error('Error details:', error.stack); // Log error stack for more details
     process.exit(1);
   }
 }
