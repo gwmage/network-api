@@ -44,4 +44,5 @@ await app.listen(port, (err, address) => {
   }
 }
 
+console.log('Calling bootstrap function...');
 bootstrap();
