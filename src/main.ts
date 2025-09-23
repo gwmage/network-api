@@ -107,7 +107,20 @@ console.log("[${new Date().toISOString()}] After starting to listen on port ${po
         console.log('[${new Date().toISOString()}] Server listening on:', server.address().address);
         console.log('[${new Date().toISOString()}] Server port:', server.address().port);
         console.log('[${new Date().toISOString()}] Server address:', server.address());
-        console.log('[${new Date().toISOString()}] Server listening on port ${port}');
+        console.log('[${new Date().toISOString()}] Server address:', server.address());
+        const addressInfo = server.address();
+        let host = 'localhost';
+        let portInfo = port;
+        if (typeof addressInfo === 'string') {
+          const parts = addressInfo.split(':');
+          host = parts[0] || 'localhost';
+          portInfo = parseInt(parts[1], 10);
+        } else if (typeof addressInfo === 'object') {
+          host = addressInfo.address || 'localhost';
+          portInfo = addressInfo.port || port;
+        }
+        console.log(`[${new Date().toISOString()}] Server is listening on ${host}:${portInfo}`);
+console.log('[${new Date().toISOString()}] Server listening on port ${port}');
         console.log('[${new Date().toISOString()}] Environment variables:', process.env);
       } catch (listenError) {
         console.error('[${new Date().toISOString()}] Error listening on port ${port}:', listenError);
