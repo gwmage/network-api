@@ -29,7 +29,10 @@ EXPOSE 3000
 
 RUN echo "Executing npm run start..."
 RUN echo "Before npm run start"
-RUN npm run build
+RUN echo "Starting nest build with detailed logs...
+"; npm run build --verbose || (echo "
+Detailed nest build error logs:
+" && npm run build --verbose && exit 1)
 RUN echo "After npm run build"
 RUN ls -al
 RUN echo "Listing files before run start"
