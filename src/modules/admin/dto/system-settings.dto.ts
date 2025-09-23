@@ -24,4 +24,9 @@ export class SystemSettingsDto {
   maintenanceMessage: string;
 
   @IsNotEmpty()
-  @IsNumb
+  @IsNumber()
+  latestAppVersion: number;
+
+  @IsOptional()
+  @IsString()
+  updateMessage?: string;
