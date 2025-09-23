@@ -7,7 +7,7 @@ import { GetApplicationsDto } from '../src/modules/application/dto/get-applicati
 import { Response, Request } from 'express';
 import { NetworkingApplicationDto } from '../src/modules/application/dto/networking-application.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from '../src/modules/user/entities/user.entity';
+import { User } from '../src/modules/auth/entities/user.entity';
 import { GetUserApplicationsDto } from '../src/modules/application/dto/get-user-applications.dto';
 import { Application } from '../src/modules/application/entities/application.entity';
 
