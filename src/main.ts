@@ -54,10 +54,11 @@ async function bootstrap() {
       await app.listen(port, '0.0.0.0', (err, address) => {
         if (err) {
           console.error('[${new Date().toISOString()}] Error starting server:', err);
-          console.error('Error details:', err.stack); 
+          console.error('Error details:', err.stack);
           throw err; 
         } else {
           console.log('[${new Date().toISOString()}] Server listening at ${address}');
+          console.log('Address object:', address); // Log the address object
         }
       });
       console.log('Server started successfully.');
