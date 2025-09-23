@@ -5,9 +5,9 @@ import { AppModule } from './app.module';
 import { Connection } from 'typeorm'; 
 
 async function bootstrap() {
-  console.log("Application bootstrapping...");
-  console.log('Compiled files:', fs.readdirSync('./dist'));
   try {
+    console.log("Application bootstrapping...");
+    console.log('Compiled files:', fs.readdirSync('./dist'));
     const port = parseInt(process.env.PORT || "3000", 10);
     console.log('[${new Date().toISOString()}] Attempting to listen on port: ${port}');
     console.log('Environment variables:', process.env);
@@ -17,7 +17,7 @@ async function bootstrap() {
     console.log('PORT environment variable:', process.env.PORT);
 
     const databaseUrl = process.env.DATABASE_URL;
-    console.log('DATABASE_URL environment variable:', databaseUrl); 
+    console.log('DATABASE_URL environment variable:', databaseUrl);
 
     try {
       const url = new URL(databaseUrl);
@@ -33,60 +33,41 @@ async function bootstrap() {
       throw urlError; 
     }
 
+    const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
+      logger: ['error', 'warn', 'log', 'debug', 'verbose'] 
+    });
+    console.log('NestFactory.create completed.'); 
+    const connection = app.get(Connection);
+
     try {
-      const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
-        logger: ['error', 'warn', 'log', 'debug', 'verbose'] 
-      });
-      console.log('NestFactory.create completed.'); 
-      const connection = app.get(Connection);
-
-      try {
-        await connection.connect(); 
-        console.log('Connection attempt complete. Connection status:', connection.isConnected);
-        if (connection.isConnected) {
-          console.log('Database connected!');
-        } else {
-          console.error('Database connection failed!');
-        }
-
-        const entities = connection.entityMetadatas;
-        console.log('Connected entities:', entities.map(entity => entity.name));
-        await connection.query('SELECT 1');
-        console.log('Successfully executed a test query against the database!');
-
-        console.log('Attempting to start the application...');
-        try {
-          console.log('Before app.listen');
-          await app.listen(port, '0.0.0.0').then(() => {
-            console.log('[${new Date().toISOString()}] Server listening on port ${port}');
-            console.log('app.getUrl():', app.getUrl());
-          }).catch((err) => {
-            console.error('Error starting server:', err);
-          });
-        } catch (listenError) {
-          console.error('[${new Date().toISOString()}] Error starting server:', listenError);
-          console.error('Error details:', listenError.stack); 
-          throw listenError;
-        }
-        console.log('Application started successfully.');
-      } catch (dbError) {
-        console.error('[${new Date().toISOString()}] Database connection error:', dbError);
-        console.error('Database error details:', dbError.stack);
-        console.error('DATABASE_URL:', process.env.DATABASE_URL);
-        throw dbError; 
+      await connection.connect(); 
+      console.log('Connection attempt complete. Connection status:', connection.isConnected);
+      if (connection.isConnected) {
+        console.log('Database connected!');
+      } else {
+        console.error('Database connection failed!');
       }
-    } catch (error) {
-      console.error('[${new Date().toISOString()}] Error during app initialization or database connection:', error);
-      console.error('Error details:', error.stack);
-      throw error; 
+
+      const entities = connection.entityMetadatas;
+      console.log('Connected entities:', entities.map(entity => entity.name));
+      await connection.query('SELECT 1');
+      console.log('Successfully executed a test query against the database!');
+      await app.listen(port, '0.0.0.0');
+      console.log('[${new Date().toISOString()}] Server listening on port ${port}');
+      console.log('app.getUrl():', app.getUrl());
+
+    } catch (dbError) {
+      console.error('[${new Date().toISOString()}] Database connection error:', dbError);
+      console.error('Database error details:', dbError.stack);
+      console.error('DATABASE_URL:', process.env.DATABASE_URL);
+      throw dbError; 
     }
   } catch (error) {
-    console.error('[${new Date().toISOString()}] Caught error during bootstrap:', error);
+    console.error('[${new Date().toISOString()}] Caught an error during bootstrap:', error);
     console.error('Error details:', error.stack);
     process.exit(1);
   }
 }
 
-console.log('Calling bootstrap function...');
 bootstrap();
-console.log('[${new Date().toISOString()}] After bootstrap call'); 
+console.log('[${new Date().toISOString()}] After bootstrap call');
