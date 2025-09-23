@@ -14,6 +14,7 @@ async function bootstrap() {
     console.log('Current working directory:', process.cwd());
     console.log('Directory contents:', fs.readdirSync('.'));
     console.log('PORT environment variable:', process.env.PORT);
+    console.log('DATABASE_URL environment variable:', process.env.DATABASE_URL);
 
     try {
       const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
