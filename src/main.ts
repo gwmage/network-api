@@ -5,7 +5,9 @@ async function bootstrap() {
   console.log('Starting application...');
   try {
     const app = await NestFactory.create(AppModule);
-    await app.listen(3000);
+    const port = 3000;
+await app.listen(port);
+console.log('Listening at http://localhost:${port}');
     console.log('Application listening on port 3000');
   } catch (error) {
     console.error('Error starting application:', error);
