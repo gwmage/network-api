@@ -45,6 +45,9 @@ async function bootstrap() {
         console.log('[${new Date().toISOString()}] Attempting to listen on port ${port}...');
         const server = await app.listen(port, '0.0.0.0');
         console.log('[${new Date().toISOString()}] Server address:', server.address());
+        console.log('[${new Date().toISOString()}] Server listening on:', server.address().address);
+        console.log('[${new Date().toISOString()}] Server port:', server.address().port);
+        console.log('[${new Date().toISOString()}] Server address:', server.address());
         console.log('[${new Date().toISOString()}] Server listening on port ${port}');
         console.log('[${new Date().toISOString()}] Environment variables:', process.env);
       } catch (listenError) {
