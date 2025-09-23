@@ -7,14 +7,6 @@ import { Connection } from 'typeorm';
 async function bootstrap() {
   console.log("Starting application...");
   try {
-    const app = await NestFactory.create(AppModule);
-    await app.listen(3000, '0.0.0.0', () => {
-      console.log(`Application listening on port 3000 and interface 0.0.0.0`);
-    });
-  } catch (error) {
-    console.error("Error starting application:", error);
-  }
-  try {
     console.log('[${new Date().toISOString()}] Application bootstrapping...');
     const port = parseInt(process.env.PORT || "3000", 10);
 
