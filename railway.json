@@ -1,12 +1,6 @@
 {
+  "name": "matchmaking-backend",
   "build": {
-    "docker": {
-      "image": null
-    }
-  },
-  "deploy": {
-    "healthcheck": {
-      "path": "/"
-    }
+    "dockerfile": "Dockerfile"
   }
 }

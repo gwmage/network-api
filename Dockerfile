@@ -16,5 +16,8 @@ EXPOSE 3000
 RUN echo "Attempting to start application..."
 CMD ["node", "dist/main.js"]
 RUN echo "Application startup command executed."
+
+# Add logging to capture application startup output and environment variables
+CMD npm run start:prod 2>&1
 RUN echo "Environment variables:"
 RUN env
