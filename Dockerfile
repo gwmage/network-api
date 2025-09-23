@@ -14,5 +14,5 @@ ENV PORT 3000
 EXPOSE 3000
 
 RUN echo "Attempting to start application..."
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/main.js"]
 RUN echo "Application startup command executed."
