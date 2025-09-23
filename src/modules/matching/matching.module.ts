@@ -8,7 +8,7 @@ import { Profile } from '../profile/profile.entity';
 import { Group } from '../group/group.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Profile, Group])],
+  imports: [TypeOrmModule.forFeature([User, UserMatch, MatchExplanation, MatchingGroup])],
   controllers: [MatchingController],
   providers: [MatchingService],
 })
