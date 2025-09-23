@@ -10,6 +10,9 @@ COPY .railway.env ./
 COPY package*.json ./
 RUN echo ".railway.env and package*.json copied."
 
+COPY . .
+RUN echo "Project files copied."
+
 RUN apk add --no-cache python3 make g++
 RUN echo "Build tools installed."
 
@@ -17,9 +20,6 @@ RUN echo "Installing dependencies..."
 RUN cat package.json
 RUN npm install --verbose || (echo "Detailed npm install logs:" && npm install --verbose && exit 1) 
 RUN echo "Dependencies installed."
-
-COPY . .
-RUN echo "Project files copied."
 
 EXPOSE 3000
 
