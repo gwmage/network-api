@@ -16,4 +16,4 @@ RUN echo "Build process completed."
 
 EXPOSE 3000
 
-CMD echo "Starting application..." && npm run start:prod && echo "Application started."
+CMD ["node", "dist/main.js"]
