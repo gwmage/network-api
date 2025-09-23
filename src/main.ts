@@ -53,6 +53,18 @@ async function bootstrap() {
         console.log('Connected entities:', entities.map(entity => entity.name));
         await connection.query('SELECT 1');
         console.log('Successfully executed a test query against the database!');
+      console.log('Attempting to start the application...');
+
+      try {
+        await app.listen(port, '0.0.0.0');
+        console.log('[${new Date().toISOString()}] Server listening on port ${port}');
+      } catch (listenError) {
+        console.error('[${new Date().toISOString()}] Error starting server:', listenError);
+        console.error('Error details:', listenError.stack); // Log the full error object for detailed stack trace
+        throw listenError;
+      }
+
+      console.log('Application started successfully.');
       } catch (dbError) {
         console.error('[${new Date().toISOString()}] Database connection error:', dbError);
         console.error('Database error details:', dbError.stack); // Log the full error object for detailed stack trace
