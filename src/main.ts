@@ -44,6 +44,12 @@ async function bootstrap() {
 
       try {
         await connection.connect(); // Explicitly attempt connection
+      console.log('Connection attempt complete. Connection status:', connection.isConnected);
+      if (connection.isConnected) {
+        console.log('Database connected!');
+      } else {
+        console.error('Database connection failed!');
+      }
         console.log('Database connection successful!', connection.isConnected);
         try {
           const entities = connection.entityMetadatas;
