@@ -39,6 +39,7 @@ async function bootstrap() {
       });
       console.log('NestFactory.create completed.'); // Log after NestFactory.create
       const connection = app.get(Connection);
+
       try {
         await connection.connect(); // Explicitly attempt connection
         console.log('Connection attempt complete. Connection status:', connection.isConnected);
@@ -47,6 +48,7 @@ async function bootstrap() {
         } else {
           console.error('Database connection failed!');
         }
+
         const entities = connection.entityMetadatas;
         console.log('Connected entities:', entities.map(entity => entity.name));
         await connection.query('SELECT 1');
@@ -55,17 +57,22 @@ async function bootstrap() {
         console.error('[${new Date().toISOString()}] Database connection error:', dbError);
         console.error('Database error details:', dbError.stack); // Log the full error object for detailed stack trace
         console.error('DATABASE_URL:', process.env.DATABASE_URL);  // Log database URL
-        throw dbError;
+        throw dbError; // Re-throw to prevent application startup
       }
 
-      await app.listen(port, '0.0.0.0');
-      console.log('[${new Date().toISOString()}] Server listening on port ${port}');
-    } catch (appInitError) {
-      console.error('Error initializing app:', appInitError);
-      console.error('Error details:', appInitError.stack); // Log the full error for debugging
-      throw appInitError;
-    }
+      try {
+        await app.listen(port, '0.0.0.0');
+        console.log('[${new Date().toISOString()}] Server listening on port ${port}');
+      } catch (listenError) {
+        console.error('[${new Date().toISOString()}] Error starting server:', listenError);
+        throw listenError;
+      }
 
+    } catch (error) {
+      console.error('[${new Date().toISOString()}] Error during app initialization or database connection:', error);
+      console.error('Error details:', error.stack);
+      throw error; // Re-throw error to prevent application startup
+    }
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught error during bootstrap:', error);
     console.error('Error details:', error.stack);
@@ -75,3 +82,5 @@ async function bootstrap() {
 
 console.log('Calling bootstrap function...');
 bootstrap();
+console.log('[${new Date().toISOString()}] After bootstrap call'); // Log after bootstrap
+
