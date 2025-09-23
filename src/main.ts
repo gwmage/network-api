@@ -18,11 +18,13 @@ async function bootstrap() {
     await app.listen(port, '0.0.0.0', (err, address) => {
       if (err) {
         console.error('[${new Date().toISOString()}] Error starting server:', err);
+        console.error('Error details:', err.stack); // Log the error stack for more context
         throw err; // Re-throw the error to be caught by the outer catch block
       } else {
         console.log('[${new Date().toISOString()}] Server listening at ${address}');
       }
     });
+    console.log('Server started successfully.');
     console.log('Application bootstrap complete.');
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
