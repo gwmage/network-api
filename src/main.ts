@@ -1,4 +1,7 @@
 import { NestFactory } from '@nestjs/core';
+import * as fs from 'fs';
+
+console.log("Compiled files:", fs.readdirSync('./dist'));
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 
