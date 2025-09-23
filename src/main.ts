@@ -73,7 +73,7 @@ const server = await app.listen(port, '0.0.0.0');
 console.log("[${new Date().toISOString()}] After starting to listen on port ${port}...");
         console.log(`[${new Date().toISOString()}] Application URL: http://localhost:${port}`);
         try {
-          const appUrl = `http://localhost:${port}`;
+          const appUrl = process.env.RAILWAY_STATIC_URL || `http://localhost:${port}`;
           console.log(`[${new Date().toISOString()}] Attempting to access application at: ${appUrl}`);
           const response = await fetch(appUrl);
           console.log(`[${new Date().toISOString()}] Application access response status: ${response.status}`);
