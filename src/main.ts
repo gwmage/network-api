@@ -19,24 +19,22 @@ async function bootstrap() {
     await app.listen(port, '0.0.0.0', (err, address) => {
       if (err) {
         console.error('[${new Date().toISOString()}] Error starting server:', err);
-        console.error('Error details:', err.stack); 
+        console.error('Error details:', err.stack);
         throw err; 
       } else {
         console.log('[${new Date().toISOString()}] Server listening at ${address}');
       }
     });
-      console.log('Server started successfully.');
-    } catch (error) {
-      console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
-      console.error('Error details:', error.stack);
-      throw error; // Re-throw the error to prevent the application from starting
-    }
-    console.log('Application bootstrap complete.');
+    console.log('Server started successfully.');
+
+    // Log the contents of the 'dist' directory after the server has started
+    console.log('Contents of dist directory after server start:', fs.readdirSync('./dist'));
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
-    console.error('Error details:', error);
-    process.exit(1);
+    console.error('Error details:', error.stack); // Log the error stack for debugging
+    throw error; // Re-throw the error to prevent the application from starting
   }
+  console.log('Application bootstrap complete.');
 }
 
 console.log('Calling bootstrap function...');
