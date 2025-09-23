@@ -1,8 +1,9 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { Notification, NotificationStatus, NotificationDeliveryStatus, NotificationType } from './entities/notification.entity';
-import * as admin from 'firebase-admin';
-import { initializeApp } from 'firebase-admin/app';
+// import * as admin from 'firebase-admin';
+// import { initializeApp } from 'firebase-admin/app';
+import { initializeApp } from "firebase/app";
 
 // Initialize Firebase Admin
 initializeApp();

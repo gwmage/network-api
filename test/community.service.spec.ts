@@ -12,6 +12,7 @@ import { UpdatePostDto } from '../src/modules/community/dto/update-post.dto';
 import { CreateCommentDto } from '../src/modules/community/dto/create-comment.dto';
 import { UpdateCommentDto } from '../src/modules/community/dto/update-comment.dto';
 import { NotificationService } from '../src/modules/notification/notification.service';
+import { SearchPostDto } from '../src/modules/community/dto/search-post.dto';
 
 import { NotFoundException } from '@nestjs/common';
 import { Category } from 'src/modules/community/entities/category.entity';
