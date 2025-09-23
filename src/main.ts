@@ -14,6 +14,7 @@ async function bootstrap() {
     console.log('Current working directory:', process.cwd());
     console.log('Directory contents:', fs.readdirSync('.'));
     const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+        console.log('Attempting to start server on port', port);
     await app.listen(port, '0.0.0.0', (err, address) => {
       if (err) {
         console.error('[${new Date().toISOString()}] Error starting server:', err);
