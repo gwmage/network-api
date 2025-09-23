@@ -19,19 +19,7 @@ async function bootstrap() {
     const databaseUrl = process.env.DATABASE_URL;
     console.log('DATABASE_URL environment variable:', databaseUrl); // Log DATABASE_URL before connection
     console.log('Attempting to parse the database URL...');
-    try {
-      const url = new URL(databaseUrl);
-      console.log('Parsed database URL:', url);
-      console.log('Hostname:', url.hostname);
-      console.log('Port:', url.port);
-      console.log('Username:', url.username);
-      console.log('Password:', url.password);
-      console.log('Database name:', url.pathname.slice(1));
-    } catch (urlError) {
-      console.error('Error parsing DATABASE_URL:', urlError);
-      console.error('DATABASE_URL Value:', databaseUrl);
-      throw new Error('Invalid DATABASE_URL');
-    }
+    const url = new URL(databaseUrl);
     console.log('Parsed database URL:', url);
     console.log('Hostname:', url.hostname);
     console.log('Port:', url.port);
@@ -46,6 +34,15 @@ async function bootstrap() {
       });
       console.log('NestFactory.create completed.'); // Log after NestFactory.create
       const connection = app.get(Connection);
+      try {
+        await connection.connect(); // Explicitly attempt connection
+        console.log('Database connection successful!', connection.isConnected);
+      } catch (dbError) {
+        console.error('[${new Date().toISOString()}] Database connection error:', dbError);
+        console.error('Database error details:', dbError.stack); // Log the full error object for detailed stack trace
+        console.error('DATABASE_URL:', process.env.DATABASE_URL);  // Log database URL
+        throw dbError; // Re-throw to prevent application startup
+      }
 
       if (connection && connection.isConnected) {
         console.log('Database connection successful!', connection.isConnected);
