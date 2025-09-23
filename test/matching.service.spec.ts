@@ -1,1 +1,32 @@
-import { Test, TestingModule } from '@nestjs/testing';\nimport { MatchingService } from '../src/modules/matching/matching.service';\n\ndescribe('MatchingService', () => {\n  let service: MatchingService;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [MatchingService],\n    }).compile();\n\n    service = module.get<MatchingService>(MatchingService);\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n\n  it('should return the initial matching status', async () => {\n    const status = await service.getStatus();\n    expect(status).toEqual({ status: 'pending', startTime: null, endTime: null, errorMessage: null });\n  });\n\n  it('should update and retrieve the matching status', async () => {\n    const startTime = new Date();\n    service.updateStatus('completed', startTime, new Date());\n    const status = await service.getStatus();\n    expect(status.status).toBe('completed');\n    expect(status.startTime).toEqual(startTime);\n  });\n});\n
+import { Test, TestingModule } from '@nestjs/testing';
+import { MatchingService } from '../src/modules/matching/matching.service';
+import { MatchingStatusDto } from '../src/modules/matching/dto/matching-status.dto';
+
+describe('MatchingService', () => {
+  let service: MatchingService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [MatchingService],
+    }).compile();
+
+    service = module.get<MatchingService>(MatchingService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  it('should return the initial matching status', async () => {
+    const status = await service.getStatus();
+    expect(status).toEqual({ status: 'pending', startTime: new Date(), endTime: null, errorMessage: null });
+  });
+
+  it('should update and retrieve the matching status', async () => {
+    const startTime = new Date();
+    service.updateStatus('completed', startTime, new Date());
+    const status = await service.getStatus();
+    expect(status.status).toBe('completed');
+    expect(status.startTime).toEqual(startTime);
+  });
+});

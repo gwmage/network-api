@@ -1,24 +1,42 @@
-```typescript
-// Existing imports...
+import { Test, TestingModule } from '@nestjs/testing';
+import { INMMock } from '@shared/common/testing/inm.mock';
+import { ReservationController } from '@modules/reservation/reservation.controller';
+import { ReservationService } from '@modules/reservation/reservation.service';
+import { CreateReservationDto } from '@modules/reservation/dto/create-reservation.dto';
+import { UpdateReservationDto } from '@modules/reservation/dto/update-reservation.dto';
+import { CancelReservationDto } from '@modules/reservation/dto/cancel-reservation.dto';
+import { of } from 'rxjs';
+import * as dayjs from 'dayjs';
+
+// Mock dependencies and setup testing module
+jest.mock('@modules/reservation/reservation.service');
+jest.mock('@shared/common/testing/inm.mock');
 
 describe('ReservationController', () => {
-  // ... existing tests ...
+  let controller: ReservationController;
+  let service: ReservationService;
 
-  it('should cancel a reservation', async () => {
-    // ... setup (create a reservation in the database) ...
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [ReservationController],
+      providers: [
+        {
+          provide: ReservationService,
+          useValue: {
+            create: jest.fn(),
+            findAll: jest.fn(),
+            findOne: jest.fn(),
+            update: jest.fn(),
+            remove: jest.fn(),
+            cancelReservation: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
 
-    const cancelReservationDto = { cancellationReason: 'Test reason' };
-
-    await request(app.getHttpServer())
-      .delete(`/reservations/${reservationId}`)
-      .send(cancelReservationDto)
-      .expect(200)
-      .expect({ message: 'Reservation cancelled successfully' });
-
-    // ... assert that the reservation status is 'cancelled' and cancellationReason is saved ...
+    controller = module.get<ReservationController>(ReservationController);
+    service = module.get<ReservationService>(ReservationService);
   });
 
-  // Add more tests for other scenarios ...
+  // ... rest of your test code
 });
-
-```
