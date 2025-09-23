@@ -1,97 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { getConnection } from 'typeorm';
 
 async function bootstrap() {
-  console.log("Starting application bootstrap...");
-  console.log("Application bootstrap started");
-  console.log("Starting application...");
+  console.log("Bootstrapping application...");
   try {
-    await NestFactory.create(AppModule);
-    console.log("Application started successfully.");
-  }
-  catch(error) {
-    console.error("Application startup failed:", error);
-  }
-  console.log("Before loading .env");
-  console.log(process.env);
-
-  console.log("After loading .env");
-  console.log(process.env);
-
-  console.log("DATABASE_URL:", process.env.DATABASE_URL);
-  console.log("RAILWAY_DB_USERNAME:", process.env.RAILWAY_DB_USERNAME);
-  console.log("RAILWAY_DB_PASSWORD:", process.env.RAILWAY_DB_PASSWORD);
-  console.log("RAILWAY_DB_HOST:", process.env.RAILWAY_DB_HOST);
-  console.log("RAILWAY_DB_PORT:", process.env.RAILWAY_DB_PORT);
-  console.log("RAILWAY_DB_NAME:", process.env.RAILWAY_DB_NAME);
-  console.log("Starting bootstrap...");
-  try {
-    console.log("1 - Before NestFactory.create");
-    console.log("Environment Variables:", process.env);
-    console.log("DATABASE_URL:", process.env.DATABASE_URL);
-    console.log("TYPEORM_URL:", process.env.TYPEORM_URL);
-    console.log("TYPEORM_CONNECTION:", process.env.TYPEORM_CONNECTION);
-
     const app = await NestFactory.create(AppModule);
-    console.log("2 - NestFactory created...");
-
-    app.use((req, res, next) => {
-      console.log('Request received:', req.method, req.url);
-      next();
-    });
-
-    const port = process.env.PORT || 3000; 
-    console.log('3 - Port set to:', port);
-
-    try {
-      console.log("4 - Before app.listen");
-      await app.listen(port, '0.0.0.0', async () => {
-        console.log('5 - Listening on port:', port);
-        let connection;
-        const maxRetries = 10; 
-        let currentRetry = 0;
-        let waitTime = 2000; 
-
-        while (currentRetry < maxRetries) {
-          try {
-            console.log('Attempting database connection (Attempt ${currentRetry + 1} of ${maxRetries})')
-            connection = await getConnection();
-            if (connection.isConnected) {
-              console.log('Database connection established successfully!');
-              break;
-            }
-          } catch (error) {
-            currentRetry++;
-            console.error('Failed to connect to database (Attempt ${currentRetry})', error);
-            if (currentRetry < maxRetries) {
-              console.log('Retrying in ${waitTime}ms...');
-              await new Promise(resolve => setTimeout(resolve, waitTime));
-              waitTime *= 2; 
-            }
-          }
-        }
-
-        if (!connection || !connection.isConnected) {
-console.error('Database connection failed after multiple retries!');
-console.error("Connection object:", connection);
-console.error("Time elapsed: ", Date.now() - startTime, "ms, out of", timeoutDurationMs, "ms");
-            console.error('Database connection failed!');
-            console.error("Connection object:", connection);
-          }
-      });
-      console.log("6 - After app.listen");
-      console.log("Application started successfully.");
-
-    } catch (error) {
-      console.error("Error starting server:", error);
-      console.error("Error starting server stack:", error.stack);
-      process.exit(1);
-    }
+    console.log("NestJS application created.");
+    await app.listen(3000);
+    console.log("Listening on port 3000.");
   } catch (error) {
-    console.error("Error during bootstrap:", error);
-    console.error("Error during bootstrap stack:", error.stack);
-    process.exit(1);
+    console.error("Critical error during application startup:", error);
   }
 }
 
