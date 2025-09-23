@@ -18,6 +18,7 @@ async function bootstrap() {
 
     const databaseUrl = process.env.DATABASE_URL;
     console.log('DATABASE_URL environment variable:', databaseUrl); // Log DATABASE_URL before connection
+    console.log('Attempting to connect to the database with URL:', process.env.DATABASE_URL);
     console.log('Attempting to parse the database URL...');
 
     try {
