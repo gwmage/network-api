@@ -5,6 +5,14 @@ async function bootstrap() {
   console.log("Starting bootstrap...");
   try {
     const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+    await app.listen(3000);
+  } catch (error) {
+    console.error("Error during bootstrap:", error);
+  }
+  console.log("Bootstrap complete.");
+  console.log("Starting bootstrap...");
+  try {
+    const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
     app.enableCors();
     const config = new DocumentBuilder()
       .setTitle('Proximo API')
