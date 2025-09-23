@@ -1,27 +1,16 @@
-```typescript
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { UserMatch } from '../../matching/entities/user-match.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  name: string;
+  @OneToMany(() => UserMatch, (userMatch) => userMatch.user)
+  userMatches: UserMatch[];
 
-  @Column({ unique: true })
-  email: string;
-
-  @Column()
-  region: string;
-
-  @Column('text', { array: true, default: [] })
-  interests: string[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  constructor() {
+    console.log('User.userMatches type:', typeof this.userMatches);
+    console.log('User.userMatches:', this.userMatches);
+  }
 }
-```
