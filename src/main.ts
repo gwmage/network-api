@@ -18,6 +18,7 @@ async function bootstrap() {
       console.log('[${new Date().toISOString()}] Getting database connection...');
       const connection = app.get(Connection);
       console.log('[${new Date().toISOString()}] Attempting database connection...');
+      console.log('[${new Date().toISOString()}] Connection options:', connection.options);
       try {
         await connection.connect();
       } catch (dbConnectionError) {
