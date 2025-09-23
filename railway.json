@@ -1,6 +1,11 @@
 {
-  "name": "matchmaking-backend",
   "build": {
-    "dockerfile": "Dockerfile"
+    "builder": "Nixpacks"
+  },
+  "deploy": {
+    "healthcheck": {
+      "path": "/",
+      "port": 3000
+    }
   }
 }
