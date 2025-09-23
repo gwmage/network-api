@@ -18,31 +18,20 @@ async function bootstrap() {
 
     const databaseUrl = process.env.DATABASE_URL;
     console.log('DATABASE_URL environment variable:', databaseUrl); // Log DATABASE_URL before connection
-    const connectionOptions = {
-      url: databaseUrl,
-      type: 'postgres',
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false, // Use ssl in production with Railway
-      entities: ['dist/**/*.entity.{ts,js}'],
-      synchronize: true,
-      logging: true
-    };
+
     try {
       console.log('Attempting to connect to the database...');
       const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
         logger: ['error', 'warn', 'log', 'debug', 'verbose'] // Enable verbose logging for NestJS
       });
       console.log('NestFactory.create completed.'); // Log after NestFactory.create
-      console.log('Connection options being used', connectionOptions);
-      console.log('Attempting to get connection...');
       const connection = app.get(Connection);
-      console.log('Connection object:', connection);
-      console.log('Connection status:', connection.isConnected);
-      console.log('Connection options:', connection.options);
 
-      if (connection) {
+      if (connection && connection.isConnected) {
         console.log('Database connection successful!', connection.isConnected);
       } else {
-        console.error('Failed to obtain database connection object from app.');
+        console.error('Failed to establish database connection or connection object is invalid.');
+        throw new Error('Database connection failed.'); // Throw error to prevent application startup
       }
 
       await app.listen(port, '0.0.0.0', (err, address) => {
@@ -57,7 +46,7 @@ async function bootstrap() {
       console.log('Server started successfully.');
     } catch (dbError) {
       console.error('[${new Date().toISOString()}] Database connection error:', dbError);
-      console.error('Database error details:', dbError.stack);
+      console.error('Database error details:', dbError.stack); // Log the full error object for detailed stack trace
       console.error('DATABASE_URL:', process.env.DATABASE_URL);  // Log database URL
       throw dbError; // Re-throw to prevent application startup
     }
