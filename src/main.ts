@@ -13,6 +13,7 @@ async function bootstrap() {
     console.log('Process ID:', process.pid);
     console.log('Current working directory:', process.cwd());
     console.log('Directory contents:', fs.readdirSync('.'));
+    console.log('PORT environment variable:', process.env.PORT);
     const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
         console.log('Attempting to start server on port', port);
     await app.listen(port, '0.0.0.0', (err, address) => {
