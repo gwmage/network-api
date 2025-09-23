@@ -59,6 +59,11 @@ async function bootstrap() {
       console.error('Detailed error:', error.stack); // Log the stack trace for debugging
       throw error;
     }
+  } catch (innerError) {
+      console.error('[${new Date().toISOString()}] Caught an inner error during bootstrap:', innerError);
+      console.error('Inner error details:', innerError.stack);
+      throw innerError; // Re-throw to be caught by the outer try-catch
+    }
   } catch (error) {
     console.error('[${new Date().toISOString()}] Caught an error during bootstrap:', error);
     console.error('Error details:', error.stack);
