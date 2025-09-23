@@ -4,7 +4,7 @@
   },
   "deploy": {
     "healthcheck": {
-      "path": "/",
+      "path": "/api",
       "port": 3000
     }
   }
