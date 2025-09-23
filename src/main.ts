@@ -45,6 +45,14 @@ async function bootstrap() {
       try {
         await connection.connect(); // Explicitly attempt connection
         console.log('Database connection successful!', connection.isConnected);
+        try {
+          const entities = connection.entityMetadatas;
+          console.log('Connected entities:', entities.map(entity => entity.name));
+          await connection.query('SELECT 1');
+          console.log('Successfully executed a test query against the database!');
+        } catch (queryError) {
+          console.error('Error executing test query:', queryError);
+        }
       } catch (dbError) {
         console.error('[${new Date().toISOString()}] Database connection error:', dbError);
         console.error('Database error details:', dbError.stack); // Log the full error object for detailed stack trace
