@@ -16,4 +16,4 @@ RUN echo "Build process completed."
 
 EXPOSE 3000
 
-CMD npm run start:prod && sleep 10 && curl -f http://localhost:3000 || exit 1
+CMD echo "Before start:prod" && npm run start:prod && echo "After start:prod" && sleep 10 && curl -f http://localhost:3000 || exit 1
