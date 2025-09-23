@@ -1,1 +1,10 @@
-export class MatchingStatusDto {\n  status: 'pending' | 'completed' | 'failed';\n  startTime: Date | null;\n  endTime: Date | null;\n  errorMessage: string | null;\n}\n
+export class MatchingStatusDto {
+  status: 'pending' | 'completed' | 'failed';
+  startTime: Date | null;
+  endTime: Date | null;
+  errorMessage: string | null;
+
+  constructor(partial: Partial<MatchingStatusDto>) {
+    Object.assign(this, partial);
+  }
+}
