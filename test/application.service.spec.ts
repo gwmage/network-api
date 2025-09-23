@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { CreateApplicationDto } from '../src/modules/application/dto/create-application.dto';
 import { GetApplicationsDto } from '../src/modules/application/dto/get-applications.dto';
 import { GetUserApplicationsDto } from '../src/modules/application/dto/get-user-applications.dto';
+import { Application } from '../src/modules/application/entities/application.entity';
 
 
 const mockApplicationRepository = () => ({
