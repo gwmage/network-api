@@ -23,9 +23,9 @@ RUN echo "Project files copied."
 
 EXPOSE 3000
 
-RUN npm run build --if-present \ 
+RUN npm run build --if-present 2>&1 \ 
     && echo "Build successful" \ 
-    || (echo "Detailed nest build error logs:\
-" && cat build.log && npm --prefix ./node_modules/@nestjs/cli run build && exit 1)
+    || (echo "Detailed nest build error logs:
+" && npm --prefix ./node_modules/@nestjs/cli run build 2>&1 && exit 1)
 
 CMD ["npm", "run", "start:prod"]
