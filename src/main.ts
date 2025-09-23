@@ -20,6 +20,24 @@ async function bootstrap() {
 
     const startTime = Date.now();
 console.log('[${new Date().toISOString()}] Attempting to listen on port: ${port}');
+console.log('Environment variables:', process.env);
+console.log('Process ID:', process.pid);
+try {
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+  await app.listen(port, (err, address) => {
+    console.log('[${new Date().toISOString()}] app.listen callback invoked');
+    if (err) {
+      console.error('[${new Date().toISOString()}] Error starting server:', err);
+    } else {
+      console.log('[${new Date().toISOString()}] Server listening at ${address}');
+    }
+    console.log('[${new Date().toISOString()}] Time to start listening: ${Date.now() - startTime}ms');
+  });
+} catch (error) {
+  console.error('[${new Date().toISOString()}] Caught error during app.listen:', error);
+  console.error('Error details:', error);
+  process.exit(1);
+}
 try {
   await app.listen(port, (err, address) => {
     console.log('[${new Date().toISOString()}] app.listen callback invoked');
