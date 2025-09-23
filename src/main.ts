@@ -1,15 +1,31 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 
 async function bootstrap() {
-  try {
-    const app = await NestFactory.create(AppModule);
-    console.log('Trying to start the application...');
-    console.log('Port before listen:', 3000); 
-    await app.listen(3000);
-    console.log('Application started successfully on port 3000');
-  } catch (error) {
-    console.error('Error starting application:', error);
-  }
+  console.log("Starting application...");
+
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
+
+  console.log("Application created...");
+
+  const config = new DocumentBuilder()
+    .setTitle('Proximo')
+    .setDescription('The Proximo API description')
+    .setVersion('0.1')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
+  console.log("Swagger setup complete...");
+
+  await app.listen(3000);
+
+  console.log("Application listening on port 3000...");
 }
+
 bootstrap();
