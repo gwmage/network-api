@@ -18,14 +18,21 @@ async function bootstrap() {
 
     const databaseUrl = process.env.DATABASE_URL;
     console.log('DATABASE_URL environment variable:', databaseUrl); // Log DATABASE_URL before connection
-
+    const connectionOptions = {
+      url: databaseUrl,
+      type: 'postgres',
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false, // Use ssl in production with Railway
+      entities: ['dist/**/*.entity.{ts,js}'],
+      synchronize: true,
+      logging: true
+    };
     try {
       console.log('Attempting to connect to the database...');
       const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
         logger: ['error', 'warn', 'log', 'debug', 'verbose'] // Enable verbose logging for NestJS
       });
       console.log('NestFactory.create completed.'); // Log after NestFactory.create
-
+      console.log('Connection options being used', connectionOptions);
       console.log('Attempting to get connection...');
       const connection = app.get(Connection);
       console.log('Connection object:', connection);
