@@ -13,4 +13,4 @@ ENV PORT 3000
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+CMD ["/bin/bash", "-c", "node dist/main.js && curl http://localhost:3000"]
