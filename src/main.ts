@@ -63,6 +63,13 @@ const server = await app.listen(port, '0.0.0.0');
         } else {
           console.log("[${new Date().toISOString()}] Server address is not an object:", server.address());
         }
+        console.log("[${new Date().toISOString()}] Server address after listen:", server.address());
+        if (typeof server.address() === 'object' && server.address() !== null) {
+          console.log("[${new Date().toISOString()}] Server listening on:", server.address().address);
+          console.log("[${new Date().toISOString()}] Server port:", server.address().port);
+        } else {
+          console.log("[${new Date().toISOString()}] Server address is not an object:", server.address());
+        }
 console.log("[${new Date().toISOString()}] After starting to listen on port ${port}...");
         console.log(`[${new Date().toISOString()}] Application URL: http://localhost:${port}`);
         try {
