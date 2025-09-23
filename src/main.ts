@@ -18,7 +18,16 @@ async function bootstrap() {
 
     console.log('Attempting to listen on port: ${port}');
 
-    await app.listen(port, (err, address) => {
+    const startTime = Date.now();
+console.log('[${new Date().toISOString()}] Attempting to listen on port: ${port}');
+await app.listen(port, (err, address) => {
+  console.log('[${new Date().toISOString()}] app.listen callback invoked');
+  if (err) {
+    console.error('[${new Date().toISOString()}] Error starting server:', err);
+  } else {
+    console.log('[${new Date().toISOString()}] Server listening at ${address}');
+  }
+  console.log('[${new Date().toISOString()}] Time to start listening: ${Date.now() - startTime}ms');
       if (err) {
         console.error('Error starting server:', err);
       } else {
