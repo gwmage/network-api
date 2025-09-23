@@ -1,9 +1,10 @@
 {
-  "services": [
-    {
-      "name": "api",
-      "command": "node dist/main.js",
-      "port": 3000
-    }
-  ]
+  "build": {
+    "service": "nixpacks"
+  },
+  "healthcheck": {
+    "path": "/health",
+    "interval": 20,
+    "timeout": 60
+  }
 }
