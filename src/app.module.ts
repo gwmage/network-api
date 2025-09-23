@@ -24,8 +24,6 @@ import { ScheduleModule } from '@nestjs/schedule';
         autoLoadEntities: true,
         synchronize: true,
       }),
-    }).then(() => console.log('Database connected successfully')).catch(error => console.error('Database connection failed:', error)),
-      }),
     }),
     ScheduleModule.forRoot(),
     try {
