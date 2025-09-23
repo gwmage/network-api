@@ -13,6 +13,9 @@ COPY . .
 RUN echo "[START] npm run build"
 RUN npm run build --verbose
 RUN echo "[END] npm run build"
+RUN npm ls -al --prod || echo "[INFO] No dependencies in production mode"
+RUN du -sh dist
+RUN ls -alR dist
 
 RUN ls -al dist
 
