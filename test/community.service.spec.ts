@@ -71,4 +71,4 @@ describe('CommunityService', () => {
   });
 
   describe('createPost', () => {
-    it
+    it('should create a new post'
