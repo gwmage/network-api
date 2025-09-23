@@ -15,7 +15,8 @@ async function bootstrap() {
     console.log('Directory contents:', fs.readdirSync('.'));
     console.log('PORT environment variable:', process.env.PORT);
 
-    console.log('DATABASE_URL environment variable:', process.env.DATABASE_URL); // Log DATABASE_URL before connection
+    const databaseUrl = process.env.DATABASE_URL;
+    console.log('DATABASE_URL environment variable:', databaseUrl); // Log DATABASE_URL before connection
 
     try {
       console.log('Attempting to connect to the database...');
