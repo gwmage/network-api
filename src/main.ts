@@ -21,7 +21,10 @@ async function bootstrap() {
       console.log('[${new Date().toISOString()}] Attempting database connection...');
       console.log('[${new Date().toISOString()}] Connection options:', connection.options);
       try {
+        console.log('[${new Date().toISOString()}] Connection options before connect:', connection.options);
         await connection.connect();
+        console.log('[${new Date().toISOString()}] After connection.connect() - Is connected?', connection.isConnected);
+      
       } catch (dbConnectionError) {
         console.error('[${new Date().toISOString()}] Database connection error:', dbConnectionError);
         console.error('[${new Date().toISOString()}] Database connection error stack:', dbConnectionError.stack);
