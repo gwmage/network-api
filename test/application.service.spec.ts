@@ -117,6 +117,8 @@ describe('ApplicationService', () => {
 
     describe('getUserApplications', () => {
         it('should return applications for a specific user with pagination and search', async () => {
+            const mockUser = { id: 1 } as User;
+            (userRepository.findOneBy as jest.Mock).mockResolvedValue(mockUser);
             const userId = 1;
             const getUserApplicationsDto: GetUserApplicationsDto = { page: 1, pageSize: 10, search: 'Test', status: 'submitted' };
             const mockApplications: Application[] = [{ id: 1, title: 'Test Application 1', applicationDate: new Date(), user: { id: 1 } as User, userId, status: 'submitted' }, { id: 2, title: 'Test Application 2', applicationDate: new Date(), user: { id: 1 } as User, userId, status: 'submitted' }];
