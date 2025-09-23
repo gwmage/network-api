@@ -5,6 +5,7 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
+  console.log("Application bootstrapping...");
   console.log("Starting bootstrap...");
   try {
     const app = await NestFactory.create<NestFastifyApplication>(
