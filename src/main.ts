@@ -29,7 +29,15 @@ async function bootstrap() {
         console.error('Database connection failed!');
         throw new Error('Database connection failed');
       }
-      await app.listen(port, '0.0.0.0');
+      try {
+      const server = await app.listen(port, '0.0.0.0');
+      console.log('[${new Date().toISOString()}] Server listening on port ${port}');
+      console.log('[${new Date().toISOString()}] Server address:', server.address());
+    } catch (listenError) {
+      console.error('[${new Date().toISOString()}] Error listening on port ${port}:', listenError);
+      console.error('Detailed listen error:', listenError.stack);
+      throw listenError;
+    }
       console.log('[${new Date().toISOString()}] Server listening on port ${port}');
     } catch (error) {
       console.error('[${new Date().toISOString()}] Error starting server:', error);
