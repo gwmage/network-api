@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build --verbose",
+    "build": "echo "Starting build" && nest build --verbose && echo "Build complete" || (echo "Build failed" && exit 1)",
     "format": "prettier --write "src/**/*.ts" "test/**/*.ts" "@document/**/*.ts"",
     "start": "nest start",
     "start:dev": "nest start --watch",
