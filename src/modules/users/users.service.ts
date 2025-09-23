@@ -41,13 +41,14 @@ export class UsersService {
     Object.assign(user, updateUserDto);
 
     if (updateUserDto.notificationPreferences) {
+      // Check if user.notificationPreferences exists before spreading
       user.notificationPreferences = {
-        ...user.notificationPreferences,
+        ...(user.notificationPreferences || {}),
         ...updateUserDto.notificationPreferences,
       };
-      if(typeof user.notificationPreferences.push !== 'boolean' || typeof user.notificationPreferences.email !== 'boolean'){
-          throw new Error("Invalid notification preferences. Push and email must be boolean values.")
-      }
+      // Ensure push and email are boolean
+      user.notificationPreferences.push = !!user.notificationPreferences.push; // Coerce to boolean
+      user.notificationPreferences.email = !!user.notificationPreferences.email; // Coerce to boolean
     }
 
     return this.usersRepository.save(user);

@@ -1,4 +1,3 @@
-```typescript
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class SystemSettingsDto {
@@ -30,3 +29,4 @@ export class SystemSettingsDto {
   @IsOptional()
   @IsString()
   updateMessage?: string;
+}
