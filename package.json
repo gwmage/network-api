@@ -36,7 +36,9 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.5",
     "swagger-ui-express": "^4.4.0",
-    "typeorm": "^0.3.11"
+    "typeorm": "^0.3.11",
+    "firebase-admin": "^11.0.0",
+    "@google-cloud/firestore": "^6.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
