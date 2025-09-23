@@ -72,7 +72,10 @@ async function bootstrap() {
           }
         }
 
-        if (!connection.isConnected) {
+        if (!connection || !connection.isConnected) {
+console.error('Database connection failed after multiple retries!');
+console.error("Connection object:", connection);
+console.error("Time elapsed: ", Date.now() - startTime, "ms, out of", timeoutDurationMs, "ms");
             console.error('Database connection failed!');
             console.error("Connection object:", connection);
           }
