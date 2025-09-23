@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
+import { Connection } from 'typeorm'; // Import Connection
 
 async function bootstrap() {
   console.log("Application bootstrapping...");
@@ -27,7 +28,7 @@ async function bootstrap() {
 
       console.log('Attempting to get connection...');
       const connection = app.get(Connection);
-      
+
       if (connection) {
         console.log('Database connection successful!', connection.isConnected);
       } else {
