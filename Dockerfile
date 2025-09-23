@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npx node -e "console.log('Installing dependencies...'); npm install; console.log('Dependencies installed.')"
+RUN npm install
 
 COPY . .
 
@@ -12,6 +12,4 @@ RUN npm run build
 
 EXPOSE 3000
 
-RUN echo "Starting application..."
-RUN echo "Application started."
 CMD ["npm", "run", "start:prod"]
