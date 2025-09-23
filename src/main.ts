@@ -77,6 +77,7 @@ async function bootstrap() {
         console.log('[${new Date().toISOString()}] Server listening on port ${port}');
       } catch (listenError) {
         console.error('[${new Date().toISOString()}] Error starting server:', listenError);
+        console.error('Error details:', listenError.stack); 
         throw listenError;
       }
 
