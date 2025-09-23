@@ -1,24 +1,22 @@
-FROM node:18
+FROM node:20
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN echo "[START] npm install"
-RUN npm install
-RUN echo "[END] npm install"
+RUN npm install --force
 
 COPY . .
 
-RUN echo "[START] npm run build"
-RUN npm run build --verbose
-RUN echo "[END] npm run build"
-RUN npm ls -al --prod || echo "[INFO] No dependencies in production mode"
-RUN du -sh dist
-RUN ls -alR dist
+RUN npm run build
 
+# Log the contents of the dist directory
 RUN ls -al dist
 
-EXPOSE 3000
+# Log the contents of specific files in the dist directory (e.g., main.js)
+RUN cat dist/src/main.js || echo "dist/src/main.js not found"
 
-CMD ["npm", "run", "start:prod"]
+# Log the current working directory
+RUN pwd
+
+CMD ["node", "dist/src/main.js"]
