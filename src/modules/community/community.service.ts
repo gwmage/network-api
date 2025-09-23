@@ -82,7 +82,35 @@ export class CommunityService {
 
     const {keyword, title, content, author, categoryIds, tagNames, page, limit, sort } = searchPostDto
 
-    const queryBuilder = this.communityPostRepository.createQueryBuilder('post');
+    const queryBuilder = this.communityPostRepository
+    .createQueryBuilder('post')
+    .leftJoinAndSelect('post.author', 'author');
+
+    if (keyword) {
+      queryBuilder.andWhere(keyword ? 'post.title LIKE :keyword OR post.content LIKE :keyword' : '1=1',
+        { keyword: '%${keyword}%' },
+      );
+    }
+
+    if (title) {
+      queryBuilder.andWhere(title ? 'post.title LIKE :title' : '1=1', { title: '%${title}%' });
+    }
+
+    if (content) {
+      queryBuilder.andWhere(content ? 'post.content LIKE :content' : '1=1', { content: '%${content}%' });
+    }
+
+    if (author) {
+      queryBuilder.andWhere(author ? 'author.username LIKE :author' : '1=1', { author: '%${author}%' });
+    }
+
+    if (categoryIds) {
+      queryBuilder.leftJoinAndSelect('post.categories', 'category').andWhere('category.id IN (:...categoryIds)', { categoryIds });
+    }
+
+    if (tagNames) {
+      queryBuilder.leftJoinAndSelect('post.tags', 'tag').andWhere('tag.name IN (:...tagNames)', { tagNames });
+    }
 
     if (keyword) {
       queryBuilder.andWhere(
