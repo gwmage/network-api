@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build && echo "TypeScript Build Logs:" && cat ./dist/apps/api/main.js
+RUN npm run build
 
 EXPOSE 3000
 
