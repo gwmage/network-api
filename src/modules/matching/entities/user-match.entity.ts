@@ -1,7 +1,5 @@
-```typescript
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Index } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Match } from '../../matches/entities/match.entity';
 
 @Entity()
 export class UserMatch {
@@ -10,9 +8,6 @@ export class UserMatch {
 
   @ManyToOne(() => User, (user) => user.userMatches)
   user: User;
-
-  @ManyToOne(() => Match, (match) => match.userMatches)
-  match: Match;
 
   @Column({ type: 'float', nullable: true })
   matchingScore: number;
@@ -34,4 +29,3 @@ export class UserMatch {
   @Index() // Indexing for faster filtering
   interests: string[];
 }
-```
