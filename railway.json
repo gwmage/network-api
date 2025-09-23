@@ -1,10 +1,14 @@
 {
   "build": {
-    "service": "nixpacks"
+    "docker": {
+      "ports": [
+        3000
+      ]
+    }
   },
   "healthcheck": {
-    "path": "/health",
-    "interval": 20,
-    "timeout": 60
+    "path": "/",
+    "interval": 30,
+    "timeout": 10
   }
 }
