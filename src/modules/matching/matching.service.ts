@@ -1,3 +1,13 @@
+import { Injectable, Logger } from '@nestjs/common';
+
+@Injectable()
+export class MatchingService {
+  private readonly logger = new Logger(MatchingService.name);
+
+  constructor() {
+    this.logger.log('MatchingService initialized');
+  }
+
 import { Injectable } from '@nestjs/common';
 import { MatchingStatusDto } from './dto/matching-status.dto';
 
