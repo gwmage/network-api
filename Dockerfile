@@ -6,7 +6,9 @@ RUN echo "Base image download complete."
 
 WORKDIR /usr/src/app
 
-COPY .railway.env package*.json ./
+COPY .railway.env ./
+COPY package*.json ./
+RUN echo "package*.json copied."
 RUN echo ".railway.env and package*.json copied."
 RUN echo "package*.json copied."
 
