@@ -20,6 +20,12 @@ async function bootstrap() {
       const connection = app.get(Connection);
       console.log('[${new Date().toISOString()}] Attempting database connection...');
       console.log('[${new Date().toISOString()}] Connection options:', connection.options);
+      console.log('[${new Date().toISOString()}] Database Environment Variables: ', process.env);
+      console.log('[${new Date().toISOString()}] TYPEORM_DATABASE: ', process.env.TYPEORM_DATABASE);
+      console.log('[${new Date().toISOString()}] TYPEORM_USERNAME: ', process.env.TYPEORM_USERNAME);
+      console.log('[${new Date().toISOString()}] TYPEORM_PASSWORD: ', process.env.TYPEORM_PASSWORD);
+      console.log('[${new Date().toISOString()}] TYPEORM_HOST: ', process.env.TYPEORM_HOST);
+      console.log('[${new Date().toISOString()}] TYPEORM_PORT: ', process.env.TYPEORM_PORT);
       try {
         console.log('[${new Date().toISOString()}] Connection options before connect:', connection.options);
         await connection.connect();
