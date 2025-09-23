@@ -53,6 +53,15 @@ async function bootstrap() {
           const response = await fetch(appUrl);
           console.log(`[${new Date().toISOString()}] Application access response status: ${response.status}`);
           console.log(`[${new Date().toISOString()}] Application access response text: ${await response.text()}`);
+          console.log(`[${new Date().toISOString()}] Deployment URL (from environment variables):`, process.env.RAILWAY_STATIC_URL);
+          if (process.env.RAILWAY_STATIC_URL) {
+            try {
+              const railwayUrl = new URL(process.env.RAILWAY_STATIC_URL);
+              console.log(`[${new Date().toISOString()}] Railway hostname:`, railwayUrl.hostname);
+            } catch (urlError) {
+              console.error(`[${new Date().toISOString()}] Invalid Railway URL:`, urlError);
+            }
+          }
         } catch (appAccessError) {
           console.error(`[${new Date().toISOString()}] Error accessing application:`, appAccessError);
         }
