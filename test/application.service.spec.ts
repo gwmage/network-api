@@ -105,6 +105,8 @@ describe('ApplicationService', () => {
           expect(queryBuilder.andWhere).toHaveBeenCalledWith('application.title LIKE :search', { search: `%${getApplicationsDto.search}%` });
 
         expect(queryBuilder.skip).toHaveBeenCalledWith((getApplicationsDto.page - 1) * getApplicationsDto.pageSize);
+
+        expect(queryBuilder.skip).toHaveBeenCalledWith((getApplicationsDto.page - 1) * getApplicationsDto.pageSize);
         expect(queryBuilder.take).toHaveBeenCalledWith(getApplicationsDto.pageSize);
         expect(queryBuilder.getMany).toHaveBeenCalled();
         expect(queryBuilder.getCount).toHaveBeenCalled();
