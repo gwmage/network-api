@@ -1,19 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
-
-  await app.listen(3000);
-
-  // Added readiness check
-  setTimeout(() => {
-    console.log("Application ready");
-  }, 5000); // Wait for 5 seconds
+  console.log('Starting application bootstrap...');
+  try {
+    const app = await NestFactory.create(AppModule);
+    console.log('NestFactory created...');
+    await app.listen(3000);
+    console.log('App listening on port 3000...');
+  } catch (error) {
+    console.error('Error during bootstrap:', error);
+  }
 }
 
 bootstrap();
