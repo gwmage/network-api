@@ -33,43 +33,49 @@ async function bootstrap() {
       throw urlError; 
     }
 
+    console.log('Creating NestFastifyApplication...');
     const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
       logger: ['error', 'warn', 'log', 'debug', 'verbose'] 
     });
     console.log('NestFactory.create completed.'); 
-    const connection = app.get(Connection);
+
     try {
+      const connection = app.get(Connection);
+      console.log('Attempting database connection...');
       await connection.connect(); 
       console.log('Connection attempt complete. Connection status:', connection.isConnected);
       if (connection.isConnected) {
         console.log('Database connected!');
+        try {
+          const entities = connection.entityMetadatas;
+          console.log('Connected entities:', entities.map(entity => entity.name));
+          console.log('Attempting test query...');
+          await connection.query('SELECT 1');
+          console.log('Successfully executed a test query against the database!');
+        } catch (queryError) {
+          console.error('Error executing test query:', queryError);
+          throw queryError;
+        }
       } else {
         console.error('Database connection failed!');
+        throw new Error('Database connection failed');
       }
 
-      const entities = connection.entityMetadatas;
-      console.log('Connected entities:', entities.map(entity => entity.name));
-      await connection.query('SELECT 1');
-      console.log('Successfully executed a test query against the database!');
+      console.log('[${new Date().toISOString()}] Attempting to start server on port ${port}...');
       await app.listen(port, '0.0.0.0');
       console.log('[${new Date().toISOString()}] Server listening on port ${port}');
       console.log('app.getUrl():', app.getUrl());
     } catch (error) {
-      console.error('[${new Date().toISOString()}] Error after successful database connection:', error);
-      console.error('Detailed error:', error.stack); // Log the stack trace for debugging
+      console.error('[${new Date().toISOString()}] Error starting server:', error);
+      console.error('Detailed error:', error.stack); 
       throw error;
     }
   } catch (innerError) {
       console.error('[${new Date().toISOString()}] Caught an inner error during bootstrap:', innerError);
       console.error('Inner error details:', innerError.stack);
-      throw innerError; // Re-throw to be caught by the outer try-catch
+      throw innerError; 
     }
-  } catch (error) {
-    console.error('[${new Date().toISOString()}] Caught an error during bootstrap:', error);
-    console.error('Error details:', error.stack);
-    process.exit(1);
-  }
-}
+} 
 
 bootstrap();
 console.log('[${new Date().toISOString()}] After bootstrap call');
