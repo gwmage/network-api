@@ -1,1 +1,38 @@
-import { Test, TestingModule } from '@nestjs/testing';\nimport { MatchingController } from '../src/modules/matching/matching.controller';\nimport { MatchingService } from '../src/modules/matching/matching.service';\nimport { MatchingStatusDto } from '../src/modules/matching/dto/matching-status.dto';\n\ndescribe('MatchingController', () => {\n  let controller: MatchingController;\n  let service: MatchingService;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      controllers: [MatchingController],\n      providers: [MatchingService],\n    }).compile();\n\n    controller = module.get<MatchingController>(MatchingController);\n    service = module.get<MatchingService>(MatchingService);\n  });\n\n  it('should be defined', () => {\n    expect(controller).toBeDefined();\n  });\n\n  describe('GET /matching/status', () => {\n    it('should return the matching status', async () => {\n      const mockStatus: MatchingStatusDto = { status: 'pending', startTime: null, endTime: null, errorMessage: null };\n      jest.spyOn(service, 'getStatus').mockResolvedValue(mockStatus);\n      const status = await controller.getStatus();\n      expect(status).toEqual(mockStatus);\n    });\n  });\n});\n
+import { Test, TestingModule } from '@nestjs/testing';
+import { MatchingController } from '../src/modules/matching/matching.controller';
+import { MatchingService } from '../src/modules/matching/matching.service';
+import { MatchingStatusDto } from '../src/modules/matching/dto/matching-status.dto';
+
+describe('MatchingController', () => {
+  let controller: MatchingController;
+  let service: MatchingService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [MatchingController],
+      providers: [
+        {
+          provide: MatchingService,
+          useValue: {
+            getStatus: jest.fn().mockResolvedValue({ status: 'pending', startTime: null, endTime: null, errorMessage: null }),
+          },
+        },
+      ],
+    }).compile();
+
+    controller = module.get<MatchingController>(MatchingController);
+    service = module.get<MatchingService>(MatchingService);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+
+  describe('GET /matching/status', () => {
+    it('should return the matching status', async () => {
+      const mockStatus: MatchingStatusDto = { status: 'pending', startTime: null, endTime: null, errorMessage: null };
+      const status = await controller.getStatus();
+      expect(status).toEqual(mockStatus);
+    });
+  });
+});
