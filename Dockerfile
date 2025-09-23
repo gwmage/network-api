@@ -23,6 +23,8 @@ RUN echo "Project files copied."
 
 EXPOSE 3000
 
-RUN npm run build --verbose || (echo "Detailed nest build error logs:\n" && npm run build --verbose && exit 1)
+RUN npm run build --verbose || (echo "Detailed nest build error logs:
+" && npm run build --verbose && exit 1) --verbose || (echo "Detailed nest build error logs:
+" && npm run build --verbose && exit 1)
 
 CMD ["npm", "run", "start:prod"]
