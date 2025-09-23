@@ -69,6 +69,11 @@ async function bootstrap() {
       console.error('[${new Date().toISOString()}] Error starting server:', error);
       console.error('Detailed error:', error.stack); 
       throw error;
+      } catch (appStartError) {
+        console.error('[${new Date().toISOString()}] Error during application initialization:', appStartError);
+        console.error('Application initialization error details:', appStartError.stack);
+        throw appStartError;
+      }
     }
   } catch (innerError) {
       console.error('[${new Date().toISOString()}] Caught an inner error during bootstrap:', innerError);
