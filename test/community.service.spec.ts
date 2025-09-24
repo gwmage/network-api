@@ -83,7 +83,6 @@ describe('CommunityService', () => {
           expect(result).toEqual(createdPost);
           expect(postRepository.create).toHaveBeenCalledWith({ ...createPostDto, author: user });
           expect(postRepository.save).toHaveBeenCalledWith(createdPost);
-          console.log("createPost test completed");
     });
 });
 

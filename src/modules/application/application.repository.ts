@@ -1,7 +1,7 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Like, Equal } from 'typeorm';
+import { Repository, FindOptionsWhere, Like, Equal, In } from 'typeorm';
 import { Application } from './application.entity';
 import { GetApplicationDto } from './dto/get-application.dto';
 import { CreateApplicationDto } from './dto/create-application.dto';
