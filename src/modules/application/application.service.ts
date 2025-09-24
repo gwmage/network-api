@@ -1,4 +1,3 @@
-```typescript
 import { Injectable } from '@nestjs/common';
 import { GetApplicationDto } from './dto/get-application.dto';
 import { Application } from './entities/application.entity';
@@ -34,7 +33,6 @@ export class ApplicationService {
     if (sortField && sortOrder) {
       query.orderBy(sortField, sortOrder);
     }
-    }
 
     const totalCount = await query.getCount();
 
@@ -69,7 +67,6 @@ export class ApplicationService {
       query.andWhere('application.status = :status', { status });
     }
 
-
     const totalCount = await query.getCount();
 
     if (page && pageSize) {
@@ -97,4 +94,3 @@ export class ApplicationService {
 
   }
 }
-```
