@@ -15,8 +15,8 @@ import { NotificationService } from '../src/modules/notification/notification.se
 import { SearchPostDto } from '../src/modules/community/dto/search-post.dto';
 
 import { NotFoundException } from '@nestjs/common';
-import { Category } from 'src/modules/community/entities/category.entity';
-import { Tag } from 'src/modules/community/entities/tag.entity';
+import { Category } from '../src/modules/community/entities/category.entity';
+import { Tag } from '../src/modules/community/entities/tag.entity';
 
 
 
