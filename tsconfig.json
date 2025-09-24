@@ -21,7 +21,7 @@
     "rootDir": "./",
     "paths": {
       "@modules/*": [
-        "modules/*"
+        "src/modules/*"
       ],
       "@config/*": [
         "config/*"
