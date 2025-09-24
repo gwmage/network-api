@@ -6,6 +6,10 @@ import { MatchExplanation } from './entities/match-explanation.entity';
 import { UsersModule } from '../users/users.module';
 import { User } from '../users/entities/user.entity';
 
+console.log('Current working directory:', process.cwd());
+console.log('__dirname:', __dirname);
+console.log('Attempting to import MatchingService from:', require.resolve('./matching.service'));
+
 @Module({
   imports: [TypeOrmModule.forFeature([MatchExplanation]), UsersModule, TypeOrmModule.forFeature([User])],
   controllers: [MatchingController],
