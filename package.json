@@ -23,7 +23,7 @@
     "@nestjs/common": "11.2.0",
     "@nestjs/config": "^9.0.0",
     "@nestjs/core": "11.2.0",
-    "@nestjs/jwt": "^9.0.0",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "11.2.0",
     "@nestjs/platform-fastify": "11.2.0",
