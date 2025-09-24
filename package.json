@@ -18,8 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prestart:prod": "echo \"Starting prestart:prod script...\" && echo \"Prestart:prod script finished.\"",
-    "poststart:prod": "npm run typeorm:prod:migration:run"
+    "prestart:prod": "echo \"Starting prestart:prod script...\" && npm run typeorm:prod:migration:run && echo \"Prestart:prod script finished.\"",
+    "typeorm:prod:migration:run": "typeorm-ts-node-commonjs -d ./ormconfig.js migration:run",
+    "poststart:prod": ""
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -56,7 +57,8 @@
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.10.1",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "typeorm-ts-node-commonjs": "^0.3.15"
   },
   "jest": {
     "moduleFileExtensions": [
