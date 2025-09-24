@@ -8,10 +8,10 @@
     "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./src",
+    "outDir": \"./dist\",
+    "baseUrl": \"./\",
     "paths": {
-      "@modules/*": ["modules/*"],
+      "@modules/*": ["src/modules/*"],
       "@config/*": ["config/*"],
       "@test/*": ["test/*"]
     },
