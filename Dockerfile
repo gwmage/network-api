@@ -39,7 +39,10 @@ RUN date && echo "Running startup command..."
 # Wrap the startup command in a shell script to capture stderr and exit code
 RUN echo "#!/bin/sh\nset -ex\nnpm run start:prod\n" > start.sh
 RUN chmod +x start.sh
+
+# Log before the actual command execution
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Starting npm run start:prod"
 CMD ["/app/start.sh"]
 
 # Log after running the startup command (this may not be reached if command fails) with timestamp
-RUN date && echo "Startup command executed."
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
