@@ -18,21 +18,21 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "moduleResolution": "node",
-    "rootDir": "./src",
+    "rootDir": "./",
     "paths": {
       "@modules/*": [
         "modules/*"
       ],
       "@config/*": [
-        "../config/*"
+        "config/*"
       ],
       "@src/*": [
         "./*" 
       ],
       "@root/*": [
-        ".././*" 
+        "./*" 
       ]
     }
   },
-  "include": ["src/**/*.ts", "config/**/*.ts"]
+  "include": ["src/**/*.ts", "config/**/*.ts", "**/*.ts"]
 }
