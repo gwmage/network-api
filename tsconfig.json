@@ -25,10 +25,10 @@
         "@document/*"
       ],
       "@src/*": [
-        "./src/*"
+        "src/*"
       ],
       "@config/*": [
-        "./config/*"
+        "config/*"
       ]
     }
   },
