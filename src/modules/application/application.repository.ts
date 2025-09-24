@@ -1,4 +1,3 @@
-```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Like, Equal, In } from 'typeorm';
@@ -60,4 +59,3 @@ export class ApplicationRepository extends Repository<Application> {
 
 
 }
-```

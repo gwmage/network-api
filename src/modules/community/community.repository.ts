@@ -1,6 +1,4 @@
-```typescript
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Like, In, DeleteResult } from 'typeorm';
 import { User } from '../auth/entities/user.entity';
@@ -91,5 +89,3 @@ export class CommunityRepository {
     return this.commentRepository.delete(id);
   }
 }
-
-```
