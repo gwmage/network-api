@@ -9,10 +9,10 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "src/*": [
+      "@/*": [
         "./src/*"
       ],
-      "src/modules/*": [
+      "@modules/*": [
         "./src/modules/*"
       ]
     },
