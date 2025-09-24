@@ -9,7 +9,7 @@
     "target": "es2020",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -18,18 +18,19 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "moduleResolution": "node",
+    "rootDir": "./src",
     "paths": {
       "@modules/*": [
-        "./src/modules/*"
+        "./modules/*"
       ],
       "@config/*": [
-        "./config/*"
+        "../config/*"
       ],
       "@src/*": [
-        "./src/*" 
+        "./*" 
       ],
       "@root/*": [
-        "./*"
+        "../..//*"
       ]
     }
   }
