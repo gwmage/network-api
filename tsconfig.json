@@ -27,7 +27,20 @@
       ],
       "@src/*": [
         "src/*"
+      ],
+      "../users/entities/user.entity": [
+        "src/modules/users/entities/user.entity"
+      ],
+      "./entities/user-match.entity": [
+        "src/modules/matching/entities/user-match.entity"
+      ],
+      "./entities/matching-group.entity": [
+        "src/modules/matching/entities/matching-group.entity"
+      ],
+      "./entities/match-explanation.entity": [
+        "src/modules/matching/entities/match-explanation.entity"
       ]
+
     }
   },
   "include": [
