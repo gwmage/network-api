@@ -1,20 +1,14 @@
 import { Module } from '@nestjs/common';
 import { MatchingService } from './matching.service';
 import { MatchingController } from './matching.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserMatch } from './entities/user-match.entity';
-import { MatchingGroup } from './entities/matching-group.entity';
-import { MatchExplanation } from './entities/match-explanation.entity';
-import { UsersModule } from '../users/users.module';
-import { User } from '../users/entities/user.entity';
+console.log('Current working directory:', process.cwd());
+console.log('__dirname:', __dirname);
+console.log('Importing from:', '../../users/users.module');
+import { UsersModule } from '../../users/users.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserMatch, MatchingGroup, MatchExplanation]),
-    UsersModule,
-  ],
+  imports: [UsersModule],
   controllers: [MatchingController],
   providers: [MatchingService],
-  exports: [MatchingService],
 })
 export class MatchingModule {}
