@@ -3,7 +3,7 @@ import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
-import { UsersModule } from '../users/users.module';
+import { UsersModule } from '@modules/users/users.module';
 import * as admin from 'firebase-admin';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
