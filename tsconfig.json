@@ -21,43 +21,18 @@
     "rootDir": "./",
     "paths": {
       "@modules/*": [
-        "./modules/*"
+        "./src/modules/*"
       ],
       "@config/*": [
         "./config/*"
       ],
       "@src/*": [
-        "./*" 
+        "./src/*" 
       ],
       "@root/*": [
         "./*"
       ]
-    },
-    "files": [
-      "./api/index.ts",
-      "./config/schedule.config.ts",
-      "./src/main.ts",
-      "./test/admin.controller.spec.ts",
-      "./test/admin.service.spec.ts",
-      "./test/app.controller.spec.ts",
-      "./test/application.controller.spec.ts",
-      "./test/application.service.spec.ts",
-      "./test/auth.controller.spec.ts",
-      "./test/auth.service.spec.ts",
-      "./test/community.controller.spec.ts",
-      "./test/community.service.spec.ts",
-      "./test/main.controller.spec.ts",
-      "./test/matching.controller.spec.ts",
-      "./test/matching.service.spec.ts",
-      "./test/notification.controller.spec.ts",
-      "./test/notification.service.spec.ts",
-      "./test/profile.controller.spec.ts",
-      "./test/profile.service.spec.ts",
-      "./test/reservation.controller.spec.ts",
-      "./test/reservation.service.spec.ts",
-      "./test/test_setup.ts",
-      "./test/users.controller.spec.ts",
-      "./test/users.service.spec.ts"
-    ]
-  }
+    }
+  },
+  "include": ["src/**/*.ts", "config/**/*.ts", "api/**/*.ts", "test/**/*.ts"]
 }
