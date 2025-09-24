@@ -1,16 +1,8 @@
 {
   "imports": [
     "../users/users.module",
-    "@nestjs/jwt/JwtModule.registerAsync({
-      "imports": ["@nestjs/config"],
-      "useFactory": async (configService) => ({
-        "secret": configService.get<string>('JWT_SECRET'),
-        "signOptions": {
-          "expiresIn": configService.get<string>('JWT_EXPIRES_IN')
-        }
-      }),
-      "inject": ["@nestjs/config/ConfigService"]
-    })"
+    "@nestjs/jwt",
+    "@nestjs/config"
   ],
   "controllers": [
     "./auth.controller"
