@@ -26,60 +26,15 @@ import { ScheduleModule } from '@nestjs/schedule';
       }),
     }),
     ScheduleModule.forRoot(),
-    try {
-      AdminModule,
-      console.log('AdminModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading AdminModule:', error);
-    }
-    try {
-      AuthModule,
-      console.log('AuthModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading AuthModule:', error);
-    }
-    try {
-      CommunityModule,
-      console.log('CommunityModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading CommunityModule:', error);
-    }
-    try {
-      NotificationModule,
-      console.log('NotificationModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading NotificationModule:', error);
-    }
-    try {
-      MatchingModule,
-      console.log('MatchingModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading MatchingModule:', error);
-    }
-    try {
-      ProfileModule,
-      console.log('ProfileModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading ProfileModule:', error);
-    }
-    try {
-      ApplicationModule,
-      console.log('ApplicationModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading ApplicationModule:', error);
-    }
-    try {
-      UsersModule,
-      console.log('UsersModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading UsersModule:', error);
-    }
-    try {
-      ReservationModule,
-      console.log('ReservationModule loaded successfully.');
-    } catch (error) {
-      console.error('Error loading ReservationModule:', error);
-    }
+    AdminModule,
+    AuthModule,
+    CommunityModule,
+    NotificationModule,
+    MatchingModule,
+    ProfileModule,
+    ApplicationModule,
+    UsersModule,
+    ReservationModule
   ],
   controllers: [AppController],
   providers: [AppService],

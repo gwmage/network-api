@@ -1,4 +1,3 @@
-```typescript
 import { Controller, Get, Query, Res, Post, Body, HttpException, HttpStatus, UseGuards, Req, Param, ParseIntPipe } from '@nestjs/common';
 import { ApplicationService } from './application.service';
 import { GetApplicationsDto } from './dto/get-applications.dto';
@@ -9,6 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
 import { User } from '../auth/entities/user.entity';
 import { GetUserApplicationsDto } from './dto/get-user-applications.dto';
+import { Application } from './entities/application.entity';
 
 @ApiTags('application')
 @Controller('application')
@@ -111,5 +111,3 @@ export class ApplicationController {
         }
     }
 }
-
-```
