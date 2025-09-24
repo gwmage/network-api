@@ -20,8 +20,8 @@ RUN date && echo "Build command executed."
 
 # Log before prestart with timestamp
 RUN date && echo "Running prestart command..."
-# Log prestart command and capture its exit code
-RUN set -o pipefail && npm run prestart:prod |& tee prestart.log ; PRE_EXIT_CODE=$PIPESTATUS ; echo "Prestart command exit code: $PRE_EXIT_CODE" ; if [[ $PRE_EXIT_CODE -ne 0 ]]; then exit $PRE_EXIT_CODE; fi
+# Log prestart command and capture its exit code and output
+RUN set -o pipefail && npm run prestart:prod 2>&1 | tee prestart.log ; PRE_EXIT_CODE=$PIPESTATUS ; echo "Prestart command exit code: $PRE_EXIT_CODE" ; if [[ $PRE_EXIT_CODE -ne 0 ]]; then exit $PRE_EXIT_CODE; fi
 # Log after prestart with timestamp
 RUN date && echo "Prestart command executed."
 
