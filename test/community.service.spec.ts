@@ -72,4 +72,19 @@ describe('CommunityService', () => {
   });
 
   describe('createPost', () => {
-    it('should create a new post'
+    it('should create a new post', async () => {
+        const createPostDto: CreatePostDto = {
+            title: 'Test Post',
+            content: 'Test Content',
+            // Add other required fields
+          };
+          const user = new User(); // Or create a mock user object
+          const createdPost = new Post(); // Or create a mock post object
+          jest.spyOn(postRepository, 'create').mockReturnValue(createdPost);
+          jest.spyOn(postRepository, 'save').mockResolvedValue(createdPost);
+          const result = await service.createPost(createPostDto, user);
+          expect(result).toEqual(createdPost);
+          expect(postRepository.create).toHaveBeenCalledWith({ ...createPostDto, author: user });
+          expect(postRepository.save).toHaveBeenCalledWith(createdPost);
+    });
+});
