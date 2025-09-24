@@ -16,24 +16,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@modules/*": [
-        "src/modules/*"
-      ],
-      "@document/*": [
-        "@document/*"
-      ],
-      "@src/*": [
-        "src/*"
-      ],
-      "@config/*": [
-        "config/*"
-      ],
-      "@test/*": [
-        "test/*"
-      ]
-    }
+    "noFallthroughCasesInSwitch": false
   },
   "include": [
     "src/**/*",
