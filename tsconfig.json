@@ -12,7 +12,8 @@
       "@/*": [
         "src/*"
       ]
-    }
+    },
+    "experimentalDecorators": true
   },
   "compileOnSave": false,
   "extends": "./tsconfig.paths.json" 
