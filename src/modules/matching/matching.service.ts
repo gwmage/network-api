@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
+import { MatchExplanationEntity } from 'src/modules/matching/entities/match-explanation.entity';
 
-console.log('MatchingService file loaded.');
-
-@Injectable()
-export class MatchingService {}
+// ... rest of the file
