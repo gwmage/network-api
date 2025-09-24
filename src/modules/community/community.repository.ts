@@ -1,7 +1,10 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Like, In, DeleteResult } from 'typeorm';
+import { User } from '../auth/entities/user.entity';
 import { Post } from './entities/post.entity';
 import { Comment } from './entities/comment.entity';
 import { Category } from './entities/category.entity';

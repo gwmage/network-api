@@ -14,7 +14,7 @@ import { Parser } from 'json2csv';
 export class ApplicationService {
   constructor(
     @InjectRepository(Application)
-    private readonly applicationRepository: Repository<Application>,
+    private readonly applicationRepository: ApplicationRepository,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
