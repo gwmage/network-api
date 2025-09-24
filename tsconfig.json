@@ -10,10 +10,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "src/*"
       ],
       "@modules/*": [
-        "./src/modules/*"
+        "src/modules/*"
       ]
     },
     "experimentalDecorators": true
