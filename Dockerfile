@@ -42,7 +42,9 @@ RUN chmod +x start.sh
 
 # Log before the actual command execution
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Starting npm run start:prod"
-CMD ["/app/start.sh"]
+
+# Log potential errors during startup
+CMD sh -c "/app/start.sh 2>&1 | tee startup.log"
 
 # Log after running the startup command (this may not be reached if command fails) with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
