@@ -74,7 +74,7 @@ describe('CommunityService', () => {
             categories: [],
             tags: [],
           };
-          const user = new User(); 
+          const user: User = { id: 1, username: 'testuser', password: 'password', email: 'test@example.com', roles: [], profile: null, applications: [], posts: [], comments: [], createdAt: new Date(), updatedAt: new Date(), reservations: [], notificationPreferences: null } as User; 
           const createdPost = new Post(); 
           createdPost.author = user;
           jest.spyOn(postRepository, 'create').mockReturnValue(createdPost);
@@ -86,7 +86,6 @@ describe('CommunityService', () => {
           console.log("createPost test completed");
     });
 });
-
 
 
 
