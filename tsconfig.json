@@ -6,10 +6,10 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2020",
+    "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -17,24 +17,28 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "moduleResolution": "node",
     "paths": {
       "@modules/*": [
         "src/modules/*"
       ],
-      "@config/*": [
-        "config/*"
+      "@document/*": [
+        "@document/*"
       ],
       "@src/*": [
         "src/*"
+      ],
+      "@config/*": [
+        "config/*"
       ]
     }
   },
   "include": [
-    "src/**/*.ts",
-    "config/**/*.ts"
+    "src/**/*",
+    "config/**/*",
+    "test/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }
