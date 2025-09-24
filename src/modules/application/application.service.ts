@@ -34,6 +34,7 @@ export class ApplicationService {
     if (sortField && sortOrder) {
       query.orderBy(sortField, sortOrder);
     }
+    }
 
     const totalCount = await query.getCount();
 

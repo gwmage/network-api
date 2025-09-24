@@ -85,7 +85,4 @@ describe('CommunityService', () => {
           expect(postRepository.save).toHaveBeenCalledWith(createdPost);
     });
 });
-
-
-
 }

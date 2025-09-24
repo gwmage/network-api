@@ -41,7 +41,6 @@ export class ApplicationRepository extends Repository<Application> {
 
     const order = sortField ? { [sortField]: sortOrder } : {};
 
-
     return this.applicationRepository.findAndCount({
       where: whereClause,
       order,
