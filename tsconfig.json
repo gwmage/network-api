@@ -21,13 +21,13 @@
     "rootDir": ".",
     "paths": {
       "@modules/*": [
-        "./src/modules/*"
+        "src/modules/*"
       ],
       "@config/*": [
-        "./config/*"
+        "config/*"
       ],
       "@src/*": [
-        "./src/*"
+        "src/*"
       ]
     }
   },
