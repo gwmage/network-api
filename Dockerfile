@@ -24,6 +24,9 @@ RUN pwd
 RUN env
 # Log the exact build command being executed
 RUN echo "Executing: npm run build"
+
+RUN echo "baseUrl in tsconfig.json: $(cat tsconfig.json | grep baseUrl)"
+
 RUN npm run build
 # Log after build with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Build command executed."
