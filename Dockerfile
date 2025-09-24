@@ -20,7 +20,8 @@ RUN date && echo "Build command executed."
 
 # Log before prestart with timestamp
 RUN date && echo "Running prestart command..."
-RUN npm run prestart:prod
+# Log prestart command and capture its exit code
+RUN set -o pipefail && npm run prestart:prod |& tee prestart.log ; PRE_EXIT_CODE=$PIPESTATUS ; echo "Prestart command exit code: $PRE_EXIT_CODE" ; if [[ $PRE_EXIT_CODE -ne 0 ]]; then exit $PRE_EXIT_CODE; fi
 # Log after prestart with timestamp
 RUN date && echo "Prestart command executed."
 
@@ -35,7 +36,7 @@ EXPOSE 3000
 # Log before running the startup command with timestamp
 RUN date && echo "Running startup command..."
 
-# Wrap the startup command in a shell script to capture stderr
+# Wrap the startup command in a shell script to capture stderr and exit code
 RUN echo "#!/bin/sh\nset -ex\nnpm run start:prod\n" > start.sh
 RUN chmod +x start.sh
 CMD ["/app/start.sh"]
