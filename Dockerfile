@@ -13,17 +13,17 @@ COPY .railway.env ./
 COPY . .
 
 # Log before build with timestamp
-RUN date && echo "Running build command..."
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Running build command..."
 RUN npm run build
 # Log after build with timestamp
-RUN date && echo "Build command executed."
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Build command executed."
 
 # Log before prestart with timestamp
-RUN date && echo "Running prestart command..."
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Running prestart command..."
 # Log prestart command and capture its exit code and output
 RUN set -o pipefail && npm run prestart:prod 2>&1 | tee prestart.log ; PRE_EXIT_CODE=$PIPESTATUS ; echo "Prestart command exit code: $PRE_EXIT_CODE" ; if [[ $PRE_EXIT_CODE -ne 0 ]]; then exit $PRE_EXIT_CODE; fi
 # Log after prestart with timestamp
-RUN date && echo "Prestart command executed."
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Prestart command executed."
 
 # Log the working directory
 RUN pwd
@@ -34,7 +34,7 @@ RUN env
 EXPOSE 3000
 
 # Log before running the startup command with timestamp
-RUN date && echo "Running startup command..."
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Running startup command..."
 
 # Wrap the startup command in a shell script to capture stderr and exit code
 RUN echo "#!/bin/sh\nset -ex\nnpm run start:prod\n" > start.sh
@@ -46,3 +46,8 @@ CMD ["/app/start.sh"]
 
 # Log after running the startup command (this may not be reached if command fails) with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
+
+# Add more detailed logging for debugging deployment issues
+RUN echo "Checking if node_modules exists..." && ls -al node_modules || echo "node_modules does not exist"
+RUN echo "Checking if dist folder exists and listing its contents..." && ls -al dist || echo "dist folder does not exist"
+RUN du -sh /app
