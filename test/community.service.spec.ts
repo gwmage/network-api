@@ -84,5 +84,5 @@ describe('CommunityService', () => {
           expect(postRepository.create).toHaveBeenCalledWith({ ...createPostDto, author: user });
           expect(postRepository.save).toHaveBeenCalledWith(createdPost);
     });
+  });
 });
-}
