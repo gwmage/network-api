@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "echo \"Current directory: $(pwd)\" && echo \"Printing require.resolve results:\" && echo \"tag.entity: ./src/modules/community/entities/tag.entity\" && echo \"user.entity: ./src/modules/users/entities/user.entity\" && nest build",
+    "build": "echo \"Current directory: $(pwd)\" && echo \"Printing require.resolve results:\" && echo \"tag.entity: $(node -p \"require.resolve('./src/modules/community/entities/tag.entity')\")\" && echo \"user.entity: $(node -p \"require.resolve('./src/modules/users/entities/user.entity')\")\" && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"config/**/*.ts\" ",
     "start": "nest start",
     "start:dev": "nest start --watch",
