@@ -30,7 +30,7 @@ RUN date +"%Y-%m-%d %H:%M:%S" && echo "Finished: npm run typeorm:prod:migration:
 # Log before prestart with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Running prestart command..."
 # Log prestart command and capture its exit code and output
-RUN set -o pipefail && npm run prestart:prod 2>&1 | tee prestart.log ; PRE_EXIT_CODE=$PIPESTATUS ; echo "Prestart command exit code: $PRE_EXIT_CODE" ; if [[ $PRE_EXIT_CODE -ne 0 ]]; then exit $PRE_EXIT_CODE; fi
+RUN set -o pipefail && npm run prestart:prod 2>&1 | tee prestart.log ; PRE_EXIT_CODE=$PIPESTATUS ; echo "Prestart command exit code: $PRE_EXIT_CODE" ; if [[ $PRE_EXIT_CODE -ne 0 ]]; then cat prestart.log; exit $PRE_EXIT_CODE; fi
 # Log after prestart with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Prestart command executed."
 
@@ -61,3 +61,4 @@ RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
 # Add more logging for prestart
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Prestart script content:"
 RUN cat start.sh
+
