@@ -17,9 +17,6 @@ import { Category } from '../src/modules/community/entities/category.entity';
 import { Tag } from '../src/modules/community/entities/tag.entity';
 
 
-
-
-
 describe('CommunityService', () => {
   let service: CommunityService;
   let postRepository: Repository<Post>;
@@ -86,6 +83,7 @@ describe('CommunityService', () => {
           expect(result).toEqual(createdPost);
           expect(postRepository.create).toHaveBeenCalledWith({ ...createPostDto, author: user });
           expect(postRepository.save).toHaveBeenCalledWith(createdPost);
+          console.log("createPost test completed");
     });
 });
 

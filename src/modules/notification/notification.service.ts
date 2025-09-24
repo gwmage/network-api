@@ -1,58 +1,37 @@
-import { Injectable } from '@nestjs/common';
-import { Notification, NotificationStatus, NotificationDeliveryStatus, NotificationType } from './entities/notification.entity';
-import { FirebaseApp } from 'firebase/app';
-import { Messaging } from 'firebase-admin/messaging';
-
-//if (getApps().length === 0) {
-//  initializeApp();
-//}
-
-import * as nodemailer from 'nodemailer';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../auth/entities/user.entity';
+import { Notification } from './entities/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { NotificationEvent } from './dto/notification-event.enum';
-import { Application } from '../application/entities/application.entity';
+import { User } from '../auth/entities/user.entity';
+import { NotificationPreferences } from './entities/notification-preferences.entity';
 
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
 
-    private firebaseApp: FirebaseApp;
-    private messaging: Messaging;
+  constructor(
+    @InjectRepository(Notification)
+    private readonly notificationRepository: Repository<Notification>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(NotificationPreferences)
+    private readonly notificationPreferencesRepository: Repository<NotificationPreferences>
+  ) {}
 
-    constructor(
-        @InjectRepository(Notification)
-        private notificationRepository: Repository<Notification>,
-        @InjectRepository(User)
-        private userRepository: Repository<User>,
-        @InjectRepository(Application)
-        private applicationRepository: Repository<Application>
-      ) {}
-
-    async createNotification(createNotificationDto: CreateNotificationDto): Promise<Notification> {
-      // ... existing code
+  async createNotification(createNotificationDto: CreateNotificationDto, user: User): Promise<Notification> {
+    this.logger.log('Creating notification:', createNotificationDto);
+    try {
+      const newNotification = this.notificationRepository.create({
+        ...createNotificationDto,
+        user,
+      });
+      return await this.notificationRepository.save(newNotification);
+    } catch (error) {
+      this.logger.error('Error creating notification:', error);
+      throw error;
     }
+  }
 
-    async sendCancellationConfirmation(userId: number, reservationId: number): Promise<void> {
-        const user = await this.userRepository.findOneBy({ id: userId });
-        if (!user) {
-            throw new Error("User not found");
-        }
-
-        const newNotification = this.notificationRepository.create({
-            recipient: user,
-            reservationId: reservationId,
-            type: NotificationType.RESERVATION_CANCELLATION,
-            timestamp: new Date(),
-            status: NotificationStatus.SENT,
-            deliveryStatus: NotificationDeliveryStatus.PENDING
-          });
-
-        await this.notificationRepository.save(newNotification);
-
-        console.log(`Sending cancellation confirmation to user ${userId} for reservation ${reservationId}`);
-    }
-
-    // ... (Existing code)
+  // ... other methods ...
 }
