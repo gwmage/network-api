@@ -9,7 +9,7 @@
     "target": "es2020",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -20,13 +20,13 @@
     "moduleResolution": "node",
     "paths": {
       "@modules/*": [
-        "./modules/*"
+        "./src/modules/*"
       ],
       "@config/*": [
-        "../config/*"
+        "./config/*"
       ],
       "@src/*": [
-        "./*" 
+        "./src/*" 
       ]
     }
   }
