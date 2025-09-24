@@ -25,6 +25,8 @@ export class NotificationService {
         private notificationRepository: Repository<Notification>,
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(Application)
+        private applicationRepository: Repository<Application>
       ) {}
 
     async createNotification(createNotificationDto: CreateNotificationDto): Promise<Notification> {
