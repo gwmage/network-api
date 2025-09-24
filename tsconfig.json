@@ -18,7 +18,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDir": ".",
     "paths": {
       "@modules/*": [
         "src/modules/*"
