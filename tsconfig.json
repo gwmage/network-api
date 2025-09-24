@@ -18,19 +18,19 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "moduleResolution": "node",
-    "rootDir": "./",
+    "rootDir": "src",
     "paths": {
       "@modules/*": [
-        "./src/modules/*"
+        "./modules/*"
       ],
       "@config/*": [
-        "./config/*"
+        "../config/*"
       ],
       "@src/*": [
-        "./src/*" 
+        "./*" 
       ],
       "@root/*": [
-        "./*"
+        "..//*"
       ]
     }
   },
