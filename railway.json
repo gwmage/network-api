@@ -6,9 +6,6 @@
     "healthcheck": {
       "path": "/api",
       "port": 3000
-    },
-    "postDeploy": {
-      "command": "sleep 120"
     }
   }
 }
