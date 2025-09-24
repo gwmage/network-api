@@ -1,8 +1,6 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { Notification, NotificationStatus, NotificationDeliveryStatus, NotificationType } from './entities/notification.entity';
-//import { initializeApp } from "firebase/app";
-//import { getApps } from "firebase/app";
 import { FirebaseApp } from 'firebase/app';
 import { Messaging } from 'firebase-admin/messaging';
 
