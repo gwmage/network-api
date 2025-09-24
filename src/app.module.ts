@@ -9,9 +9,17 @@ import { MatchingModule } from './modules/matching/matching.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { UsersModule } from './modules/users/users.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot(),
+    ScheduleModule.forRoot(),
     AdminModule,
     AuthModule,
     CommunityModule,
