@@ -34,5 +34,5 @@
       ]
     }
   },
-  "include": ["**/*.ts", "../config/**/*.ts", "../api/**/*.ts", "../test/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }
