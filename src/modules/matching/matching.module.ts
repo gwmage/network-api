@@ -1,17 +1,17 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MatchingService } from './matching.service';
 import { MatchingController } from './matching.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@modules/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
+import { MatchingGroup } from './entities/matching-group.entity';
 import { UserMatch } from './entities/user-match.entity';
 import { MatchExplanation } from './entities/match-explanation.entity';
-import { MatchingGroup } from './entities/matching-group.entity';
-import { UsersModule } from '@modules/users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserMatch, MatchExplanation, MatchingGroup]), forwardRef(() => UsersModule)],
+  imports: [
+    TypeOrmModule.forFeature([User, MatchingGroup, UserMatch, MatchExplanation]),
+  ],
   controllers: [MatchingController],
   providers: [MatchingService],
-  exports: [MatchingService],
 })
 export class MatchingModule {}
