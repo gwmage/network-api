@@ -1,1 +1,0 @@
-// Previous content of community.service.ts from attempt #19 (insert code here). This will require restoring the code from that specific attempt.  The exact content is needed to ensure the fix accurately restores the previous working state.
