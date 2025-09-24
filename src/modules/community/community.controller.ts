@@ -1,4 +1,3 @@
-```typescript
 import {
   Body,
   Controller,
@@ -115,5 +114,3 @@ export class CommunityController {
 
 
 }
-
-```
