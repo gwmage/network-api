@@ -8,10 +8,6 @@ RUN date +"%Y-%m-%d %H:%M:%S" && echo "Starting npm install"
 RUN npm install
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Finished npm install"
 
-RUN date +"%Y-%m-%d %H:%M:%S" && echo "Starting npm install --save-dev typescript"
-RUN npm install --save-dev typescript
-RUN date +"%Y-%m-%d %H:%M:%S" && echo "Finished npm install --save-dev typescript"
-
 COPY .railway.env ./
 
 COPY . .
