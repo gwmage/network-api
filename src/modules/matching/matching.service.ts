@@ -11,7 +11,12 @@ export class MatchingService {
 
   constructor() {
     this.logger.log('MatchingService initialized');
-    console.error(this.matchingStatus); 
+    console.error(this.matchingStatus);
+  }
+
+  async generateMatchingResults(): Promise<void> {
+    // Implement your matching logic here
+    this.logger.log('Generating matching results...');
   }
 
   // ... rest of the MatchingService code
