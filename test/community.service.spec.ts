@@ -79,7 +79,7 @@ describe('CommunityService', () => {
           };
           const user = new User(); 
           const createdPost = new Post(); 
-          createdPost.author = user; // Explicitly set the author
+          createdPost.author = user;
           jest.spyOn(postRepository, 'create').mockReturnValue(createdPost);
           jest.spyOn(postRepository, 'save').mockResolvedValue(createdPost);
           const result = await service.createPost(createPostDto, user);
@@ -91,3 +91,5 @@ describe('CommunityService', () => {
 
 
 
+
+}
