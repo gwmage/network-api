@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm install
 
-RUN npm install -g typescript
+RUN npm install --save-dev typescript
 
 COPY .railway.env ./
 
