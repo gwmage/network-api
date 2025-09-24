@@ -7,14 +7,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
       "@/*": [
-        "src/*"
+        "*" 
       ]
     },
     "experimentalDecorators": true
   },
-  "compileOnSave": false,
-  "extends": "./tsconfig.paths.json" 
+  "compileOnSave": false
 }
