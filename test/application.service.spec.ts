@@ -1,4 +1,3 @@
-```typescript
 import { Test, TestingModule } from '@nestjs/testing';
 import { ApplicationService } from '../src/modules/application/application.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -142,8 +141,8 @@ describe('ApplicationService', () => {
             expect(queryBuilder.where).toHaveBeenCalledWith('application.userId = :userId', { userId });
             expect(queryBuilder.andWhere).toHaveBeenCalledWith('application.title LIKE :search', { search: `%${getUserApplicationsDto.search}%` });
             expect(queryBuilder.andWhere).toHaveBeenCalledWith('application.status = :status', { status: getUserApplicationsDto.status });
-            expect(queryBuilder.skip).toHaveBeenCalledWith(0); // (page - 1) * pageSize
-            expect(queryBuilder.take).toHaveBeenCalledWith(10); // pageSize
+            expect(queryBuilder.skip).toHaveBeenCalledWith(0); 
+            expect(queryBuilder.take).toHaveBeenCalledWith(10);
 
         });
     });
@@ -170,5 +169,3 @@ describe('ApplicationService', () => {
         });
     });
 });
-
-```

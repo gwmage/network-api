@@ -1,4 +1,3 @@
-```typescript
 import { Injectable } from '@nestjs/common';
 import { Notification, NotificationStatus, NotificationDeliveryStatus, NotificationType } from './entities/notification.entity';
 import { FirebaseApp } from 'firebase/app';
@@ -52,20 +51,8 @@ export class NotificationService {
 
         await this.notificationRepository.save(newNotification);
 
-        // TODO: Replace with actual email/notification sending logic using nodemailer, firebase admin sdk, etc.
         console.log(`Sending cancellation confirmation to user ${userId} for reservation ${reservationId}`);
-        // Example using nodemailer:
-        // const transporter = nodemailer.createTransport({ ... your nodemailer config ... });
-        // await transporter.sendMail({
-        //   from: '"Your App" <your@email.com>',
-        //   to: user.email,
-        //   subject: 'Reservation Cancellation Confirmation',
-        //   text: `Your reservation ${reservationId} has been cancelled.`,
-        //   html: `Your reservation ${reservationId} has been cancelled.`,
-        // });
     }
 
     // ... (Existing code)
 }
-
-```

@@ -1,4 +1,3 @@
-```typescript
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommunityService } from '../src/modules/community/community.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -78,8 +77,8 @@ describe('CommunityService', () => {
             categories: [],
             tags: [],
           };
-          const user = new User(); // Or create a mock user object
-          const createdPost = new Post(); // Or create a mock post object
+          const user = new User(); 
+          const createdPost = new Post(); 
           jest.spyOn(postRepository, 'create').mockReturnValue(createdPost);
           jest.spyOn(postRepository, 'save').mockResolvedValue(createdPost);
           const result = await service.createPost(createPostDto, user);
@@ -88,3 +87,5 @@ describe('CommunityService', () => {
           expect(postRepository.save).toHaveBeenCalledWith(createdPost);
     });
 });
+
+
