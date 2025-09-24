@@ -52,3 +52,7 @@ CMD sh -c "/app/start.sh 2>&1 | tee startup.log"
 
 # Log after running the startup command (this may not be reached if command fails) with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
+
+# Add more logging for prestart
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Prestart script content:"
+RUN cat start.sh
