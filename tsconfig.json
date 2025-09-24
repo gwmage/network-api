@@ -21,18 +21,18 @@
     "rootDir": "./",
     "paths": {
       "@modules/*": [
-        "modules/*"
+        "src/modules/*"
       ],
       "@config/*": [
-        "../config/*"
+        "config/*"
       ],
       "@src/*": [
-        "*" 
+        "src/*" 
       ],
       "@root/*": [
-        "../*" 
+        "./*" 
       ]
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "config/**/*.ts"]
 }
