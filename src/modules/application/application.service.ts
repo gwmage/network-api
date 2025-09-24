@@ -13,7 +13,7 @@ import { Parser } from 'json2csv';
 export class ApplicationService {
   constructor(
     @InjectRepository(Application)
-    private readonly applicationRepository: ApplicationRepository,
+    private applicationRepository: Repository<Application>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
