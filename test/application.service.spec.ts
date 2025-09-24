@@ -4,7 +4,7 @@ import { ApplicationService } from '../src/modules/application/application.servi
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Application } from '../src/modules/application/entities/application.entity';
 import { User } from '../src/modules/auth/entities/user.entity';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateApplicationDto } from '../src/modules/application/dto/create-application.dto';
 import { GetApplicationsDto } from '../src/modules/application/dto/get-applications.dto';
 import { GetUserApplicationsDto } from '../src/modules/application/dto/get-user-applications.dto';

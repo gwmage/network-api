@@ -1,12 +1,14 @@
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { Notification, NotificationStatus, NotificationDeliveryStatus, NotificationType } from './entities/notification.entity';
-import { initializeApp } from "firebase/app";
-import { getApps } from "firebase/app";
+//import { initializeApp } from "firebase/app";
+//import { getApps } from "firebase/app";
+import { FirebaseApp } from 'firebase/app';
+import { Messaging } from 'firebase-admin/messaging';
 
-if (getApps().length === 0) {
-  initializeApp();
-}
+//if (getApps().length === 0) {
+//  initializeApp();
+//}
 
 import * as nodemailer from 'nodemailer';
 import { InjectRepository } from '@nestjs/typeorm';
