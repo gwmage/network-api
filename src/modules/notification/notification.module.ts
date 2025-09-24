@@ -10,7 +10,7 @@ import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Notification]), 
+    TypeOrmModule.forFeature([Notification]),
     forwardRef(() => UsersModule),
     MailerModule.forRoot({
       transport: {
@@ -18,7 +18,7 @@ import { BullModule } from '@nestjs/bull';
       },
     }),
     BullModule.registerQueue({
-      name: 'notification', // Name of the queue
+      name: 'notification',
     }),
   ],
   controllers: [NotificationController],
