@@ -56,3 +56,7 @@ RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
 # Add more logging for prestart
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Prestart script content:"
 RUN cat start.sh
+
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Starting: npm run typeorm:prod:migration:run"
+RUN npm run typeorm:prod:migration:run
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Finished: npm run typeorm:prod:migration:run"
