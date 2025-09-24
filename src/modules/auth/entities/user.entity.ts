@@ -1,6 +1,6 @@
-```typescript
-import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, IsArray, IsOptional } from 'class-validator';
+import { Application } from "src/modules/application/application.entity";
 
 @Entity()
 @Unique(['email']) // Ensure email is unique
@@ -41,6 +41,7 @@ export class User {
   @IsOptional()
   interests: string[];
 
-}
+  @OneToMany(() => Application, (application) => application.user)
+  applications: Application[];
 
-```
+}
