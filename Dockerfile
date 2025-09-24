@@ -22,6 +22,11 @@ RUN npm run build
 # Log after build with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Build command executed."
 
+# Run migrations before starting the application
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Starting: npm run typeorm:prod:migration:run"
+RUN npm run typeorm:prod:migration:run
+RUN date +"%Y-%m-%d %H:%M:%S" && echo "Finished: npm run typeorm:prod:migration:run"
+
 # Log before prestart with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Running prestart command..."
 # Log prestart command and capture its exit code and output
@@ -56,7 +61,3 @@ RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
 # Add more logging for prestart
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Prestart script content:"
 RUN cat start.sh
-
-RUN date +"%Y-%m-%d %H:%M:%S" && echo "Starting: npm run typeorm:prod:migration:run"
-RUN npm run typeorm:prod:migration:run
-RUN date +"%Y-%m-%d %H:%M:%S" && echo "Finished: npm run typeorm:prod:migration:run"
