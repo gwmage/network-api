@@ -8,13 +8,8 @@
     "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,
-    "outDir": \"./dist\",
-    "baseUrl": \"./\",
-    "paths": {
-      "@modules/*": ["src/modules/*"],
-      "@config/*": ["config/*"],
-      "@test/*": ["test/*"]
-    },
+    "outDir": "./dist",
+    "baseUrl": "./src",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -23,9 +18,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": [
-    "src/**/*"
-  ],
   "exclude": [
     "node_modules",
     "dist"
