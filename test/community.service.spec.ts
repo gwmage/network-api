@@ -76,7 +76,8 @@ describe('CommunityService', () => {
         const createPostDto: CreatePostDto = {
             title: 'Test Post',
             content: 'Test Content',
-            // Add other required fields
+            categories: [],
+            tags: [],
           };
           const user = new User(); // Or create a mock user object
           const createdPost = new Post(); // Or create a mock post object

@@ -16,10 +16,11 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationEvent } from './dto/notification-event.enum';
 import { Application } from '../application/entities/application.entity';
 
-// ... (Existing code)
-
 @Injectable()
 export class NotificationService {
+
+    private firebaseApp: FirebaseApp;
+    private messaging: Messaging;
 
     constructor(
         @InjectRepository(Notification)
