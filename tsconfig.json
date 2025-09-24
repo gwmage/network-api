@@ -7,10 +7,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": [
-        "src/*"
+      "@/modules/*": [
+        "modules/*"
+      ],
+      "@/config/*": [
+        "../config/*"
       ]
     },
     "experimentalDecorators": true
