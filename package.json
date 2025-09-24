@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prestart:prod": "echo \"Starting prestart:prod script...\" && echo \"Running migrations...\" && npm run typeorm:prod:migration:run && echo \"Migrations complete.\" && echo \"Prestart:prod script finished.\"
+    "prestart:prod": "echo \"Starting prestart:prod script...\" && echo \"Prestart:prod script finished.\"",
+    "poststart:prod": "npm run typeorm:prod:migration:run"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
