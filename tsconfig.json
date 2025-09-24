@@ -9,8 +9,12 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "/app/src",
     "paths": {
-      "src/*": ["./src/*"],
-      "src/modules/*": ["./src/modules/*"]
+      "src/*": [
+        "./src/*"
+      ],
+      "src/modules/*": [
+        "./modules/*"
+      ]
     },
     "experimentalDecorators": true
   },
