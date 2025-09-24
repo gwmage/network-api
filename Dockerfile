@@ -18,6 +18,12 @@ COPY . .
 
 # Log before build with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Running build command..."
+# Log the current working directory before build
+RUN pwd
+# Log environment variables before build
+RUN env
+# Log the exact build command being executed
+RUN echo "Executing: npm run build"
 RUN npm run build
 # Log after build with timestamp
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Build command executed."
@@ -61,4 +67,3 @@ RUN date +"%Y-%m-%d %H:%M:%S" && echo "Startup command executed."
 # Add more logging for prestart
 RUN date +"%Y-%m-%d %H:%M:%S" && echo "Prestart script content:"
 RUN cat start.sh
-
