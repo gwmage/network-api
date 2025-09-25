@@ -1,10 +1,9 @@
-The Railway deployment is failing because the environment lacks the necessary credentials to pull the `node:16` Docker image from the Docker registry.  The error message "401 Unauthorized" consistently appears in the logs, indicating an authentication problem.
+The Docker build is consistently failing with a `401 Unauthorized` error when attempting to pull the `node:16` base image. This indicates a problem with authenticating with the Docker registry (`registry-1.docker.io`).  Modifying the `Dockerfile` will not resolve this issue, as the problem lies in the deployment environment's access permissions.
 
-Modifying the Dockerfile or project code will *not* fix this issue, as it's a platform-level configuration problem on Railway.
+**Recommended Manual Actions:**
 
-**Recommended Action:**
+1. **Connect Docker Hub to Railway:** The simplest solution is to connect your Docker Hub account to your Railway project. This allows Railway to use your credentials to pull the image.
 
-1. Verify that your Railway project is correctly linked to your Docker Hub account (or any private registry you are using).  Check the Railway dashboard settings for Docker registry integration.
-2. If the link exists, double-check the credentials.  It's possible the access token or other authentication details are incorrect or have expired.
-3. Contact Railway support for assistance if the problem persists. Provide them with the error message and any relevant configuration details.
-4. As a workaround, consider using a public base image that doesn't require authentication if possible, though this may introduce compatibility issues depending on your project's dependencies.
+2. **Configure Docker Registry Credentials:**  If you are using a private registry or a different Docker account for the image, you will need to manually configure the Docker registry credentials in your Railway project's deployment settings.  This typically involves setting environment variables for the registry username, password, and potentially registry URL, depending on your specific setup.
+
+Please consult the Railway documentation for detailed instructions on how to connect your Docker Hub account or configure Docker registry credentials within your project's settings.
