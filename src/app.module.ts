@@ -11,8 +11,6 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { MatchingModule } from './modules/matching/matching.module';
 
-console.log("Value of UsersModule import:", UsersModule);
-console.log("Value of ReservationModule import:", ReservationModule);
 
 @Module({
   imports: [UsersModule, ReservationModule, AuthModule, AdminModule, ApplicationModule, CommunityModule, NotificationModule, ProfileModule, MatchingModule],
