@@ -1,11 +1,11 @@
-The Docker build is failing due to an authentication error when trying to pull the `node:16` base image.  The error message `"401 Unauthorized"` indicates a credentials problem.
+# Unresolvable Docker Image Pull Error (401 Unauthorized)
 
-This issue is *not* caused by any code within your repository. It is a problem with the Railway deployment environment's access to the Docker registry.
+The deployment consistently fails due to an authentication error (401 Unauthorized) when attempting to pull the `node:16` Docker image. This indicates an issue with the Railway deployment environment's access credentials to the Docker registry.
 
-**Recommended Actions:**
+Modifications to the `Dockerfile` have not resolved the problem, suggesting the issue lies outside the project's codebase.
 
-1. **Check Railway's documentation:** Look for documentation on how to configure Docker credentials or registry authentication within the Railway platform.
-2. **Contact Railway support:** If you can't find a solution in the documentation, contact Railway support and report the `401 Unauthorized` error when pulling the `node:16` image. They should be able to assist with the credential configuration in their environment.
-3. **Verify Docker Hub Credentials (if applicable):**  If your project relies on private Docker Hub images, ensure your Docker Hub credentials are correctly configured within your Railway project settings.
+**Recommended Action:**
 
-Once the credential issue on the Railway platform is resolved, the build should proceed without this error.
+1. Contact Railway support and provide them with the error logs, highlighting the recurring \"401 Unauthorized\" error when pulling the `node:16` image.
+2. Request assistance in resolving the authentication issue on their end, as this is a platform-level problem.
+3. Once Railway confirms the authentication problem is fixed, re-attempt the deployment.
