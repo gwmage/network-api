@@ -1,12 +1,9 @@
-## Docker Registry Authentication Issue on Railway
+# Docker Registry Authentication Issue
 
-The deployment is failing because the Railway environment is unable to authenticate with the Docker registry to pull the necessary base image (`node:16-alpine`). This is indicated by the consistent "401 Unauthorized" error in the build logs.
+The Railway deployment is failing because the build environment is unable to authenticate with the Docker registry to pull the necessary 'node:16' base image. The error message "401 Unauthorized" indicates a credentials problem.
 
-This issue is *not* a problem with your project's code, but rather a configuration problem within the Railway environment.
+**Recommended Action:**
 
-**Recommended Steps:**
-
-1. **Check your Railway project settings:** Ensure that your Railway project is correctly linked to a Docker registry with appropriate credentials. If using the default Docker Hub, make sure your Docker Hub credentials are configured in your Railway account or project settings.
-2. **Verify Docker Hub access:** If you are using a private Docker Hub image or a private registry, double-check that the credentials you've provided have the necessary permissions to pull the `node:16-alpine` image.
-3. **Contact Railway support:** If you are unable to resolve the issue through the project settings, contact Railway support for assistance. They can help diagnose and fix any platform-specific authentication problems.
-4. **Build locally and push if using a private base image:** If the issue persists, you can build the docker image locally, after successfully authenticating with docker, and then push the image to a registry that is connected to your Railway deployment.
+1. **Check your Railway project's settings:** Ensure that the necessary credentials or authentication tokens for accessing the Docker registry (registry-1.docker.io) are correctly configured within your Railway project settings.  This may involve linking your Docker Hub account or providing registry credentials.
+2.  **If using a private registry:** Verify that the registry URL is correct and the credentials for accessing the registry are set up in your Railway project. If using a public image try using node:lts.
+3. **Contact Railway support:** If you are unable to resolve the authentication issue, consider contacting Railway support for assistance in configuring the Docker registry access within your project.
