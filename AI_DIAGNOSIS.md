@@ -1,9 +1,7 @@
-The deployment is failing due to an authentication issue when pulling the `node:16` base image from the Docker registry.  The error message `401 Unauthorized` indicates a problem with the credentials or configuration of the Railway deployment environment to access registry-1.docker.io.
+The Railway deployment is failing due to an authentication error when attempting to pull the `node:16` Docker image.  The error message "401 Unauthorized" indicates that the Railway environment lacks the necessary credentials to access the Docker registry (`registry-1.docker.io`).
 
-The error is consistently reproducible despite multiple attempts to modify project files, suggesting the issue is external to the codebase.
+This issue is external to the application code and requires manual intervention within the Railway platform settings.  Here's the recommended action:
 
-**Recommended Action:**
-
-1. **Check Railway's Docker Registry Integration:** Verify the Docker registry settings in your Railway project. Ensure that Railway has the necessary permissions to pull images from the Docker Hub (registry-1.docker.io).
-2. **Check Railway's Documentation:** Refer to Railway's documentation for troubleshooting Docker image pull issues and authentication problems.
-3. **Contact Railway Support:** If the issue persists, contact Railway support for assistance with configuring Docker registry access within your deployment environment.
+1. **Verify Docker Hub Credentials:** Ensure that your Docker Hub credentials are correctly configured in your Railway project settings. You may need to link your Railway account to your Docker Hub account or provide an access token with sufficient permissions to pull the required image.
+2. **Check Railway Documentation:** Consult the Railway documentation for specific instructions on configuring Docker registry authentication within their platform.  There might be specific environment variables or secrets that need to be set.
+3. **Contact Railway Support:** If you have verified your credentials and followed the Railway documentation but the issue persists, contact Railway support for assistance. They can help troubleshoot any platform-specific configuration problems that may be preventing access to the Docker registry.
