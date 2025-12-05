@@ -1,190 +1,117 @@
-```
-## Community Board API Documentation
+# Authentication API Documentation
 
-This document describes the API endpoints for the community board feature.
+This document provides details on the authentication endpoints for user signup and social login.
 
-**1. Create Post**
+## Environment Variables
 
-* **Endpoint:** `POST /community/posts`
-* **Description:** Creates a new post.
-* **Request Body:**
+The following environment variables must be set in your `.env` file:
+
+### Database
+- `DB_HOST`: Database host
+- `DB_PORT`: Database port
+- `DB_USERNAME`: Database username
+- `DB_PASSWORD`: Database password
+- `DB_DATABASE`: Database name
+
+### JWT
+- `JWT_SECRET`: Secret key for signing JWTs
+- `JWT_EXPIRES_IN`: Expiration time for JWTs (e.g., `60m`, `1d`)
+
+### Email (SMTP)
+- `SMTP_HOST`: SMTP server host
+- `SMTP_PORT`: SMTP server port
+- `SMTP_SECURE`: Use `true` for SSL (port 465), `false` for others
+- `SMTP_USER`: SMTP username
+- `SMTP_PASS`: SMTP password
+- `SMTP_FROM`: Default "from" email address
+
+### Google OAuth
+- `GOOGLE_CLIENT_ID`: Your Google OAuth client ID
+- `GOOGLE_CLIENT_SECRET`: Your Google OAuth client secret
+- `GOOGLE_CALLBACK_URL`: The callback URL for Google OAuth (e.g., `http://localhost:3000/auth/google/callback`)
+
+### Kakao OAuth
+- `KAKAO_CLIENT_ID`: Your Kakao app's REST API key
+- `KAKAO_CALLBACK_URL`: The callback URL for Kakao login (e.g., `http://localhost:3000/auth/kakao/callback`)
+
+---
+
+## Endpoints
+
+### 1. User Signup
+
+- **Endpoint:** `POST /auth/signup`
+- **Description:** Registers a new user with email and password.
+- **Request Body:** `application/json`
+
 ```json
 {
-  "title": "Post Title",
-  "content": "Post content goes here...",
-  "categoryIds": [1, 2],
-  "categoryNames": ["Category A", "Category B"],
-  "tagIds": [1,2],
-  "tagNames": ["Tag A", "Tag B"]
-
-}
-```
-* **Response:**
-```json
-{
-  "id": 1,
-  "title": "Post Title",
-  "content": "Post content goes here...",
-  "author": {
-      // ... author details
-  },
-  "categories": [
-      // ... category details
-  ],
-  "tags": [
-      // ... tag details
-
-  ],
-  "createdAt": "2023-10-26T12:00:00.000Z",
-  "updatedAt": "2023-10-26T12:00:00.000Z",
-  "commentCount": 0
-}
-```
-* **Error Responses:**
-    * 400 Bad Request: Invalid request data.
-    * 401 Unauthorized: User not authenticated.
-
-
-**2. Read Posts (with pagination)**
-
-* **Endpoint:** `GET /community/posts`
-* **Description:** Returns a paginated list of posts.
-* **Query Parameters:**
-    * `keyword`: Keyword to search in title and content.
-    * `title`: Filter by title.
-    * `content`: Filter by content.
-    * `author`: Filter by author username.
-    * `categoryIds`: Filter by category IDs.
-    * `tagNames`: Filter by tag names.
-    * `sort`: Sort by `recency` or `relevance` (default: `recency`).
-    * `page`: Page number (default: 1).
-    * `limit`: Number of items per page (default: 10, max: 50).
-* **Response:**
-```json
-{
-  "posts": [
-    // ... array of post objects (similar to create post response)
-  ],
-  "totalCount": 100
-}
-```
-* **Error Responses:**
-    * 400 Bad Request: Invalid query parameters.
-
-
-**3. Update Post**
-
-* **Endpoint:** `PATCH /community/posts/:id`
-* **Description:** Updates an existing post.
-* **Path Parameters:**
-    * `id`: Post ID.
-* **Request Body:** (Same as Create Post, but all fields are optional)
-* **Response:** (Same as Create Post response)
-* **Error Responses:**
-    * 400 Bad Request: Invalid request data.
-    * 401 Unauthorized: User not authenticated or not authorized to update the post.
-    * 404 Not Found: Post not found.
-
-
-**4. Delete Post**
-
-* **Endpoint:** `DELETE /community/posts/:id`
-* **Description:** Deletes a post.
-* **Path Parameters:**
-    * `id`: Post ID.
-* **Response:** 200 OK.
-* **Error Responses:**
-    * 401 Unauthorized: User not authenticated or not authorized to delete the post.
-    * 404 Not Found: Post not found.
-
-
-
-**5. Create Comment**
-
-* **Endpoint:** `POST /community/posts/:postId/comments`
-* **Description:** Creates a new comment for a post.
-* **Path Parameters:**
-    * `postId`: Post ID.
-
-* **Request Body:**
-```json
-{
-  "content": "Comment content goes here...",
-  "parentCommentId": 123 // Optional parent comment ID
-}
-```
-* **Response:** 
-```json
-{
-  "id": 1,
-  "content": "Comment content",
-  "author": {
-    // ... author details
-  },
-  "post": {
-    "id": 123 // Post ID
-  },
-  "createdAt": "2023-10-26T13:00:00.000Z",
-  "updatedAt": "2023-10-26T13:00:00.000Z"
+  "email": "user@example.com",
+  "password": "StrongPassword123!",
+  "name": "John Doe",
+  "contact": "123-456-7890"
 }
 ```
 
-* **Error Responses:**
-    * 400 Bad Request: Invalid request data.
-    * 401 Unauthorized: User not authenticated.
-    * 404 Not Found: Post not found.
+- **Validation Rules:**
+  - `email`: Must be a valid email format.
+  - `password`: Minimum 8 characters, must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+  - `name`: Must not be empty.
+  - `contact`: Must not be empty.
 
+- **Success Response (201 Created):**
 
-**6. Read Comments**
-
-* **Endpoint:** `GET /community/posts/:postId/comments`
-* **Description:** Returns a list of comments for a post.
-* **Path Parameters:**
-    * `postId`: Post ID.
-* **Query Parameters:**
-    * `parentCommentId`: Optional. If provided, only comments that are replies to this comment will be returned.
-* **Response:** Array of comment objects (similar to create comment response).
-* **Error Responses:**
-    * 404 Not Found: Post not found.
-
-
-**7. Update Comment**
-
-* **Endpoint:** `PATCH /community/posts/:postId/comments/:id`
-* **Description:** Updates an existing comment.
-* **Path Parameters:**
-    * `postId`: Post ID.
-    * `id`: Comment ID.
-* **Request Body:** (Same as Create Comment, but all fields are optional)
-
-* **Response:** (Same as Create Comment Response)
-* **Error Responses:**
-    * 400 Bad Request: Invalid request data.
-    * 401 Unauthorized: User not authenticated.
-    * 404 Not Found: Comment not found.
-
-
-
-**8. Delete Comment**
-
-* **Endpoint:** `DELETE /community/posts/:postId/comments/:id`
-* **Description:** Deletes a comment.
-* **Path Parameters:**
-    * `postId`: Post ID.
-
-    * `id`: Comment ID.
-* **Response:**
 ```json
 {
-  "message": "Comment deleted successfully."
+  "message": "User registered successfully",
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "name": "John Doe",
+    "contact": "123-456-7890"
+  }
 }
 ```
-* **Error Responses:**
-    * 401 Unauthorized: User not authenticated.
-    * 404 Not Found: Comment not found.
 
+- **Error Responses:**
+  - `400 Bad Request`: If validation fails. The response will include details about the validation errors.
+  - `409 Conflict`: If an account with the provided email already exists.
 
-
-
+```json
+{
+  "statusCode": 409,
+  "message": "An account with this email already exists.",
+  "error": "Conflict"
+}
 ```
+
+---
+
+### 2. Social Signup/Login with Google
+
+This flow uses OAuth 2.0.
+
+1.  **Initiate Login:**
+    - **Endpoint:** `GET /auth/google`
+    - **Description:** Redirects the user to the Google login page to grant permissions.
+
+2.  **Callback:**
+    - **Endpoint:** `GET /auth/google/callback`
+    - **Description:** Google redirects the user back to this endpoint after they have authenticated. The application handles user creation or login and then redirects the user to the frontend.
+    - **Successful Redirect:** Upon successful authentication, the user is redirected to a frontend URL with a JWT in the query parameter. For example: `http://localhost:3000/login/success?token=<jwt_token>`
+
+---
+
+### 3. Social Signup/Login with Kakao
+
+This flow is similar to Google's.
+
+1.  **Initiate Login:**
+    - **Endpoint:** `GET /auth/kakao`
+    - **Description:** Redirects the user to the Kakao login page.
+
+2.  **Callback:**
+    - **Endpoint:** `GET /auth/kakao/callback`
+    - **Description:** Kakao redirects the user back to this endpoint. The application processes the user's profile, creates or logs them in, and redirects them to the frontend with a JWT.
+    - **Successful Redirect:** `http://localhost:3000/login/success?token=<jwt_token>`
 ---[END_OF_FILES]---
