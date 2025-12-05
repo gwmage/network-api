@@ -1,21 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   await app.listen(3000);
-  console.log('Application started successfully');
-
-  try {
-    // Attempt database connection or other critical operations here
-    console.log('Attempting database connection...');
-    // Replace with your actual database connection logic
-    // Example: const connection = await createConnection();
-    // console.log('Database connection successful:', connection.isConnected);
-  } catch (error) {
-    console.error('Error during database connection:', error);
-  }
 }
-
 bootstrap();
