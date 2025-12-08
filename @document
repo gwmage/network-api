@@ -1,117 +1,70 @@
-# Authentication API Documentation
+# API Documentation: Restaurants
 
-This document provides details on the authentication endpoints for user signup and social login.
+## Get Available Restaurants
 
-## Environment Variables
+Retrieves a list of currently available restaurants from an external reservation service.
 
-The following environment variables must be set in your `.env` file:
+-   **URL:** `/restaurants/available`
+-   **Method:** `GET`
+-   **Auth required:** No
 
-### Database
-- `DB_HOST`: Database host
-- `DB_PORT`: Database port
-- `DB_USERNAME`: Database username
-- `DB_PASSWORD`: Database password
-- `DB_DATABASE`: Database name
+### Success Response
 
-### JWT
-- `JWT_SECRET`: Secret key for signing JWTs
-- `JWT_EXPIRES_IN`: Expiration time for JWTs (e.g., `60m`, `1d`)
+-   **Code:** `200 OK`
+-   **Content:** An array of `AvailableRestaurantDto` objects.
 
-### Email (SMTP)
-- `SMTP_HOST`: SMTP server host
-- `SMTP_PORT`: SMTP server port
-- `SMTP_SECURE`: Use `true` for SSL (port 465), `false` for others
-- `SMTP_USER`: SMTP username
-- `SMTP_PASS`: SMTP password
-- `SMTP_FROM`: Default "from" email address
-
-### Google OAuth
-- `GOOGLE_CLIENT_ID`: Your Google OAuth client ID
-- `GOOGLE_CLIENT_SECRET`: Your Google OAuth client secret
-- `GOOGLE_CALLBACK_URL`: The callback URL for Google OAuth (e.g., `http://localhost:3000/auth/google/callback`)
-
-### Kakao OAuth
-- `KAKAO_CLIENT_ID`: Your Kakao app's REST API key
-- `KAKAO_CALLBACK_URL`: The callback URL for Kakao login (e.g., `http://localhost:3000/auth/kakao/callback`)
-
----
-
-## Endpoints
-
-### 1. User Signup
-
-- **Endpoint:** `POST /auth/signup`
-- **Description:** Registers a new user with email and password.
-- **Request Body:** `application/json`
+**Example Response Body:**
 
 ```json
-{
-  "email": "user@example.com",
-  "password": "StrongPassword123!",
-  "name": "John Doe",
-  "contact": "123-456-7890"
-}
-```
-
-- **Validation Rules:**
-  - `email`: Must be a valid email format.
-  - `password`: Minimum 8 characters, must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
-  - `name`: Must not be empty.
-  - `contact`: Must not be empty.
-
-- **Success Response (201 Created):**
-
-```json
-{
-  "message": "User registered successfully",
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "name": "John Doe",
-    "contact": "123-456-7890"
+[
+  {
+    "id": "rest-123",
+    "name": "The Gourmet Place",
+    "address": "123 Foodie Lane, Flavor Town",
+    "cuisine": "Italian",
+    "rating": 4.8,
+    "availableSlots": ["18:00", "18:30", "20:00"]
+  },
+  {
+    "id": "rest-456",
+    "name": "Sushi Heaven",
+    "address": "456 Ocean Drive, Seafood City",
+    "cuisine": "Japanese",
+    "rating": 4.9,
+    "availableSlots": ["19:00", "19:30", "21:00"]
   }
-}
+]
 ```
 
-- **Error Responses:**
-  - `400 Bad Request`: If validation fails. The response will include details about the validation errors.
-  - `409 Conflict`: If an account with the provided email already exists.
+### Error Responses
 
-```json
-{
-  "statusCode": 409,
-  "message": "An account with this email already exists.",
-  "error": "Conflict"
-}
-```
+-   **Code:** `4xx` (e.g., 401 Unauthorized, 403 Forbidden)
+    -   **Cause:** The API key provided for the external service is invalid, expired, or missing permissions.
+    -   **Content:**
+        ```json
+        {
+          "statusCode": 401,
+          "message": "External API client error: Invalid API Key"
+        }
+        ```
 
----
+-   **Code:** `502 Bad Gateway`
+    -   **Cause:** The external restaurant reservation service is down, experiencing issues, or not responding.
+    -   **Content:**
+        ```json
+        {
+          "statusCode": 502,
+          "message": "External restaurant service is currently unavailable."
+        }
+        ```
 
-### 2. Social Signup/Login with Google
-
-This flow uses OAuth 2.0.
-
-1.  **Initiate Login:**
-    - **Endpoint:** `GET /auth/google`
-    - **Description:** Redirects the user to the Google login page to grant permissions.
-
-2.  **Callback:**
-    - **Endpoint:** `GET /auth/google/callback`
-    - **Description:** Google redirects the user back to this endpoint after they have authenticated. The application handles user creation or login and then redirects the user to the frontend.
-    - **Successful Redirect:** Upon successful authentication, the user is redirected to a frontend URL with a JWT in the query parameter. For example: `http://localhost:3000/login/success?token=<jwt_token>`
-
----
-
-### 3. Social Signup/Login with Kakao
-
-This flow is similar to Google's.
-
-1.  **Initiate Login:**
-    - **Endpoint:** `GET /auth/kakao`
-    - **Description:** Redirects the user to the Kakao login page.
-
-2.  **Callback:**
-    - **Endpoint:** `GET /auth/kakao/callback`
-    - **Description:** Kakao redirects the user back to this endpoint. The application processes the user's profile, creates or logs them in, and redirects them to the frontend with a JWT.
-    - **Successful Redirect:** `http://localhost:3000/login/success?token=<jwt_token>`
+-   **Code:** `500 Internal Server Error`
+    -   **Cause:** A network error (e.g., timeout) occurred while trying to communicate with the external service.
+    -   **Content:**
+        ```json
+        {
+          "statusCode": 500,
+          "message": "An error occurred while communicating with the restaurant service."
+        }
+        ```
 ---[END_OF_FILES]---

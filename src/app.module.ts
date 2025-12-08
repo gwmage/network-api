@@ -15,6 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailModule } from './modules/email/email.module';
 import { User } from './modules/users/entities/user.entity';
 import { ProfileEntity } from './modules/profile/entities/profile.entity';
+import { RestaurantsModule } from './modules/restaurants/restaurants.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { ProfileEntity } from './modules/profile/entities/profile.entity';
     ProfileModule,
     MatchingModule,
     EmailModule,
+    RestaurantsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
